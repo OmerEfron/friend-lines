@@ -16,6 +16,7 @@ Globals:
         FRIENDSHIPS_TABLE: !Ref FriendshipsTable
         MEDIA_BUCKET: !Ref MediaBucket
         IS_LOCAL: 'true'
+        JWT_SECRET: 'local-dev-secret-change-in-production'
 
 Resources:
   # API Gateway
@@ -112,6 +113,41 @@ Resources:
               - '*'
 
   # Lambda Functions
+  AuthFunction:
+    Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: false
+        Target: "es2022"
+        EntryPoints:
+          - src/handlers/auth.ts
+    Properties:
+      CodeUri: ./
+      Handler: src/handlers/auth.handler
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UsersTable
+      Events:
+        Register:
+          Type: Api
+          Properties:
+            RestApiId: !Ref FriendlinesApi
+            Path: /auth/register
+            Method: POST
+        Login:
+          Type: Api
+          Properties:
+            RestApiId: !Ref FriendlinesApi
+            Path: /auth/login
+            Method: POST
+        GetMe:
+          Type: Api
+          Properties:
+            RestApiId: !Ref FriendlinesApi
+            Path: /auth/me
+            Method: GET
+
   UsersFunction:
     Type: AWS::Serverless::Function
     Metadata:
