@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, StyleSheet } from 'react-native';
+import { Card, Text, Avatar, useTheme } from 'react-native-paper';
 import { Newsflash, User } from '../types';
 
 interface NewsflashCardProps {
@@ -8,6 +9,8 @@ interface NewsflashCardProps {
 }
 
 export default function NewsflashCard({ newsflash, user }: NewsflashCardProps) {
+  const theme = useTheme();
+  
   const formatTime = (date: Date) => {
     const now = new Date();
     const diff = now.getTime() - date.getTime();
@@ -19,55 +22,77 @@ export default function NewsflashCard({ newsflash, user }: NewsflashCardProps) {
     return 'Just now';
   };
 
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map(n => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
   return (
-    <View style={styles.card}>
-      <View style={styles.header}>
-        <Text style={styles.username}>@{user.username}</Text>
-        <Text style={styles.time}>{formatTime(newsflash.timestamp)}</Text>
-      </View>
-      
-      <Text style={styles.headline}>{newsflash.headline}</Text>
-      
-      {newsflash.subHeadline && (
-        <Text style={styles.subHeadline}>{newsflash.subHeadline}</Text>
-      )}
-    </View>
+    <Card style={styles.card} mode="contained">
+      <Card.Content>
+        <View style={styles.header}>
+          <View style={styles.userInfo}>
+            <Avatar.Text 
+              size={32} 
+              label={getInitials(user.name)}
+              style={{ backgroundColor: theme.colors.primaryContainer }}
+            />
+            <Text variant="labelMedium" style={styles.username}>
+              @{user.username}
+            </Text>
+          </View>
+          <Text variant="labelSmall" style={styles.time}>
+            {formatTime(newsflash.timestamp)}
+          </Text>
+        </View>
+        
+        <Text variant="headlineSmall" style={styles.headline}>
+          {newsflash.headline}
+        </Text>
+        
+        {newsflash.subHeadline && (
+          <Text variant="bodyMedium" style={styles.subHeadline}>
+            {newsflash.subHeadline}
+          </Text>
+        )}
+      </Card.Content>
+    </Card>
   );
 }
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#fff',
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+    marginBottom: 8,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 8,
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  userInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   username: {
-    fontSize: 12,
-    color: '#666',
     fontWeight: '600',
   },
   time: {
-    fontSize: 12,
-    color: '#999',
+    opacity: 0.6,
   },
   headline: {
-    fontSize: 20,
     fontWeight: 'bold',
-    color: '#000',
     lineHeight: 28,
     marginBottom: 4,
   },
   subHeadline: {
-    fontSize: 14,
-    color: '#555',
-    lineHeight: 20,
     marginTop: 4,
+    opacity: 0.8,
   },
 });
 

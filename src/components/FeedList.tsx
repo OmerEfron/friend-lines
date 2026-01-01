@@ -1,5 +1,6 @@
 import React from 'react';
-import { FlatList, StyleSheet, View, Text } from 'react-native';
+import { FlatList, StyleSheet, View } from 'react-native';
+import { Text, useTheme } from 'react-native-paper';
 import { Newsflash, User } from '../types';
 import NewsflashCard from './NewsflashCard';
 
@@ -9,13 +10,20 @@ interface FeedListProps {
 }
 
 export default function FeedList({ newsflashes, users }: FeedListProps) {
+  const theme = useTheme();
+  
   const getUserById = (userId: string): User | undefined => {
     return users.find(u => u.id === userId);
   };
 
   const renderEmpty = () => (
     <View style={styles.emptyContainer}>
-      <Text style={styles.emptyText}>No newsflashes yet</Text>
+      <Text variant="bodyLarge" style={styles.emptyText}>
+        No newsflashes yet
+      </Text>
+      <Text variant="bodySmall" style={styles.emptySubtext}>
+        Check back later for updates
+      </Text>
     </View>
   );
 
@@ -29,12 +37,19 @@ export default function FeedList({ newsflashes, users }: FeedListProps) {
         return <NewsflashCard newsflash={item} user={user} />;
       }}
       ListEmptyComponent={renderEmpty}
-      contentContainerStyle={newsflashes.length === 0 && styles.emptyList}
+      contentContainerStyle={[
+        styles.contentContainer,
+        newsflashes.length === 0 && styles.emptyList
+      ]}
+      style={{ backgroundColor: theme.colors.background }}
     />
   );
 }
 
 const styles = StyleSheet.create({
+  contentContainer: {
+    padding: 8,
+  },
   emptyList: {
     flex: 1,
   },
@@ -45,8 +60,11 @@ const styles = StyleSheet.create({
     paddingTop: 100,
   },
   emptyText: {
-    fontSize: 16,
-    color: '#999',
+    opacity: 0.6,
+    marginBottom: 4,
+  },
+  emptySubtext: {
+    opacity: 0.4,
   },
 });
 
