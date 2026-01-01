@@ -1,5 +1,5 @@
 import { apiCall, apiConfig } from '../config/api';
-import { User, Newsflash } from '../types';
+import { User, Newsflash, Group } from '../types';
 
 // User API calls
 export async function fetchUsers(): Promise<User[]> {
@@ -79,6 +79,29 @@ export async function addFriend(friendId: string): Promise<void> {
 
 export async function removeFriend(friendId: string): Promise<void> {
   await apiCall(`/friendships/${friendId}`, {
+    method: 'DELETE',
+  });
+}
+
+// Groups API calls
+export async function fetchGroups(): Promise<Group[]> {
+  const response = await apiCall<{ groups: Group[] }>('/groups');
+  return response.groups;
+}
+
+export async function createGroup(data: {
+  name: string;
+  userIds: string[];
+}): Promise<Group> {
+  const response = await apiCall<{ group: Group }>('/groups', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+  return response.group;
+}
+
+export async function deleteGroup(groupId: string): Promise<void> {
+  await apiCall(`/groups/${groupId}`, {
     method: 'DELETE',
   });
 }

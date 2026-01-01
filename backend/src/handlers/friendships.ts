@@ -158,3 +158,4 @@ async function handleRemoveFriend(
   return successResponse({ message: 'Friendship removed' });
 }
 
+

@@ -57,3 +57,4 @@ export function extractToken(authHeader?: string): string | null {
   return authHeader.substring(7);
 }
 
+
