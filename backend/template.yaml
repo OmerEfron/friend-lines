@@ -1,0 +1,190 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Friendlines Serverless Backend
+
+Globals:
+  Function:
+    Timeout: 30
+    Runtime: nodejs20.x
+    Architectures:
+      - x86_64
+    Environment:
+      Variables:
+        USERS_TABLE: !Ref UsersTable
+        NEWSFLASHES_TABLE: !Ref NewsflashesTable
+        GROUPS_TABLE: !Ref GroupsTable
+        FRIENDSHIPS_TABLE: !Ref FriendshipsTable
+        MEDIA_BUCKET: !Ref MediaBucket
+        IS_LOCAL: 'true'
+
+Resources:
+  # API Gateway
+  FriendlinesApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: dev
+      Cors:
+        AllowMethods: "'GET,POST,PUT,DELETE,OPTIONS'"
+        AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
+        AllowOrigin: "'*'"
+
+  # DynamoDB Tables
+  UsersTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: friendlines-users
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      BillingMode: PAY_PER_REQUEST
+
+  NewsflashesTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: friendlines-newsflashes
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+        - AttributeName: userId
+          AttributeType: S
+        - AttributeName: timestamp
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: userId-timestamp-index
+          KeySchema:
+            - AttributeName: userId
+              KeyType: HASH
+            - AttributeName: timestamp
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+      BillingMode: PAY_PER_REQUEST
+
+  GroupsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: friendlines-groups
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      BillingMode: PAY_PER_REQUEST
+
+  FriendshipsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: friendlines-friendships
+      AttributeDefinitions:
+        - AttributeName: userId
+          AttributeType: S
+        - AttributeName: friendId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: userId
+          KeyType: HASH
+        - AttributeName: friendId
+          KeyType: RANGE
+      BillingMode: PAY_PER_REQUEST
+
+  # S3 Bucket
+  MediaBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: friendlines-media-local
+      CorsConfiguration:
+        CorsRules:
+          - AllowedHeaders:
+              - '*'
+            AllowedMethods:
+              - GET
+              - PUT
+              - POST
+              - DELETE
+            AllowedOrigins:
+              - '*'
+
+  # Lambda Functions
+  UsersFunction:
+    Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: false
+        Target: "es2022"
+        EntryPoints:
+          - src/handlers/users.ts
+    Properties:
+      CodeUri: ./
+      Handler: src/handlers/users.handler
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UsersTable
+      Events:
+        GetUsers:
+          Type: Api
+          Properties:
+            RestApiId: !Ref FriendlinesApi
+            Path: /users
+            Method: GET
+        CreateUser:
+          Type: Api
+          Properties:
+            RestApiId: !Ref FriendlinesApi
+            Path: /users
+            Method: POST
+        GetUser:
+          Type: Api
+          Properties:
+            RestApiId: !Ref FriendlinesApi
+            Path: /users/{id}
+            Method: GET
+
+  NewsflashesFunction:
+    Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: false
+        Target: "es2022"
+        EntryPoints:
+          - src/handlers/newsflashes.ts
+    Properties:
+      CodeUri: ./
+      Handler: src/handlers/newsflashes.handler
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref NewsflashesTable
+        - S3CrudPolicy:
+            BucketName: !Ref MediaBucket
+      Events:
+        GetNewsflashes:
+          Type: Api
+          Properties:
+            RestApiId: !Ref FriendlinesApi
+            Path: /newsflashes
+            Method: GET
+        CreateNewsflash:
+          Type: Api
+          Properties:
+            RestApiId: !Ref FriendlinesApi
+            Path: /newsflashes
+            Method: POST
+
+Outputs:
+  ApiEndpoint:
+    Description: "API Gateway endpoint URL"
+    Value: !Sub "https://${FriendlinesApi}.execute-api.${AWS::Region}.amazonaws.com/dev/"
+  UsersTableName:
+    Description: "Users DynamoDB table name"
+    Value: !Ref UsersTable
+  NewsflashesTableName:
+    Description: "Newsflashes DynamoDB table name"
+    Value: !Ref NewsflashesTable
