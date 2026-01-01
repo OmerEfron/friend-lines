@@ -12,7 +12,7 @@ export default function ProfileScreen() {
   const theme = useTheme();
   const navigation = useNavigation();
   const { isDark, toggleTheme } = useAppTheme();
-  const { newsflashes, users, currentUser } = useData();
+  const { newsflashes, users, currentUser, friendships } = useData();
   const { bookmarkedIds } = useBookmarks();
   
   const userNewsflashes = useMemo(() => {
@@ -20,6 +20,10 @@ export default function ProfileScreen() {
       .filter(n => n.userId === currentUser.id)
       .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
   }, [newsflashes, currentUser.id]);
+
+  const friendsCount = useMemo(() => {
+    return friendships.filter(f => f.userId === currentUser.id).length;
+  }, [friendships, currentUser.id]);
 
   const getInitials = (name: string) => {
     return name
@@ -73,6 +77,52 @@ export default function ProfileScreen() {
             />
           )}
           onPress={() => navigation.navigate('Saved' as never)}
+          style={styles.listItem}
+        />
+        
+        <Divider style={styles.divider} />
+        
+        <List.Item
+          title="My Friends"
+          description={`${friendsCount} friends`}
+          left={() => (
+            <MaterialCommunityIcons 
+              name="account-multiple" 
+              size={24} 
+              color={theme.colors.primary}
+              style={styles.themeIcon}
+            />
+          )}
+          right={() => (
+            <MaterialCommunityIcons 
+              name="chevron-right" 
+              size={24} 
+              color={theme.colors.onSurfaceVariant}
+            />
+          )}
+          onPress={() => navigation.navigate('FriendsList' as never)}
+          style={styles.listItem}
+        />
+        
+        <List.Item
+          title="Add Friend"
+          description="Search for new friends"
+          left={() => (
+            <MaterialCommunityIcons 
+              name="account-plus" 
+              size={24} 
+              color={theme.colors.primary}
+              style={styles.themeIcon}
+            />
+          )}
+          right={() => (
+            <MaterialCommunityIcons 
+              name="chevron-right" 
+              size={24} 
+              color={theme.colors.onSurfaceVariant}
+            />
+          )}
+          onPress={() => navigation.navigate('AddFriend' as never)}
           style={styles.listItem}
         />
         
