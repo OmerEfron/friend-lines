@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
+import { Surface } from 'react-native-paper';
 import FeedList from '../components/FeedList';
 import { newsflashes, users } from '../data/mock';
 import { Group } from '../types';
@@ -22,16 +23,15 @@ export default function GroupFeedScreen({ route }: GroupFeedScreenProps) {
   }, [group]);
 
   return (
-    <View style={styles.container}>
+    <Surface style={styles.container}>
       <FeedList newsflashes={groupNewsflashes} users={users} />
-    </View>
+    </Surface>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
   },
 });
 

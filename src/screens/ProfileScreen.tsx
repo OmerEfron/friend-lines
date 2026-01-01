@@ -1,45 +1,78 @@
 import React, { useMemo } from 'react';
-import { View, StyleSheet, Text } from 'react-native';
+import { View, StyleSheet } from 'react-native';
+import { Surface, Text, Avatar, useTheme } from 'react-native-paper';
 import FeedList from '../components/FeedList';
 import { newsflashes, users, currentUser } from '../data/mock';
 
 export default function ProfileScreen() {
+  const theme = useTheme();
+  
   const userNewsflashes = useMemo(() => {
     return newsflashes
       .filter(n => n.userId === currentUser.id)
       .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
   }, []);
 
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map(n => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.name}>{currentUser.name}</Text>
-        <Text style={styles.username}>@{currentUser.username}</Text>
-      </View>
+    <Surface style={styles.container}>
+      <Surface style={styles.header} elevation={1}>
+        <View style={styles.headerContent}>
+          <Avatar.Text 
+            size={64} 
+            label={getInitials(currentUser.name)}
+            style={{ backgroundColor: theme.colors.primary }}
+          />
+          <View style={styles.userInfo}>
+            <Text variant="headlineMedium" style={styles.name}>
+              {currentUser.name}
+            </Text>
+            <Text variant="bodyMedium" style={styles.username}>
+              @{currentUser.username}
+            </Text>
+            <Text variant="labelSmall" style={styles.newsCount}>
+              {userNewsflashes.length} newsflashes
+            </Text>
+          </View>
+        </View>
+      </Surface>
       <FeedList newsflashes={userNewsflashes} users={users} />
-    </View>
+    </Surface>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
   },
   header: {
-    backgroundColor: '#fff',
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+    padding: 20,
+  },
+  headerContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+  },
+  userInfo: {
+    flex: 1,
   },
   name: {
-    fontSize: 24,
     fontWeight: 'bold',
-    color: '#000',
   },
   username: {
-    fontSize: 14,
-    color: '#666',
+    opacity: 0.7,
+    marginTop: 2,
+  },
+  newsCount: {
+    opacity: 0.5,
     marginTop: 4,
   },
 });

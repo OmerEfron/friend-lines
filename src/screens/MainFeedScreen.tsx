@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
+import { Surface } from 'react-native-paper';
 import FeedList from '../components/FeedList';
 import { newsflashes, users, friendships, currentUser } from '../data/mock';
 
@@ -17,16 +18,15 @@ export default function MainFeedScreen() {
   }, [friendIds]);
 
   return (
-    <View style={styles.container}>
+    <Surface style={styles.container}>
       <FeedList newsflashes={friendNewsflashes} users={users} />
-    </View>
+    </Surface>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
   },
 });
 

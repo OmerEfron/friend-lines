@@ -1,57 +1,56 @@
 import React from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
+import { StyleSheet, FlatList } from 'react-native';
+import { Surface, List, useTheme } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import { groups } from '../data/mock';
 import { Group } from '../types';
 
 export default function GroupsScreen() {
   const navigation = useNavigation();
+  const theme = useTheme();
 
   const handleGroupPress = (group: Group) => {
     navigation.navigate('GroupFeed' as never, { group } as never);
   };
 
   const renderGroup = ({ item }: { item: Group }) => (
-    <TouchableOpacity 
-      style={styles.groupItem}
+    <List.Item
+      title={item.name}
+      description={`${item.userIds.length} members`}
+      left={(props) => (
+        <List.Icon 
+          {...props} 
+          icon="account-group" 
+          color={theme.colors.primary}
+        />
+      )}
+      right={(props) => <List.Icon {...props} icon="chevron-right" />}
       onPress={() => handleGroupPress(item)}
-    >
-      <Text style={styles.groupName}>{item.name}</Text>
-      <Text style={styles.memberCount}>{item.userIds.length} members</Text>
-    </TouchableOpacity>
+      style={styles.listItem}
+    />
   );
 
   return (
-    <View style={styles.container}>
+    <Surface style={styles.container}>
       <FlatList
         data={groups}
         keyExtractor={(item) => item.id}
         renderItem={renderGroup}
+        contentContainerStyle={styles.listContainer}
       />
-    </View>
+    </Surface>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
   },
-  groupItem: {
-    backgroundColor: '#fff',
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+  listContainer: {
+    paddingVertical: 8,
   },
-  groupName: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#000',
-  },
-  memberCount: {
-    fontSize: 14,
-    color: '#666',
-    marginTop: 4,
+  listItem: {
+    paddingVertical: 4,
   },
 });
 
