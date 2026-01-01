@@ -1,12 +1,23 @@
-import React, { createContext, useState, useContext, ReactNode } from 'react';
-import { 
-  users as initialUsers, 
-  newsflashes as initialNewsflashes, 
+import React, {
+  createContext,
+  useState,
+  useContext,
+  ReactNode,
+  useEffect,
+} from 'react';
+import {
+  users as initialUsers,
+  newsflashes as initialNewsflashes,
   groups as initialGroups,
   friendships as initialFriendships,
-  currentUser as initialCurrentUser
+  currentUser as initialCurrentUser,
 } from '../data/mock';
 import { User, Newsflash, Group, Friendship } from '../types';
+import {
+  fetchUsers,
+  fetchNewsflashes,
+  createNewsflash as apiCreateNewsflash,
+} from '../services/api';
 
 interface DataContextType {
   users: User[];
@@ -14,32 +25,89 @@ interface DataContextType {
   groups: Group[];
   friendships: Friendship[];
   currentUser: User;
-  addNewsflash: (newsflash: Omit<Newsflash, 'id' | 'timestamp'>) => void;
+  loading: boolean;
+  error: string | null;
+  addNewsflash: (newsflash: Omit<Newsflash, 'id' | 'timestamp'>) => Promise<void>;
   addGroup: (group: Omit<Group, 'id'>) => void;
   addFriend: (friendId: string) => void;
   removeFriend: (friendId: string) => void;
+  refreshData: () => Promise<void>;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
 interface DataProviderProps {
   children: ReactNode;
+  useApi?: boolean; // Flag to enable/disable API integration
 }
 
-export function DataProvider({ children }: DataProviderProps) {
-  const [users] = useState<User[]>(initialUsers);
-  const [newsflashes, setNewsflashes] = useState<Newsflash[]>(initialNewsflashes);
+export function DataProvider({
+  children,
+  useApi = false,
+}: DataProviderProps) {
+  const [users, setUsers] = useState<User[]>(initialUsers);
+  const [newsflashes, setNewsflashes] = useState<Newsflash[]>(
+    initialNewsflashes
+  );
   const [groups, setGroups] = useState<Group[]>(initialGroups);
-  const [friendships, setFriendships] = useState<Friendship[]>(initialFriendships);
+  const [friendships, setFriendships] = useState<Friendship[]>(
+    initialFriendships
+  );
   const [currentUser] = useState<User>(initialCurrentUser);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const addNewsflash = (newsflash: Omit<Newsflash, 'id' | 'timestamp'>) => {
-    const newNewsflash: Newsflash = {
-      ...newsflash,
-      id: String(Date.now()),
-      timestamp: new Date(),
-    };
-    setNewsflashes(prev => [newNewsflash, ...prev]);
+  // Load data from API on mount if enabled
+  useEffect(() => {
+    if (useApi) {
+      loadDataFromApi();
+    }
+  }, [useApi]);
+
+  const loadDataFromApi = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const [usersData, newsflashesData] = await Promise.all([
+        fetchUsers(),
+        fetchNewsflashes(),
+      ]);
+      setUsers(usersData);
+      setNewsflashes(newsflashesData);
+    } catch (err) {
+      console.error('Failed to load data from API:', err);
+      setError(err instanceof Error ? err.message : 'Failed to load data');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const refreshData = async () => {
+    if (useApi) {
+      await loadDataFromApi();
+    }
+  };
+
+  const addNewsflash = async (
+    newsflash: Omit<Newsflash, 'id' | 'timestamp'>
+  ) => {
+    if (useApi) {
+      try {
+        const newNewsflash = await apiCreateNewsflash(newsflash);
+        setNewsflashes((prev) => [newNewsflash, ...prev]);
+      } catch (err) {
+        console.error('Failed to create newsflash:', err);
+        throw err;
+      }
+    } else {
+      // Fallback to local state
+      const newNewsflash: Newsflash = {
+        ...newsflash,
+        id: String(Date.now()),
+        timestamp: new Date(),
+      };
+      setNewsflashes((prev) => [newNewsflash, ...prev]);
+    }
   };
 
   const addGroup = (group: Omit<Group, 'id'>) => {
@@ -47,7 +115,7 @@ export function DataProvider({ children }: DataProviderProps) {
       ...group,
       id: String(Date.now()),
     };
-    setGroups(prev => [...prev, newGroup]);
+    setGroups((prev) => [...prev, newGroup]);
   };
 
   const addFriend = (friendId: string) => {
@@ -55,12 +123,14 @@ export function DataProvider({ children }: DataProviderProps) {
       userId: currentUser.id,
       friendId: friendId,
     };
-    setFriendships(prev => [...prev, newFriendship]);
+    setFriendships((prev) => [...prev, newFriendship]);
   };
 
   const removeFriend = (friendId: string) => {
-    setFriendships(prev => 
-      prev.filter(f => !(f.userId === currentUser.id && f.friendId === friendId))
+    setFriendships((prev) =>
+      prev.filter(
+        (f) => !(f.userId === currentUser.id && f.friendId === friendId)
+      )
     );
   };
 
@@ -72,10 +142,13 @@ export function DataProvider({ children }: DataProviderProps) {
         groups,
         friendships,
         currentUser,
+        loading,
+        error,
         addNewsflash,
         addGroup,
         addFriend,
         removeFriend,
+        refreshData,
       }}
     >
       {children}
@@ -90,4 +163,3 @@ export function useData() {
   }
   return context;
 }
-

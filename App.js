@@ -19,9 +19,13 @@ function AppContent() {
 }
 
 export default function App() {
+  // Set useApi to true to enable backend integration
+  // Make sure the backend is running at http://localhost:3000
+  const USE_API = false; // Change to true when backend is ready
+  
   return (
     <ThemeProvider>
-      <DataProvider>
+      <DataProvider useApi={USE_API}>
         <BookmarksProvider>
           <AppContent />
         </BookmarksProvider>
