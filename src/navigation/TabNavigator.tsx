@@ -9,6 +9,7 @@ import GroupsScreen from '../screens/GroupsScreen';
 import GroupFeedScreen from '../screens/GroupFeedScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import SavedScreen from '../screens/SavedScreen';
+import AddFriendScreen from '../screens/AddFriendScreen';
 import CreateNewsflashScreen from '../screens/CreateNewsflashScreen';
 import CreateGroupScreen from '../screens/CreateGroupScreen';
 
@@ -66,6 +67,11 @@ function ProfileStackScreen() {
         name="Saved" 
         component={SavedScreen}
         options={{ title: 'Saved Items' }}
+      />
+      <ProfileStack.Screen 
+        name="AddFriend" 
+        component={AddFriendScreen}
+        options={{ title: 'Add Friend' }}
       />
     </ProfileStack.Navigator>
   );
