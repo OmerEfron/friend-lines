@@ -84,7 +84,11 @@ export default function NewsflashCard({ newsflash, user }: NewsflashCardProps) {
         </Card.Content>
         
         {newsflash.media && (
-          <Card.Cover source={{ uri: newsflash.media }} style={styles.media} />
+          <Card.Cover 
+            source={{ uri: newsflash.media }} 
+            style={styles.media}
+            resizeMode="cover"
+          />
         )}
       </Card>
     </Animated.View>
@@ -132,6 +136,7 @@ const styles = StyleSheet.create({
   },
   media: {
     marginTop: 12,
+    height: 200,
   },
 });
 
