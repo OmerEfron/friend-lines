@@ -3,6 +3,8 @@ import { NavigationContainer } from '@react-navigation/native';
 import { PaperProvider } from 'react-native-paper';
 import TabNavigator from './src/navigation/TabNavigator';
 import { ThemeProvider, useAppTheme } from './src/context/ThemeContext';
+import { DataProvider } from './src/context/DataContext';
+import { BookmarksProvider } from './src/context/BookmarksContext';
 
 function AppContent() {
   const { paperTheme, navigationTheme } = useAppTheme();
@@ -19,7 +21,11 @@ function AppContent() {
 export default function App() {
   return (
     <ThemeProvider>
-      <AppContent />
+      <DataProvider>
+        <BookmarksProvider>
+          <AppContent />
+        </BookmarksProvider>
+      </DataProvider>
     </ThemeProvider>
   );
 }
