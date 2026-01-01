@@ -20,7 +20,7 @@ interface ThemeProviderProps {
 
 export function ThemeProvider({ children }: ThemeProviderProps) {
   const systemColorScheme = useColorScheme();
-  const [isDark, setIsDark] = useState<boolean>(systemColorScheme === 'dark');
+  const [isDark, setIsDark] = useState<boolean>(true);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -33,11 +33,12 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
       if (savedTheme !== null) {
         setIsDark(savedTheme === 'dark');
       } else {
-        setIsDark(systemColorScheme === 'dark');
+        // Default to dark theme
+        setIsDark(true);
       }
     } catch (error) {
       console.error('Failed to load theme preference:', error);
-      setIsDark(systemColorScheme === 'dark');
+      setIsDark(true);
     } finally {
       setIsLoading(false);
     }
