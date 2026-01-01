@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, FlatList } from 'react-native';
-import { Surface, List, useTheme } from 'react-native-paper';
+import { Surface, List, useTheme, FAB } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import { useData } from '../context/DataContext';
 import { Group } from '../types';
@@ -39,6 +39,11 @@ export default function GroupsScreen() {
         renderItem={renderGroup}
         contentContainerStyle={styles.listContainer}
       />
+      <FAB
+        icon="plus"
+        style={styles.fab}
+        onPress={() => navigation.navigate('CreateGroup' as never)}
+      />
     </Surface>
   );
 }
@@ -52,6 +57,11 @@ const styles = StyleSheet.create({
   },
   listItem: {
     paddingVertical: 4,
+  },
+  fab: {
+    position: 'absolute',
+    right: 16,
+    bottom: 16,
   },
 });
 

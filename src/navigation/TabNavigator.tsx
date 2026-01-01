@@ -7,9 +7,12 @@ import MainFeedScreen from '../screens/MainFeedScreen';
 import GroupsScreen from '../screens/GroupsScreen';
 import GroupFeedScreen from '../screens/GroupFeedScreen';
 import ProfileScreen from '../screens/ProfileScreen';
+import CreateNewsflashScreen from '../screens/CreateNewsflashScreen';
+import CreateGroupScreen from '../screens/CreateGroupScreen';
 
 const Tab = createBottomTabNavigator();
 const GroupStack = createNativeStackNavigator();
+const RootStack = createNativeStackNavigator();
 
 function GroupsStackScreen() {
   const theme = useTheme();
@@ -39,7 +42,7 @@ function GroupsStackScreen() {
   );
 }
 
-export default function TabNavigator() {
+function MainTabNavigator() {
   const theme = useTheme();
   
   return (
@@ -97,6 +100,43 @@ export default function TabNavigator() {
         }}
       />
     </Tab.Navigator>
+  );
+}
+
+export default function TabNavigator() {
+  const theme = useTheme();
+  
+  return (
+    <RootStack.Navigator
+      screenOptions={{
+        headerStyle: {
+          backgroundColor: theme.colors.surface,
+        },
+        headerTintColor: theme.colors.primary,
+      }}
+    >
+      <RootStack.Screen
+        name="MainTabs"
+        component={MainTabNavigator}
+        options={{ headerShown: false }}
+      />
+      <RootStack.Screen
+        name="CreateNewsflash"
+        component={CreateNewsflashScreen}
+        options={{
+          presentation: 'modal',
+          title: 'New Newsflash',
+        }}
+      />
+      <RootStack.Screen
+        name="CreateGroup"
+        component={CreateGroupScreen}
+        options={{
+          presentation: 'modal',
+          title: 'New Group',
+        }}
+      />
+    </RootStack.Navigator>
   );
 }
 
