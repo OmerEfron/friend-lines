@@ -17,6 +17,7 @@ Minify = false
 Target = "es2022"
 EntryPoints = ["src/handlers/users.ts"]
 
+
 [function_build_definitions.35e7c678-724d-4185-b682-2bf5c5573a8e]
 codeuri = "/Users/omer/Desktop/personal/friendlines/backend"
 runtime = "nodejs20.x"
@@ -33,5 +34,23 @@ BuildMethod = "esbuild"
 Minify = false
 Target = "es2022"
 EntryPoints = ["src/handlers/newsflashes.ts"]
+
+
+[function_build_definitions.12b14c23-80fb-4877-a1e6-4ee070fbb3f5]
+codeuri = "/Users/omer/Desktop/personal/friendlines/backend"
+runtime = "nodejs20.x"
+architecture = "x86_64"
+handler = "src/handlers/auth.handler"
+manifest_hash = ""
+packagetype = "Zip"
+functions = ["AuthFunction"]
+
+[function_build_definitions.12b14c23-80fb-4877-a1e6-4ee070fbb3f5.metadata]
+BuildMethod = "esbuild"
+
+[function_build_definitions.12b14c23-80fb-4877-a1e6-4ee070fbb3f5.metadata.BuildProperties]
+Minify = false
+Target = "es2022"
+EntryPoints = ["src/handlers/auth.ts"]
 
 [layer_build_definitions]
