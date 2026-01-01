@@ -214,6 +214,49 @@ Resources:
             Path: /newsflashes
             Method: POST
 
+  FriendshipsFunction:
+    Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: false
+        Target: "es2022"
+        EntryPoints:
+          - src/handlers/friendships.ts
+    Properties:
+      CodeUri: ./
+      Handler: src/handlers/friendships.handler
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref FriendshipsTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UsersTable
+      Events:
+        GetFriendships:
+          Type: Api
+          Properties:
+            RestApiId: !Ref FriendlinesApi
+            Path: /friendships
+            Method: GET
+        GetFriends:
+          Type: Api
+          Properties:
+            RestApiId: !Ref FriendlinesApi
+            Path: /friends
+            Method: GET
+        AddFriend:
+          Type: Api
+          Properties:
+            RestApiId: !Ref FriendlinesApi
+            Path: /friendships
+            Method: POST
+        RemoveFriend:
+          Type: Api
+          Properties:
+            RestApiId: !Ref FriendlinesApi
+            Path: /friendships/{friendId}
+            Method: DELETE
+
 Outputs:
   ApiEndpoint:
     Description: "API Gateway endpoint URL"
