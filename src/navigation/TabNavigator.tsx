@@ -1,4 +1,5 @@
 import React from 'react';
+import { Platform } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -79,22 +80,39 @@ function MainTabNavigator() {
         headerShown: false,
         tabBarActiveTintColor: theme.colors.primary,
         tabBarInactiveTintColor: theme.colors.onSurfaceVariant,
+        tabBarShowLabel: false,
         tabBarStyle: {
+          position: 'absolute',
+          bottom: 25,
+          left: 20,
+          right: 20,
+          elevation: 8,
           backgroundColor: theme.colors.surface,
-          borderTopColor: theme.colors.outline,
+          borderRadius: 20,
+          height: 65,
+          paddingBottom: 0,
+          borderTopWidth: 0,
+          shadowColor: '#000',
+          shadowOffset: {
+            width: 0,
+            height: 4,
+          },
+          shadowOpacity: 0.3,
+          shadowRadius: 8,
         },
-        tabBarIcon: ({ focused, color, size }) => {
+        tabBarIcon: ({ focused, color }) => {
           let iconName: string = 'newspaper';
+          const iconSize = focused ? 28 : 24;
 
           if (route.name === 'Feed') {
-            iconName = focused ? 'newspaper-variant' : 'newspaper-variant-outline';
+            iconName = focused ? 'home' : 'home-outline';
           } else if (route.name === 'Groups') {
             iconName = focused ? 'account-group' : 'account-group-outline';
           } else if (route.name === 'Profile') {
-            iconName = focused ? 'account-circle' : 'account-circle-outline';
+            iconName = focused ? 'account' : 'account-outline';
           }
 
-          return <MaterialCommunityIcons name={iconName} size={size} color={color} />;
+          return <MaterialCommunityIcons name={iconName} size={iconSize} color={color} />;
         },
         headerStyle: {
           backgroundColor: theme.colors.surface,
@@ -108,22 +126,15 @@ function MainTabNavigator() {
         options={{ 
           headerShown: true,
           title: 'Friendlines',
-          tabBarLabel: 'Feed',
         }}
       />
       <Tab.Screen 
         name="Groups" 
         component={GroupsStackScreen}
-        options={{
-          tabBarLabel: 'Groups',
-        }}
       />
       <Tab.Screen 
         name="Profile" 
         component={ProfileStackScreen}
-        options={{
-          tabBarLabel: 'Profile',
-        }}
       />
     </Tab.Navigator>
   );

@@ -49,6 +49,7 @@ export default function FeedList({ newsflashes, users }: FeedListProps) {
 const styles = StyleSheet.create({
   contentContainer: {
     padding: 8,
+    paddingBottom: 110,
   },
   emptyList: {
     flex: 1,
