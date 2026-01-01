@@ -81,6 +81,10 @@ export function DataProvider({
       ]);
       setUsers(usersData);
       setNewsflashes(newsflashesData);
+      
+      // Explicitly clear groups and friendships until we implement those endpoints
+      setGroups([]);
+      setFriendships([]);
     } catch (err) {
       console.error('Failed to load data from API:', err);
       setError(err instanceof Error ? err.message : 'Failed to load data');
