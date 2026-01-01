@@ -17,6 +17,9 @@ import {
   fetchUsers,
   fetchNewsflashes,
   createNewsflash as apiCreateNewsflash,
+  fetchFriends,
+  addFriend as apiAddFriend,
+  removeFriend as apiRemoveFriend,
 } from '../services/api';
 import { useAuth } from './AuthContext';
 
@@ -75,16 +78,23 @@ export function DataProvider({
     setLoading(true);
     setError(null);
     try {
-      const [usersData, newsflashesData] = await Promise.all([
+      const [usersData, newsflashesData, friendsData] = await Promise.all([
         fetchUsers(),
         fetchNewsflashes(),
+        fetchFriends(),
       ]);
       setUsers(usersData);
       setNewsflashes(newsflashesData);
       
-      // Explicitly clear groups and friendships until we implement those endpoints
+      // Convert friends to friendships format
+      const friendshipsData = friendsData.map((friend) => ({
+        userId: currentUser.id,
+        friendId: friend.id,
+      }));
+      setFriendships(friendshipsData);
+      
+      // Clear groups until we implement that endpoint
       setGroups([]);
-      setFriendships([]);
     } catch (err) {
       console.error('Failed to load data from API:', err);
       setError(err instanceof Error ? err.message : 'Failed to load data');
@@ -129,20 +139,48 @@ export function DataProvider({
     setGroups((prev) => [...prev, newGroup]);
   };
 
-  const addFriend = (friendId: string) => {
-    const newFriendship: Friendship = {
-      userId: currentUser.id,
-      friendId: friendId,
-    };
-    setFriendships((prev) => [...prev, newFriendship]);
+  const addFriend = async (friendId: string) => {
+    if (useApi) {
+      try {
+        await apiAddFriend(friendId);
+        const newFriendship: Friendship = {
+          userId: currentUser.id,
+          friendId: friendId,
+        };
+        setFriendships((prev) => [...prev, newFriendship]);
+      } catch (err) {
+        console.error('Failed to add friend:', err);
+        throw err;
+      }
+    } else {
+      const newFriendship: Friendship = {
+        userId: currentUser.id,
+        friendId: friendId,
+      };
+      setFriendships((prev) => [...prev, newFriendship]);
+    }
   };
 
-  const removeFriend = (friendId: string) => {
-    setFriendships((prev) =>
-      prev.filter(
-        (f) => !(f.userId === currentUser.id && f.friendId === friendId)
-      )
-    );
+  const removeFriend = async (friendId: string) => {
+    if (useApi) {
+      try {
+        await apiRemoveFriend(friendId);
+        setFriendships((prev) =>
+          prev.filter(
+            (f) => !(f.userId === currentUser.id && f.friendId === friendId)
+          )
+        );
+      } catch (err) {
+        console.error('Failed to remove friend:', err);
+        throw err;
+      }
+    } else {
+      setFriendships((prev) =>
+        prev.filter(
+          (f) => !(f.userId === currentUser.id && f.friendId === friendId)
+        )
+      );
+    }
   };
 
   return (

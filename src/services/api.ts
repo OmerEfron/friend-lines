@@ -54,3 +54,22 @@ export async function createNewsflash(
   return response.newsflash;
 }
 
+// Friendships API calls
+export async function fetchFriends(): Promise<User[]> {
+  const response = await apiCall<{ friends: User[] }>('/friends');
+  return response.friends;
+}
+
+export async function addFriend(friendId: string): Promise<void> {
+  await apiCall('/friendships', {
+    method: 'POST',
+    body: JSON.stringify({ friendId }),
+  });
+}
+
+export async function removeFriend(friendId: string): Promise<void> {
+  await apiCall(`/friendships/${friendId}`, {
+    method: 'DELETE',
+  });
+}
+
