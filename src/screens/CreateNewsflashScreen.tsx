@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
-import { Surface, TextInput, Button, useTheme, Text } from 'react-native-paper';
+import { View, StyleSheet, ScrollView, KeyboardAvoidingView, Platform, Image } from 'react-native';
+import { Surface, TextInput, Button, useTheme, Text, IconButton, Card } from 'react-native-paper';
+import * as ImagePicker from 'expo-image-picker';
 import { useData } from '../context/DataContext';
 import { useNavigation } from '@react-navigation/native';
 
@@ -11,7 +12,25 @@ export default function CreateNewsflashScreen() {
   
   const [headline, setHeadline] = useState('');
   const [subHeadline, setSubHeadline] = useState('');
+  const [image, setImage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const pickImage = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [16, 9],
+      quality: 0.8,
+    });
+
+    if (!result.canceled) {
+      setImage(result.assets[0].uri);
+    }
+  };
+
+  const removeImage = () => {
+    setImage(null);
+  };
 
   const handleSubmit = async () => {
     if (!headline.trim()) {
@@ -24,6 +43,7 @@ export default function CreateNewsflashScreen() {
       userId: currentUser.id,
       headline: headline.trim(),
       subHeadline: subHeadline.trim() || undefined,
+      media: image || undefined,
     });
 
     setIsSubmitting(false);
@@ -67,6 +87,32 @@ export default function CreateNewsflashScreen() {
               multiline
               numberOfLines={4}
             />
+
+            <View style={styles.imageSection}>
+              {image ? (
+                <View style={styles.imagePreview}>
+                  <Card style={styles.imageCard}>
+                    <Card.Cover source={{ uri: image }} />
+                    <IconButton
+                      icon="close-circle"
+                      size={28}
+                      onPress={removeImage}
+                      style={styles.removeImageButton}
+                      iconColor={theme.colors.error}
+                    />
+                  </Card>
+                </View>
+              ) : (
+                <Button
+                  mode="outlined"
+                  icon="image-plus"
+                  onPress={pickImage}
+                  style={styles.imageButton}
+                >
+                  Add Image
+                </Button>
+              )}
+            </View>
 
             <View style={styles.actions}>
               <Button
@@ -114,6 +160,24 @@ const styles = StyleSheet.create({
   },
   input: {
     marginBottom: 16,
+  },
+  imageSection: {
+    marginBottom: 16,
+  },
+  imageButton: {
+    borderStyle: 'dashed',
+  },
+  imagePreview: {
+    position: 'relative',
+  },
+  imageCard: {
+    overflow: 'hidden',
+  },
+  removeImageButton: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   actions: {
     flexDirection: 'row',
