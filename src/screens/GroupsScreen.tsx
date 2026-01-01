@@ -2,12 +2,13 @@ import React from 'react';
 import { StyleSheet, FlatList } from 'react-native';
 import { Surface, List, useTheme } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
-import { groups } from '../data/mock';
+import { useData } from '../context/DataContext';
 import { Group } from '../types';
 
 export default function GroupsScreen() {
   const navigation = useNavigation();
   const theme = useTheme();
+  const { groups } = useData();
 
   const handleGroupPress = (group: Group) => {
     navigation.navigate('GroupFeed' as never, { group } as never);

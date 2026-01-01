@@ -3,18 +3,19 @@ import { View, StyleSheet } from 'react-native';
 import { Surface, Text, Avatar, useTheme, Switch, List, Divider } from 'react-native-paper';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import FeedList from '../components/FeedList';
-import { newsflashes, users, currentUser } from '../data/mock';
+import { useData } from '../context/DataContext';
 import { useAppTheme } from '../context/ThemeContext';
 
 export default function ProfileScreen() {
   const theme = useTheme();
   const { isDark, toggleTheme } = useAppTheme();
+  const { newsflashes, users, currentUser } = useData();
   
   const userNewsflashes = useMemo(() => {
     return newsflashes
       .filter(n => n.userId === currentUser.id)
       .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
-  }, []);
+  }, [newsflashes, currentUser.id]);
 
   const getInitials = (name: string) => {
     return name

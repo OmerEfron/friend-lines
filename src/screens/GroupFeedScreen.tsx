@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { StyleSheet } from 'react-native';
 import { Surface } from 'react-native-paper';
 import FeedList from '../components/FeedList';
-import { newsflashes, users } from '../data/mock';
+import { useData } from '../context/DataContext';
 import { Group } from '../types';
 
 interface GroupFeedScreenProps {
@@ -15,12 +15,13 @@ interface GroupFeedScreenProps {
 
 export default function GroupFeedScreen({ route }: GroupFeedScreenProps) {
   const { group } = route.params;
+  const { newsflashes, users } = useData();
 
   const groupNewsflashes = useMemo(() => {
     return newsflashes
       .filter(n => group.userIds.includes(n.userId))
       .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
-  }, [group]);
+  }, [newsflashes, group]);
 
   return (
     <Surface style={styles.container}>
