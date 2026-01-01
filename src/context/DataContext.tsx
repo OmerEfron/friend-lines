@@ -16,6 +16,8 @@ interface DataContextType {
   currentUser: User;
   addNewsflash: (newsflash: Omit<Newsflash, 'id' | 'timestamp'>) => void;
   addGroup: (group: Omit<Group, 'id'>) => void;
+  addFriend: (friendId: string) => void;
+  removeFriend: (friendId: string) => void;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -28,7 +30,7 @@ export function DataProvider({ children }: DataProviderProps) {
   const [users] = useState<User[]>(initialUsers);
   const [newsflashes, setNewsflashes] = useState<Newsflash[]>(initialNewsflashes);
   const [groups, setGroups] = useState<Group[]>(initialGroups);
-  const [friendships] = useState<Friendship[]>(initialFriendships);
+  const [friendships, setFriendships] = useState<Friendship[]>(initialFriendships);
   const [currentUser] = useState<User>(initialCurrentUser);
 
   const addNewsflash = (newsflash: Omit<Newsflash, 'id' | 'timestamp'>) => {
@@ -48,6 +50,20 @@ export function DataProvider({ children }: DataProviderProps) {
     setGroups(prev => [...prev, newGroup]);
   };
 
+  const addFriend = (friendId: string) => {
+    const newFriendship: Friendship = {
+      userId: currentUser.id,
+      friendId: friendId,
+    };
+    setFriendships(prev => [...prev, newFriendship]);
+  };
+
+  const removeFriend = (friendId: string) => {
+    setFriendships(prev => 
+      prev.filter(f => !(f.userId === currentUser.id && f.friendId === friendId))
+    );
+  };
+
   return (
     <DataContext.Provider
       value={{
@@ -58,6 +74,8 @@ export function DataProvider({ children }: DataProviderProps) {
         currentUser,
         addNewsflash,
         addGroup,
+        addFriend,
+        removeFriend,
       }}
     >
       {children}
