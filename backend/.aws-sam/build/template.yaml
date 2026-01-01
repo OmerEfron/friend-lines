@@ -268,6 +268,62 @@ Resources:
               Ref: FriendlinesApi
             Path: /friendships/{friendId}
             Method: DELETE
+  GroupsFunction:
+    Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        EntryPoints:
+        - src/handlers/groups.ts
+        Minify: false
+        Target: es2022
+      SamResourceId: GroupsFunction
+    Properties:
+      CodeUri: GroupsFunction
+      Handler: groups.handler
+      Policies:
+      - DynamoDBCrudPolicy:
+          TableName:
+            Ref: GroupsTable
+      - DynamoDBCrudPolicy:
+          TableName:
+            Ref: UsersTable
+      Events:
+        GetGroups:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: FriendlinesApi
+            Path: /groups
+            Method: GET
+        CreateGroup:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: FriendlinesApi
+            Path: /groups
+            Method: POST
+        GetGroup:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: FriendlinesApi
+            Path: /groups/{id}
+            Method: GET
+        UpdateMembers:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: FriendlinesApi
+            Path: /groups/{id}/members
+            Method: PUT
+        DeleteGroup:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: FriendlinesApi
+            Path: /groups/{id}
+            Method: DELETE
 Outputs:
   ApiEndpoint:
     Description: API Gateway endpoint URL

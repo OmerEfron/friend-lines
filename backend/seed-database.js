@@ -173,6 +173,24 @@ async function createNewsflash(userId, template) {
   console.log(`✅ Created newsflash: "${newsflash.headline.slice(0, 40)}..."`);
 }
 
+async function createGroup(name, userIds, createdBy) {
+  const group = {
+    id: uuidv4(),
+    name,
+    userIds,
+    createdBy,
+    createdAt: new Date().toISOString(),
+  };
+
+  await docClient.send(new PutCommand({
+    TableName: 'friendlines-groups',
+    Item: group,
+  }));
+
+  console.log(`✅ Created group: "${name}" (${userIds.length} members)`);
+  return group;
+}
+
 async function main() {
   console.log('🌱 Seeding Friendlines Database...\n');
   console.log('='.repeat(50));
@@ -232,11 +250,46 @@ async function main() {
   }
 
   console.log('\n' + '='.repeat(50));
+  console.log('\n👥 Creating groups...\n');
+
+  const groups = [];
+  try {
+    // Group 1: Close Friends
+    const group1 = await createGroup(
+      'Close Friends',
+      [YOUR_USER_ID, createdUsers[0]?.id, createdUsers[1]?.id].filter(Boolean),
+      YOUR_USER_ID
+    );
+    groups.push(group1);
+
+    // Group 2: Weekend Crew
+    const group2 = await createGroup(
+      'Weekend Crew',
+      [YOUR_USER_ID, createdUsers[2]?.id, createdUsers[3]?.id].filter(Boolean),
+      YOUR_USER_ID
+    );
+    groups.push(group2);
+
+    // Group 3: All Friends
+    if (createdUsers.length >= 3) {
+      const group3 = await createGroup(
+        'All Friends',
+        [YOUR_USER_ID, ...createdUsers.slice(0, 3).map(u => u.id)],
+        YOUR_USER_ID
+      );
+      groups.push(group3);
+    }
+  } catch (error) {
+    console.error(`❌ Failed to create groups:`, error.message);
+  }
+
+  console.log('\n' + '='.repeat(50));
   console.log('\n✅ Seeding complete!\n');
   console.log('Summary:');
   console.log(`  - Created ${createdUsers.length} test users`);
   console.log(`  - Created ${createdUsers.length * 2} friendships`);
   console.log(`  - Created ${createdUsers.length + 2} newsflashes`);
+  console.log(`  - Created ${groups.length} groups`);
   console.log('\n📋 Test User Credentials:');
   console.log('  Email: sarah@example.com, michael@example.com, etc.');
   console.log('  Password: password123 (for all test users)');
