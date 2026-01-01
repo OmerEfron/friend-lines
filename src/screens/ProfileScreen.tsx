@@ -7,6 +7,7 @@ import FeedList from '../components/FeedList';
 import { useData } from '../context/DataContext';
 import { useAppTheme } from '../context/ThemeContext';
 import { useBookmarks } from '../context/BookmarksContext';
+import { useAuth } from '../context/AuthContext';
 
 export default function ProfileScreen() {
   const theme = useTheme();
@@ -14,6 +15,7 @@ export default function ProfileScreen() {
   const { isDark, toggleTheme } = useAppTheme();
   const { newsflashes, users, currentUser, friendships } = useData();
   const { bookmarkedIds } = useBookmarks();
+  const { logout } = useAuth();
   
   const userNewsflashes = useMemo(() => {
     return newsflashes
@@ -129,6 +131,28 @@ export default function ProfileScreen() {
         <Divider style={styles.divider} />
         
         <List.Item
+          title="Edit Profile"
+          description="Update your information"
+          left={() => (
+            <MaterialCommunityIcons 
+              name="account-edit" 
+              size={24} 
+              color={theme.colors.primary}
+              style={styles.themeIcon}
+            />
+          )}
+          right={() => (
+            <MaterialCommunityIcons 
+              name="chevron-right" 
+              size={24} 
+              color={theme.colors.onSurfaceVariant}
+            />
+          )}
+          onPress={() => navigation.navigate('EditProfile' as never)}
+          style={styles.listItem}
+        />
+        
+        <List.Item
           title="Dark Mode"
           description={isDark ? 'Enabled' : 'Disabled'}
           left={() => (
@@ -147,6 +171,23 @@ export default function ProfileScreen() {
             />
           )}
           style={styles.themeToggle}
+        />
+        
+        <Divider style={styles.divider} />
+        
+        <List.Item
+          title="Logout"
+          description="Sign out of your account"
+          left={() => (
+            <MaterialCommunityIcons 
+              name="logout" 
+              size={24} 
+              color={theme.colors.error}
+              style={styles.themeIcon}
+            />
+          )}
+          onPress={logout}
+          style={styles.listItem}
         />
       </Surface>
       <FeedList newsflashes={userNewsflashes} users={users} />
