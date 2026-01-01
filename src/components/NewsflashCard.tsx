@@ -1,7 +1,8 @@
-import React from 'react';
-import { View, StyleSheet } from 'react-native';
-import { Card, Text, Avatar, useTheme } from 'react-native-paper';
+import React, { useEffect, useRef } from 'react';
+import { View, StyleSheet, Animated } from 'react-native';
+import { Card, Text, Avatar, useTheme, IconButton } from 'react-native-paper';
 import { Newsflash, User } from '../types';
+import { useBookmarks } from '../context/BookmarksContext';
 
 interface NewsflashCardProps {
   newsflash: Newsflash;
@@ -10,6 +11,16 @@ interface NewsflashCardProps {
 
 export default function NewsflashCard({ newsflash, user }: NewsflashCardProps) {
   const theme = useTheme();
+  const { isBookmarked, toggleBookmark } = useBookmarks();
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  
+  useEffect(() => {
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
+  }, [fadeAnim]);
   
   const formatTime = (date: Date) => {
     const now = new Date();
@@ -31,36 +42,52 @@ export default function NewsflashCard({ newsflash, user }: NewsflashCardProps) {
       .slice(0, 2);
   };
 
+  const bookmarked = isBookmarked(newsflash.id);
+
   return (
-    <Card style={styles.card} mode="contained">
-      <Card.Content>
-        <View style={styles.header}>
-          <View style={styles.userInfo}>
-            <Avatar.Text 
-              size={32} 
-              label={getInitials(user.name)}
-              style={{ backgroundColor: theme.colors.primaryContainer }}
-            />
-            <Text variant="labelMedium" style={styles.username}>
-              @{user.username}
-            </Text>
+    <Animated.View style={{ opacity: fadeAnim }}>
+      <Card style={styles.card} mode="contained">
+        <Card.Content>
+          <View style={styles.header}>
+            <View style={styles.userInfo}>
+              <Avatar.Text 
+                size={32} 
+                label={getInitials(user.name)}
+                style={{ backgroundColor: theme.colors.primaryContainer }}
+              />
+              <Text variant="labelMedium" style={styles.username}>
+                @{user.username}
+              </Text>
+            </View>
+            <View style={styles.headerRight}>
+              <Text variant="labelSmall" style={styles.time}>
+                {formatTime(newsflash.timestamp)}
+              </Text>
+              <IconButton
+                icon={bookmarked ? 'bookmark' : 'bookmark-outline'}
+                size={20}
+                onPress={() => toggleBookmark(newsflash.id)}
+                style={styles.bookmarkButton}
+              />
+            </View>
           </View>
-          <Text variant="labelSmall" style={styles.time}>
-            {formatTime(newsflash.timestamp)}
+          
+          <Text variant="headlineSmall" style={styles.headline}>
+            {newsflash.headline}
           </Text>
-        </View>
+          
+          {newsflash.subHeadline && (
+            <Text variant="bodyMedium" style={styles.subHeadline}>
+              {newsflash.subHeadline}
+            </Text>
+          )}
+        </Card.Content>
         
-        <Text variant="headlineSmall" style={styles.headline}>
-          {newsflash.headline}
-        </Text>
-        
-        {newsflash.subHeadline && (
-          <Text variant="bodyMedium" style={styles.subHeadline}>
-            {newsflash.subHeadline}
-          </Text>
+        {newsflash.media && (
+          <Card.Cover source={{ uri: newsflash.media }} style={styles.media} />
         )}
-      </Card.Content>
-    </Card>
+      </Card>
+    </Animated.View>
   );
 }
 
@@ -78,12 +105,21 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
+    flex: 1,
+  },
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
   },
   username: {
     fontWeight: '600',
   },
   time: {
     opacity: 0.6,
+  },
+  bookmarkButton: {
+    margin: 0,
   },
   headline: {
     fontWeight: 'bold',
@@ -93,6 +129,9 @@ const styles = StyleSheet.create({
   subHeadline: {
     marginTop: 4,
     opacity: 0.8,
+  },
+  media: {
+    marginTop: 12,
   },
 });
 

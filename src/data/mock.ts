@@ -43,6 +43,7 @@ export const newsflashes: Newsflash[] = [
     userId: '2',
     headline: 'Just found the cutest coffee shop on 5th street!',
     subHeadline: 'They have the best caramel lattes and free wifi',
+    media: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=800',
     timestamp: new Date('2025-01-01T09:00:00'),
   },
   {
@@ -57,6 +58,7 @@ export const newsflashes: Newsflash[] = [
     userId: '4',
     headline: 'Completed my first 5K run this morning!',
     subHeadline: 'My legs are killing me but totally worth it',
+    media: 'https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?w=800',
     timestamp: new Date('2025-01-01T07:45:00'),
   },
   {
@@ -64,6 +66,7 @@ export const newsflashes: Newsflash[] = [
     userId: '5',
     headline: 'Got my bike fixed, ready for weekend rides',
     subHeadline: 'Anyone want to join me for a trail ride on Saturday?',
+    media: 'https://images.unsplash.com/photo-1485965120184-e220f721d03e?w=800',
     timestamp: new Date('2025-01-01T07:00:00'),
   },
   {
@@ -78,6 +81,7 @@ export const newsflashes: Newsflash[] = [
     userId: '1',
     headline: 'That hiking trip this weekend was absolutely perfect',
     subHeadline: 'The view from the top made all the climbing worth it',
+    media: 'https://images.unsplash.com/photo-1551632811-561732d1e306?w=800',
     timestamp: new Date('2024-12-31T16:00:00'),
   },
   {
@@ -85,6 +89,7 @@ export const newsflashes: Newsflash[] = [
     userId: '3',
     headline: 'Tried that new Italian place everyone\'s talking about',
     subHeadline: 'Best pasta I\'ve had in years! Going back next week for sure',
+    media: 'https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?w=800',
     timestamp: new Date('2024-12-31T14:00:00'),
   },
   {

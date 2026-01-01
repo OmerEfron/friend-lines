@@ -7,11 +7,13 @@ import MainFeedScreen from '../screens/MainFeedScreen';
 import GroupsScreen from '../screens/GroupsScreen';
 import GroupFeedScreen from '../screens/GroupFeedScreen';
 import ProfileScreen from '../screens/ProfileScreen';
+import SavedScreen from '../screens/SavedScreen';
 import CreateNewsflashScreen from '../screens/CreateNewsflashScreen';
 import CreateGroupScreen from '../screens/CreateGroupScreen';
 
 const Tab = createBottomTabNavigator();
 const GroupStack = createNativeStackNavigator();
+const ProfileStack = createNativeStackNavigator();
 const RootStack = createNativeStackNavigator();
 
 function GroupsStackScreen() {
@@ -39,6 +41,32 @@ function GroupsStackScreen() {
         })}
       />
     </GroupStack.Navigator>
+  );
+}
+
+function ProfileStackScreen() {
+  const theme = useTheme();
+  
+  return (
+    <ProfileStack.Navigator
+      screenOptions={{
+        headerStyle: {
+          backgroundColor: theme.colors.surface,
+        },
+        headerTintColor: theme.colors.primary,
+      }}
+    >
+      <ProfileStack.Screen 
+        name="ProfileMain" 
+        component={ProfileScreen}
+        options={{ title: 'My Profile' }}
+      />
+      <ProfileStack.Screen 
+        name="Saved" 
+        component={SavedScreen}
+        options={{ title: 'Saved Items' }}
+      />
+    </ProfileStack.Navigator>
   );
 }
 
@@ -92,10 +120,8 @@ function MainTabNavigator() {
       />
       <Tab.Screen 
         name="Profile" 
-        component={ProfileScreen}
-        options={{ 
-          headerShown: true,
-          title: 'My Profile',
+        component={ProfileStackScreen}
+        options={{
           tabBarLabel: 'Profile',
         }}
       />

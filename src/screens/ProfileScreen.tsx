@@ -2,14 +2,18 @@ import React, { useMemo } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Surface, Text, Avatar, useTheme, Switch, List, Divider } from 'react-native-paper';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import { useNavigation } from '@react-navigation/native';
 import FeedList from '../components/FeedList';
 import { useData } from '../context/DataContext';
 import { useAppTheme } from '../context/ThemeContext';
+import { useBookmarks } from '../context/BookmarksContext';
 
 export default function ProfileScreen() {
   const theme = useTheme();
+  const navigation = useNavigation();
   const { isDark, toggleTheme } = useAppTheme();
   const { newsflashes, users, currentUser } = useData();
+  const { bookmarkedIds } = useBookmarks();
   
   const userNewsflashes = useMemo(() => {
     return newsflashes
@@ -47,6 +51,30 @@ export default function ProfileScreen() {
             </Text>
           </View>
         </View>
+        
+        <Divider style={styles.divider} />
+        
+        <List.Item
+          title="Saved Items"
+          description={`${bookmarkedIds.length} bookmarked`}
+          left={() => (
+            <MaterialCommunityIcons 
+              name="bookmark" 
+              size={24} 
+              color={theme.colors.primary}
+              style={styles.themeIcon}
+            />
+          )}
+          right={() => (
+            <MaterialCommunityIcons 
+              name="chevron-right" 
+              size={24} 
+              color={theme.colors.onSurfaceVariant}
+            />
+          )}
+          onPress={() => navigation.navigate('Saved' as never)}
+          style={styles.listItem}
+        />
         
         <Divider style={styles.divider} />
         
@@ -106,6 +134,9 @@ const styles = StyleSheet.create({
   },
   divider: {
     marginVertical: 8,
+  },
+  listItem: {
+    paddingVertical: 4,
   },
   themeToggle: {
     paddingVertical: 4,
