@@ -37,21 +37,31 @@ export async function fetchNewsflashes(
     ? `${apiConfig.endpoints.newsflashes}?userId=${userId}`
     : apiConfig.endpoints.newsflashes;
   
-  const response = await apiCall<{ newsflashes: Newsflash[] }>(endpoint);
-  return response.newsflashes;
+  const response = await apiCall<{ newsflashes: any[] }>(endpoint);
+  
+  // Convert timestamp strings to Date objects
+  return response.newsflashes.map(newsflash => ({
+    ...newsflash,
+    timestamp: new Date(newsflash.timestamp),
+  }));
 }
 
 export async function createNewsflash(
   newsflash: Omit<Newsflash, 'id' | 'timestamp'>
 ): Promise<Newsflash> {
-  const response = await apiCall<{ newsflash: Newsflash }>(
+  const response = await apiCall<{ newsflash: any }>(
     apiConfig.endpoints.newsflashes,
     {
       method: 'POST',
       body: JSON.stringify(newsflash),
     }
   );
-  return response.newsflash;
+  
+  // Convert timestamp string to Date object
+  return {
+    ...response.newsflash,
+    timestamp: new Date(response.newsflash.timestamp),
+  };
 }
 
 // Friendships API calls
