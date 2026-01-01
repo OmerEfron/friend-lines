@@ -20,6 +20,8 @@ import {
   fetchFriends,
   addFriend as apiAddFriend,
   removeFriend as apiRemoveFriend,
+  fetchGroups,
+  createGroup as apiCreateGroup,
 } from '../services/api';
 import { useAuth } from './AuthContext';
 
@@ -78,13 +80,15 @@ export function DataProvider({
     setLoading(true);
     setError(null);
     try {
-      const [usersData, newsflashesData, friendsData] = await Promise.all([
+      const [usersData, newsflashesData, friendsData, groupsData] = await Promise.all([
         fetchUsers(),
         fetchNewsflashes(),
         fetchFriends(),
+        fetchGroups(),
       ]);
       setUsers(usersData);
       setNewsflashes(newsflashesData);
+      setGroups(groupsData);
       
       // Convert friends to friendships format
       const friendshipsData = friendsData.map((friend) => ({
@@ -92,9 +96,6 @@ export function DataProvider({
         friendId: friend.id,
       }));
       setFriendships(friendshipsData);
-      
-      // Clear groups until we implement that endpoint
-      setGroups([]);
     } catch (err) {
       console.error('Failed to load data from API:', err);
       setError(err instanceof Error ? err.message : 'Failed to load data');
@@ -131,12 +132,25 @@ export function DataProvider({
     }
   };
 
-  const addGroup = (group: Omit<Group, 'id'>) => {
-    const newGroup: Group = {
-      ...group,
-      id: String(Date.now()),
-    };
-    setGroups((prev) => [...prev, newGroup]);
+  const addGroup = async (group: Omit<Group, 'id'>) => {
+    if (useApi) {
+      try {
+        const newGroup = await apiCreateGroup({
+          name: group.name,
+          userIds: group.userIds,
+        });
+        setGroups((prev) => [...prev, newGroup]);
+      } catch (err) {
+        console.error('Failed to create group:', err);
+        throw err;
+      }
+    } else {
+      const newGroup: Group = {
+        ...group,
+        id: String(Date.now()),
+      };
+      setGroups((prev) => [...prev, newGroup]);
+    }
   };
 
   const addFriend = async (friendId: string) => {
