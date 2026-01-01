@@ -1,11 +1,14 @@
 import React, { useMemo } from 'react';
 import { View, StyleSheet } from 'react-native';
-import { Surface, Text, Avatar, useTheme } from 'react-native-paper';
+import { Surface, Text, Avatar, useTheme, Switch, List, Divider } from 'react-native-paper';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import FeedList from '../components/FeedList';
 import { newsflashes, users, currentUser } from '../data/mock';
+import { useAppTheme } from '../context/ThemeContext';
 
 export default function ProfileScreen() {
   const theme = useTheme();
+  const { isDark, toggleTheme } = useAppTheme();
   
   const userNewsflashes = useMemo(() => {
     return newsflashes
@@ -43,6 +46,29 @@ export default function ProfileScreen() {
             </Text>
           </View>
         </View>
+        
+        <Divider style={styles.divider} />
+        
+        <List.Item
+          title="Dark Mode"
+          description={isDark ? 'Enabled' : 'Disabled'}
+          left={() => (
+            <MaterialCommunityIcons 
+              name={isDark ? 'weather-night' : 'weather-sunny'} 
+              size={24} 
+              color={theme.colors.primary}
+              style={styles.themeIcon}
+            />
+          )}
+          right={() => (
+            <Switch 
+              value={isDark} 
+              onValueChange={toggleTheme}
+              color={theme.colors.primary}
+            />
+          )}
+          style={styles.themeToggle}
+        />
       </Surface>
       <FeedList newsflashes={userNewsflashes} users={users} />
     </Surface>
@@ -55,11 +81,13 @@ const styles = StyleSheet.create({
   },
   header: {
     padding: 20,
+    paddingBottom: 8,
   },
   headerContent: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 16,
+    marginBottom: 16,
   },
   userInfo: {
     flex: 1,
@@ -74,6 +102,16 @@ const styles = StyleSheet.create({
   newsCount: {
     opacity: 0.5,
     marginTop: 4,
+  },
+  divider: {
+    marginVertical: 8,
+  },
+  themeToggle: {
+    paddingVertical: 4,
+  },
+  themeIcon: {
+    marginLeft: 8,
+    alignSelf: 'center',
   },
 });
 
