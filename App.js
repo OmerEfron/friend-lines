@@ -10,7 +10,7 @@ import { AuthProvider, useAuth } from './src/context/AuthContext';
 import LoginScreen from './src/screens/LoginScreen';
 import SignupScreen from './src/screens/SignupScreen';
 
-function AuthenticatedApp() {
+function AuthenticatedApp({ useApi }) {
   const { paperTheme, navigationTheme } = useAppTheme();
   const { isAuthenticated, loading, login, register } = useAuth();
   const [showSignup, setShowSignup] = useState(false);
@@ -41,12 +41,17 @@ function AuthenticatedApp() {
     );
   }
 
+  // Only render DataProvider when authenticated
   return (
-    <PaperProvider theme={paperTheme}>
-      <NavigationContainer theme={navigationTheme}>
-        <TabNavigator />
-      </NavigationContainer>
-    </PaperProvider>
+    <DataProvider useApi={useApi}>
+      <BookmarksProvider>
+        <PaperProvider theme={paperTheme}>
+          <NavigationContainer theme={navigationTheme}>
+            <TabNavigator />
+          </NavigationContainer>
+        </PaperProvider>
+      </BookmarksProvider>
+    </DataProvider>
   );
 }
 
@@ -57,11 +62,7 @@ export default function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <DataProvider useApi={USE_API}>
-          <BookmarksProvider>
-            <AuthenticatedApp />
-          </BookmarksProvider>
-        </DataProvider>
+        <AuthenticatedApp useApi={USE_API} />
       </AuthProvider>
     </ThemeProvider>
   );

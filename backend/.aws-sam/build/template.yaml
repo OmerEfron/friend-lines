@@ -20,6 +20,7 @@ Globals:
         MEDIA_BUCKET:
           Ref: MediaBucket
         IS_LOCAL: 'true'
+        JWT_SECRET: local-dev-secret-change-in-production
 Resources:
   FriendlinesApi:
     Type: AWS::Serverless::Api
@@ -105,6 +106,45 @@ Resources:
           - DELETE
           AllowedOrigins:
           - '*'
+  AuthFunction:
+    Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        EntryPoints:
+        - src/handlers/auth.ts
+        Minify: false
+        Target: es2022
+      SamResourceId: AuthFunction
+    Properties:
+      CodeUri: AuthFunction
+      Handler: auth.handler
+      Policies:
+      - DynamoDBCrudPolicy:
+          TableName:
+            Ref: UsersTable
+      Events:
+        Register:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: FriendlinesApi
+            Path: /auth/register
+            Method: POST
+        Login:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: FriendlinesApi
+            Path: /auth/login
+            Method: POST
+        GetMe:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: FriendlinesApi
+            Path: /auth/me
+            Method: GET
   UsersFunction:
     Type: AWS::Serverless::Function
     Metadata:

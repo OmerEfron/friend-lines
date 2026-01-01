@@ -18,6 +18,7 @@ import {
   fetchNewsflashes,
   createNewsflash as apiCreateNewsflash,
 } from '../services/api';
+import { useAuth } from './AuthContext';
 
 interface DataContextType {
   users: User[];
@@ -45,15 +46,21 @@ export function DataProvider({
   children,
   useApi = false,
 }: DataProviderProps) {
-  const [users, setUsers] = useState<User[]>(initialUsers);
+  const auth = useApi ? useAuth() : null;
+  
+  // Use empty arrays when API mode, mock data otherwise
+  const [users, setUsers] = useState<User[]>(useApi ? [] : initialUsers);
   const [newsflashes, setNewsflashes] = useState<Newsflash[]>(
-    initialNewsflashes
+    useApi ? [] : initialNewsflashes
   );
-  const [groups, setGroups] = useState<Group[]>(initialGroups);
+  const [groups, setGroups] = useState<Group[]>(useApi ? [] : initialGroups);
   const [friendships, setFriendships] = useState<Friendship[]>(
-    initialFriendships
+    useApi ? [] : initialFriendships
   );
-  const [currentUser] = useState<User>(initialCurrentUser);
+  
+  // Get current user from auth context when using API, otherwise use mock
+  const currentUser = useApi && auth?.user ? auth.user : initialCurrentUser;
+  
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
