@@ -39,14 +39,41 @@ export const lightTheme = {
   },
 };
 
+const redDarkColors = {
+  primary: '#E57373',
+  primaryContainer: '#8E0000',
+  secondary: '#FFAB91',
+  secondaryContainer: '#BF360C',
+  tertiary: '#EF9A9A',
+  tertiaryContainer: '#C62828',
+  error: '#CF6679',
+  errorContainer: '#8C1D18',
+  background: '#121212',
+  surface: '#1E1E1E',
+  surfaceVariant: '#2C2C2C',
+  onPrimary: '#FFFFFF',
+  onPrimaryContainer: '#FFDAD6',
+  onSecondary: '#FFFFFF',
+  onSecondaryContainer: '#FFDAD6',
+  onTertiary: '#FFFFFF',
+  onTertiaryContainer: '#FFDAD6',
+  onError: '#000000',
+  onErrorContainer: '#FFDAD6',
+  onBackground: '#E6E1E5',
+  onSurface: '#E6E1E5',
+  onSurfaceVariant: '#CAC4D0',
+  outline: '#938F99',
+  outlineVariant: '#49454F',
+  inverseSurface: '#E6E1E5',
+  inverseOnSurface: '#313033',
+  inversePrimary: '#D32F2F',
+};
+
 export const darkTheme = {
   ...MD3DarkTheme,
   colors: {
     ...MD3DarkTheme.colors,
-    primary: '#FFB4AB',
-    primaryContainer: '#930006',
-    secondary: '#FFB4AB',
-    secondaryContainer: '#8C0009',
+    ...redDarkColors,
   },
 };
 
@@ -66,8 +93,11 @@ export const navigationDarkTheme = {
   ...NavigationDarkTheme,
   colors: {
     ...NavigationDarkTheme.colors,
-    primary: '#FFB4AB',
-    background: '#1C1B1F',
+    primary: redDarkColors.primary,
+    background: redDarkColors.background,
+    card: redDarkColors.surface,
+    text: redDarkColors.onSurface,
+    border: redDarkColors.outline,
   },
 };
 
