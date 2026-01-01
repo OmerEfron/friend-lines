@@ -19,6 +19,7 @@ EntryPoints = ["src/handlers/users.ts"]
 
 
 
+
 [function_build_definitions.35e7c678-724d-4185-b682-2bf5c5573a8e]
 codeuri = "/Users/omer/Desktop/personal/friendlines/backend"
 runtime = "nodejs20.x"
@@ -35,6 +36,7 @@ BuildMethod = "esbuild"
 Minify = false
 Target = "es2022"
 EntryPoints = ["src/handlers/newsflashes.ts"]
+
 
 
 
@@ -56,6 +58,7 @@ Target = "es2022"
 EntryPoints = ["src/handlers/auth.ts"]
 
 
+
 [function_build_definitions.afa5032d-1d7c-4811-8033-c3963cca58e0]
 codeuri = "/Users/omer/Desktop/personal/friendlines/backend"
 runtime = "nodejs20.x"
@@ -72,5 +75,23 @@ BuildMethod = "esbuild"
 Minify = false
 Target = "es2022"
 EntryPoints = ["src/handlers/friendships.ts"]
+
+
+[function_build_definitions.ac7e505a-e4bb-41e1-8374-177618fb9cb4]
+codeuri = "/Users/omer/Desktop/personal/friendlines/backend"
+runtime = "nodejs20.x"
+architecture = "x86_64"
+handler = "src/handlers/groups.handler"
+manifest_hash = ""
+packagetype = "Zip"
+functions = ["GroupsFunction"]
+
+[function_build_definitions.ac7e505a-e4bb-41e1-8374-177618fb9cb4.metadata]
+BuildMethod = "esbuild"
+
+[function_build_definitions.ac7e505a-e4bb-41e1-8374-177618fb9cb4.metadata.BuildProperties]
+Minify = false
+Target = "es2022"
+EntryPoints = ["src/handlers/groups.ts"]
 
 [layer_build_definitions]
