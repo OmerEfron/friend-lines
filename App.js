@@ -44,7 +44,7 @@ function AuthenticatedApp({ useApi }) {
   // Only render DataProvider when authenticated
   return (
     <DataProvider useApi={useApi}>
-      <BookmarksProvider>
+      <BookmarksProvider useApi={useApi}>
         <PaperProvider theme={paperTheme}>
           <NavigationContainer theme={navigationTheme}>
             <TabNavigator />

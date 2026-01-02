@@ -1,51 +1,80 @@
-import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
-const BOOKMARKS_STORAGE_KEY = '@friendlines_bookmarks';
+import React, { createContext, useState, useContext, useEffect, ReactNode, useCallback } from 'react';
+import { apiCall } from '../config/api';
+import { useAuth } from './AuthContext';
 
 interface BookmarksContextType {
   bookmarkedIds: string[];
-  toggleBookmark: (newsflashId: string) => void;
+  toggleBookmark: (newsflashId: string) => Promise<void>;
   isBookmarked: (newsflashId: string) => boolean;
+  loading: boolean;
+  refreshBookmarks: () => Promise<void>;
 }
 
 const BookmarksContext = createContext<BookmarksContextType | undefined>(undefined);
 
 interface BookmarksProviderProps {
   children: ReactNode;
+  useApi?: boolean;
 }
 
-export function BookmarksProvider({ children }: BookmarksProviderProps) {
+export function BookmarksProvider({ children, useApi = false }: BookmarksProviderProps) {
+  const { isAuthenticated } = useAuth();
   const [bookmarkedIds, setBookmarkedIds] = useState<string[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    loadBookmarks();
-  }, []);
+  const loadBookmarks = useCallback(async () => {
+    if (!useApi || !isAuthenticated) {
+      setLoading(false);
+      return;
+    }
 
-  const loadBookmarks = async () => {
     try {
-      const saved = await AsyncStorage.getItem(BOOKMARKS_STORAGE_KEY);
-      if (saved !== null) {
-        setBookmarkedIds(JSON.parse(saved));
-      }
+      setLoading(true);
+      const response = await apiCall<{ newsflashes: any[] }>('/bookmarks');
+      const ids = response.newsflashes.map((nf: any) => nf.id);
+      setBookmarkedIds(ids);
     } catch (error) {
       console.error('Failed to load bookmarks:', error);
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
-  };
+  }, [useApi, isAuthenticated]);
+
+  useEffect(() => {
+    loadBookmarks();
+  }, [loadBookmarks]);
 
   const toggleBookmark = async (newsflashId: string) => {
+    if (!useApi) {
+      // Fallback to local state
+      setBookmarkedIds(prev =>
+        prev.includes(newsflashId)
+          ? prev.filter(id => id !== newsflashId)
+          : [...prev, newsflashId]
+      );
+      return;
+    }
+
     try {
-      const newBookmarks = bookmarkedIds.includes(newsflashId)
-        ? bookmarkedIds.filter(id => id !== newsflashId)
-        : [...bookmarkedIds, newsflashId];
-      
-      setBookmarkedIds(newBookmarks);
-      await AsyncStorage.setItem(BOOKMARKS_STORAGE_KEY, JSON.stringify(newBookmarks));
+      const isCurrentlyBookmarked = bookmarkedIds.includes(newsflashId);
+
+      if (isCurrentlyBookmarked) {
+        // Remove bookmark
+        await apiCall(`/bookmarks/${newsflashId}`, {
+          method: 'DELETE',
+        });
+        setBookmarkedIds(prev => prev.filter(id => id !== newsflashId));
+      } else {
+        // Add bookmark
+        await apiCall('/bookmarks', {
+          method: 'POST',
+          body: JSON.stringify({ newsflashId }),
+        });
+        setBookmarkedIds(prev => [...prev, newsflashId]);
+      }
     } catch (error) {
-      console.error('Failed to save bookmark:', error);
+      console.error('Failed to toggle bookmark:', error);
+      throw error;
     }
   };
 
@@ -53,7 +82,11 @@ export function BookmarksProvider({ children }: BookmarksProviderProps) {
     return bookmarkedIds.includes(newsflashId);
   };
 
-  if (isLoading) {
+  const refreshBookmarks = async () => {
+    await loadBookmarks();
+  };
+
+  if (loading && useApi) {
     return null;
   }
 
@@ -63,6 +96,8 @@ export function BookmarksProvider({ children }: BookmarksProviderProps) {
         bookmarkedIds,
         toggleBookmark,
         isBookmarked,
+        loading,
+        refreshBookmarks,
       }}
     >
       {children}
