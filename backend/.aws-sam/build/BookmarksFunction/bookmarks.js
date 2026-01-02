@@ -263,10 +263,10 @@ var require_dist_cjs3 = __commonJS({
         this.values = values;
       }
       remove(value) {
-        this.values = this.values.filter((v5) => v5 !== value);
+        this.values = this.values.filter((v4) => v4 !== value);
       }
       toString() {
-        return this.values.map((v5) => v5.includes(",") || v5.includes(" ") ? `"${v5}"` : v5).join(", ");
+        return this.values.map((v4) => v4.includes(",") || v4.includes(" ") ? `"${v4}"` : v4).join(", ");
       }
       get() {
         return this.values;
@@ -565,10 +565,10 @@ var require_typed_arrays = __commonJS({
       Float64Array: 8
     };
     exports2.getMinimalRepresentation = function(array, getter) {
-      var maxType = null, maxPriority = 0, p4, t4, v5, i4, l4;
+      var maxType = null, maxPriority = 0, p4, t4, v4, i4, l4;
       for (i4 = 0, l4 = array.length; i4 < l4; i4++) {
-        v5 = getter ? getter(array[i4]) : array[i4];
-        t4 = exports2.getNumberType(v5);
+        v4 = getter ? getter(array[i4]) : array[i4];
+        t4 = exports2.getNumberType(v4);
         p4 = TYPE_PRIORITY[t4.name];
         if (p4 > maxPriority) {
           maxPriority = p4;
@@ -4170,8 +4170,8 @@ var init_NormalizedSchema = __esm({
       getMemberSchemas() {
         const buffer = {};
         try {
-          for (const [k4, v5] of this.structIterator()) {
-            buffer[k4] = v5;
+          for (const [k4, v4] of this.structIterator()) {
+            buffer[k4] = v4;
           }
         } catch (ignored) {
         }
@@ -4523,7 +4523,7 @@ var init_parse_utils = __esm({
         return void 0;
       }
       const asObject = expectObject(value);
-      const setKeys = Object.entries(asObject).filter(([, v5]) => v5 != null).map(([k4]) => k4);
+      const setKeys = Object.entries(asObject).filter(([, v4]) => v4 != null).map(([k4]) => k4);
       if (setKeys.length === 0) {
         throw new TypeError(`Unions must have exactly one non-null member. None were found.`);
       }
@@ -4958,8 +4958,8 @@ function __generator(thisArg, body) {
     return this;
   }), g4;
   function verb(n4) {
-    return function(v5) {
-      return step([n4, v5]);
+    return function(v4) {
+      return step([n4, v4]);
     };
   }
   function step(op2) {
@@ -5070,8 +5070,8 @@ function __spreadArray(to, from, pack) {
   }
   return to.concat(ar || Array.prototype.slice.call(from));
 }
-function __await(v5) {
-  return this instanceof __await ? (this.v = v5, this) : new __await(v5);
+function __await(v4) {
+  return this instanceof __await ? (this.v = v4, this) : new __await(v4);
 }
 function __asyncGenerator(thisArg, _arguments, generator) {
   if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
@@ -5080,23 +5080,23 @@ function __asyncGenerator(thisArg, _arguments, generator) {
     return this;
   }, i4;
   function awaitReturn(f4) {
-    return function(v5) {
-      return Promise.resolve(v5).then(f4, reject);
+    return function(v4) {
+      return Promise.resolve(v4).then(f4, reject);
     };
   }
   function verb(n4, f4) {
     if (g4[n4]) {
-      i4[n4] = function(v5) {
+      i4[n4] = function(v4) {
         return new Promise(function(a4, b4) {
-          q4.push([n4, v5, a4, b4]) > 1 || resume(n4, v5);
+          q4.push([n4, v4, a4, b4]) > 1 || resume(n4, v4);
         });
       };
       if (f4) i4[n4] = f4(i4[n4]);
     }
   }
-  function resume(n4, v5) {
+  function resume(n4, v4) {
     try {
-      step(g4[n4](v5));
+      step(g4[n4](v4));
     } catch (e4) {
       settle(q4[0][3], e4);
     }
@@ -5110,8 +5110,8 @@ function __asyncGenerator(thisArg, _arguments, generator) {
   function reject(value) {
     resume("throw", value);
   }
-  function settle(f4, v5) {
-    if (f4(v5), q4.shift(), q4.length) resume(q4[0][0], q4[0][1]);
+  function settle(f4, v4) {
+    if (f4(v4), q4.shift(), q4.length) resume(q4[0][0], q4[0][1]);
   }
 }
 function __asyncDelegator(o4) {
@@ -5122,8 +5122,8 @@ function __asyncDelegator(o4) {
     return this;
   }, i4;
   function verb(n4, f4) {
-    i4[n4] = o4[n4] ? function(v5) {
-      return (p4 = !p4) ? { value: __await(o4[n4](v5)), done: false } : f4 ? f4(v5) : v5;
+    i4[n4] = o4[n4] ? function(v4) {
+      return (p4 = !p4) ? { value: __await(o4[n4](v4)), done: false } : f4 ? f4(v4) : v4;
     } : f4;
   }
 }
@@ -5134,15 +5134,15 @@ function __asyncValues(o4) {
     return this;
   }, i4);
   function verb(n4) {
-    i4[n4] = o4[n4] && function(v5) {
+    i4[n4] = o4[n4] && function(v4) {
       return new Promise(function(resolve, reject) {
-        v5 = o4[n4](v5), settle(resolve, reject, v5.done, v5.value);
+        v4 = o4[n4](v4), settle(resolve, reject, v4.done, v4.value);
       });
     };
   }
-  function settle(resolve, reject, d4, v5) {
-    Promise.resolve(v5).then(function(v6) {
-      resolve({ value: v6, done: d4 });
+  function settle(resolve, reject, d4, v4) {
+    Promise.resolve(v4).then(function(v5) {
+      resolve({ value: v5, done: d4 });
     }, reject);
   }
 }
@@ -5276,10 +5276,10 @@ var init_tslib_es6 = __esm({
       if (k22 === void 0) k22 = k4;
       o4[k22] = m4[k4];
     });
-    __setModuleDefault = Object.create ? (function(o4, v5) {
-      Object.defineProperty(o4, "default", { enumerable: true, value: v5 });
-    }) : function(o4, v5) {
-      o4["default"] = v5;
+    __setModuleDefault = Object.create ? (function(o4, v4) {
+      Object.defineProperty(o4, "default", { enumerable: true, value: v4 });
+    }) : function(o4, v4) {
+      o4["default"] = v4;
     };
     ownKeys = function(o4) {
       ownKeys = Object.getOwnPropertyNames || function(o5) {
@@ -5346,11 +5346,11 @@ var require_randomUUID = __commonJS({
 var require_dist_cjs20 = __commonJS({
   "node_modules/@smithy/uuid/dist-cjs/index.js"(exports2) {
     "use strict";
-    var randomUUID2 = require_randomUUID();
+    var randomUUID = require_randomUUID();
     var decimalToHex = Array.from({ length: 256 }, (_, i4) => i4.toString(16).padStart(2, "0"));
-    var v42 = () => {
-      if (randomUUID2.randomUUID) {
-        return randomUUID2.randomUUID();
+    var v4 = () => {
+      if (randomUUID.randomUUID) {
+        return randomUUID.randomUUID();
       }
       const rnds = new Uint8Array(16);
       crypto.getRandomValues(rnds);
@@ -5358,7 +5358,7 @@ var require_dist_cjs20 = __commonJS({
       rnds[8] = rnds[8] & 63 | 128;
       return decimalToHex[rnds[0]] + decimalToHex[rnds[1]] + decimalToHex[rnds[2]] + decimalToHex[rnds[3]] + "-" + decimalToHex[rnds[4]] + decimalToHex[rnds[5]] + "-" + decimalToHex[rnds[6]] + decimalToHex[rnds[7]] + "-" + decimalToHex[rnds[8]] + decimalToHex[rnds[9]] + "-" + decimalToHex[rnds[10]] + decimalToHex[rnds[11]] + decimalToHex[rnds[12]] + decimalToHex[rnds[13]] + decimalToHex[rnds[14]] + decimalToHex[rnds[15]];
     };
-    exports2.v4 = v42;
+    exports2.v4 = v4;
   }
 });
 
@@ -5413,8 +5413,8 @@ var init_quote_header = __esm({
 });
 
 // node_modules/@smithy/core/dist-es/submodules/serde/schema-serde-lib/schema-date-utils.js
-function range(v5, min, max) {
-  const _v = Number(v5);
+function range(v4, min, max) {
+  const _v = Number(v4);
   if (_v < min || _v > max) {
     throw new Error(`Value ${_v} out of range [${min}, ${max}]`);
   }
@@ -5577,16 +5577,16 @@ var init_split_header = __esm({
         prevChar = char;
       }
       values.push(value.slice(anchor));
-      return values.map((v5) => {
-        v5 = v5.trim();
-        const z3 = v5.length;
+      return values.map((v4) => {
+        v4 = v4.trim();
+        const z3 = v4.length;
         if (z3 < 2) {
-          return v5;
+          return v4;
         }
-        if (v5[0] === `"` && v5[z3 - 1] === `"`) {
-          v5 = v5.slice(1, z3 - 1);
+        if (v4[0] === `"` && v4[z3 - 1] === `"`) {
+          v4 = v4.slice(1, z3 - 1);
         }
-        return v5.replace(/\\"/g, '"');
+        return v4.replace(/\\"/g, '"');
       });
     };
   }
@@ -5983,8 +5983,8 @@ var init_HttpProtocol = __esm({
           if (!request.query) {
             request.query = {};
           }
-          for (const [k4, v5] of endpoint.url.searchParams.entries()) {
-            request.query[k4] = v5;
+          for (const [k4, v4] of endpoint.url.searchParams.entries()) {
+            request.query[k4] = v4;
           }
           return request;
         } else {
@@ -7191,7 +7191,7 @@ var require_dist_cjs21 = __commonJS({
           if (typeof value === "object" && "hostname" in value) {
             const { hostname: hostname2, port, protocol: protocol2 = "", path = "", query = {} } = value;
             const url = new URL(`${protocol2}//${hostname2}${port ? `:${port}` : ""}${path}`);
-            url.search = Object.entries(query).map(([k4, v5]) => `${k4}=${v5}`).join("&");
+            url.search = Object.entries(query).map(([k4, v4]) => `${k4}=${v4}`).join("&");
             return url;
           }
           return new URL(value);
@@ -7459,13 +7459,13 @@ var require_dist_cjs21 = __commonJS({
       const { endpointParams, logger: logger2 } = options;
       const { parameters, rules } = ruleSetObject;
       options.logger?.debug?.(`${debugId} Initial EndpointParams: ${toDebugString(endpointParams)}`);
-      const paramsWithDefault = Object.entries(parameters).filter(([, v5]) => v5.default != null).map(([k4, v5]) => [k4, v5.default]);
+      const paramsWithDefault = Object.entries(parameters).filter(([, v4]) => v4.default != null).map(([k4, v4]) => [k4, v4.default]);
       if (paramsWithDefault.length > 0) {
         for (const [paramKey, paramDefaultValue] of paramsWithDefault) {
           endpointParams[paramKey] = endpointParams[paramKey] ?? paramDefaultValue;
         }
       }
-      const requiredParams = Object.entries(parameters).filter(([, v5]) => v5.required).map(([k4]) => k4);
+      const requiredParams = Object.entries(parameters).filter(([, v4]) => v4.required).map(([k4]) => k4);
       for (const requiredParam of requiredParams) {
         if (endpointParams[requiredParam] == null) {
           throw new EndpointError(`Missing required parameter: '${requiredParam}'`);
@@ -9858,8 +9858,8 @@ var init_CborCodec = __esm({
             }
             const isUnion = ns.isUnionSchema();
             if (isUnion && Array.isArray(sourceObject.$unknown)) {
-              const [k4, v5] = sourceObject.$unknown;
-              newObject[k4] = v5;
+              const [k4, v4] = sourceObject.$unknown;
+              newObject[k4] = v4;
             }
           } else if (ns.isDocumentSchema()) {
             for (const key of Object.keys(sourceObject)) {
@@ -10607,9 +10607,9 @@ var require_dist_cjs28 = __commonJS({
       }
     };
     var decorateServiceException2 = (exception, additions = {}) => {
-      Object.entries(additions).filter(([, v5]) => v5 !== void 0).forEach(([k4, v5]) => {
+      Object.entries(additions).filter(([, v4]) => v4 !== void 0).forEach(([k4, v4]) => {
         if (exception[k4] == void 0 || exception[k4] === "") {
-          exception[k4] = v5;
+          exception[k4] = v4;
         }
       });
       const message = exception.message || exception.Message || "UnknownError";
@@ -10775,8 +10775,8 @@ var require_dist_cjs28 = __commonJS({
     }
     var convertMap = (target) => {
       const output = {};
-      for (const [k4, v5] of Object.entries(target || {})) {
-        output[k4] = [, v5];
+      for (const [k4, v4] of Object.entries(target || {})) {
+        output[k4] = [, v4];
       }
       return output;
     };
@@ -11012,8 +11012,8 @@ var init_ProtocolLib = __esm({
             Type
           };
           Object.assign(output, Error2);
-          for (const [k4, v5] of entries) {
-            Error2[k4 === "message" ? "Message" : k4] = v5;
+          for (const [k4, v4] of entries) {
+            Error2[k4 === "message" ? "Message" : k4] = v4;
           }
           delete Error2.__type;
           output.Error = Error2;
@@ -11238,8 +11238,8 @@ var init_UnionSerde = __esm({
       writeUnknown() {
         if (this.hasUnknown()) {
           const k4 = this.keys.values().next().value;
-          const v5 = this.from[k4];
-          this.to.$unknown = [k4, v5];
+          const v4 = this.from[k4];
+          this.to.$unknown = [k4, v4];
         }
       }
     };
@@ -11464,11 +11464,11 @@ var init_JsonShapeDeserializer = __esm({
         if (ns.isDocumentSchema()) {
           if (isObject) {
             const out = Array.isArray(value) ? [] : {};
-            for (const [k4, v5] of Object.entries(value)) {
-              if (v5 instanceof NumericValue) {
-                out[k4] = v5;
+            for (const [k4, v4] of Object.entries(value)) {
+              if (v4 instanceof NumericValue) {
+                out[k4] = v4;
               } else {
-                out[k4] = this._read(ns, v5);
+                out[k4] = this._read(ns, v4);
               }
             }
             return out;
@@ -11502,15 +11502,15 @@ var init_jsonReplacer = __esm({
         this.stage = 1;
         return (key, value) => {
           if (value instanceof NumericValue) {
-            const v5 = `${NUMERIC_CONTROL_CHAR + "nv" + this.counter++}_` + value.string;
-            this.values.set(`"${v5}"`, value.string);
-            return v5;
+            const v4 = `${NUMERIC_CONTROL_CHAR + "nv" + this.counter++}_` + value.string;
+            this.values.set(`"${v4}"`, value.string);
+            return v4;
           }
           if (typeof value === "bigint") {
             const s4 = value.toString();
-            const v5 = `${NUMERIC_CONTROL_CHAR + "b" + this.counter++}_` + s4;
-            this.values.set(`"${v5}"`, s4);
-            return v5;
+            const v4 = `${NUMERIC_CONTROL_CHAR + "b" + this.counter++}_` + s4;
+            this.values.set(`"${v4}"`, s4);
+            return v4;
           }
           return value;
         };
@@ -11595,8 +11595,8 @@ var init_JsonShapeSerializer = __esm({
             if (ns.isUnionSchema() && Object.keys(out).length === 0) {
               const { $unknown } = value;
               if (Array.isArray($unknown)) {
-                const [k4, v5] = $unknown;
-                out[k4] = this._write(15, v5);
+                const [k4, v4] = $unknown;
+                out[k4] = this._write(15, v4);
               }
             }
             return out;
@@ -11681,12 +11681,12 @@ var init_JsonShapeSerializer = __esm({
         if (ns.isDocumentSchema()) {
           if (isObject) {
             const out = Array.isArray(value) ? [] : {};
-            for (const [k4, v5] of Object.entries(value)) {
-              if (v5 instanceof NumericValue) {
+            for (const [k4, v4] of Object.entries(value)) {
+              if (v4 instanceof NumericValue) {
                 this.useReplacer = true;
-                out[k4] = v5;
+                out[k4] = v4;
               } else {
-                out[k4] = this._write(ns, v5);
+                out[k4] = this._write(ns, v4);
               }
             }
             return out;
@@ -12158,7 +12158,7 @@ var require_fxp = __commonJS({
       function E2(t5) {
         return t5.startIndex + t5[1].length;
       }
-      const v5 = { preserveOrder: false, attributeNamePrefix: "@_", attributesGroupName: false, textNodeName: "#text", ignoreAttributes: true, removeNSPrefix: false, allowBooleanAttributes: false, parseTagValue: true, parseAttributeValue: false, trimValues: true, cdataPropName: false, numberParseOptions: { hex: true, leadingZeros: true, eNotation: true }, tagValueProcessor: function(t5, e5) {
+      const v4 = { preserveOrder: false, attributeNamePrefix: "@_", attributesGroupName: false, textNodeName: "#text", ignoreAttributes: true, removeNSPrefix: false, allowBooleanAttributes: false, parseTagValue: true, parseAttributeValue: false, trimValues: true, cdataPropName: false, numberParseOptions: { hex: true, leadingZeros: true, eNotation: true }, tagValueProcessor: function(t5, e5) {
         return e5;
       }, attributeValueProcessor: function(t5, e5) {
         return e5;
@@ -12575,7 +12575,7 @@ var require_fxp = __commonJS({
       class st {
         constructor(t5) {
           this.externalEntities = {}, this.options = (function(t6) {
-            return Object.assign({}, v5, t6);
+            return Object.assign({}, v4, t6);
           })(t5);
         }
         parse(t5, e5) {
@@ -12965,9 +12965,9 @@ var init_XmlShapeDeserializer = __esm({
             const sourceKey = listValue.getMergedTraits().xmlName ?? "member";
             const source = flat ? value : (value[0] ?? value)[sourceKey];
             const sourceArray = Array.isArray(source) ? source : [source];
-            for (const v5 of sourceArray) {
-              if (v5 != null || sparse) {
-                buffer2.push(this.readSchema(listValue, v5));
+            for (const v4 of sourceArray) {
+              if (v4 != null || sparse) {
+                buffer2.push(this.readSchema(listValue, v4));
               }
             }
             return buffer2;
@@ -13161,8 +13161,8 @@ var init_QueryShapeSerializer = __esm({
             const memberSchema = ns.getValueSchema();
             const flat = ns.getMergedTraits().xmlFlattened;
             let i4 = 1;
-            for (const [k4, v5] of Object.entries(value)) {
-              if (v5 == null) {
+            for (const [k4, v4] of Object.entries(value)) {
+              if (v4 == null) {
                 continue;
               }
               const keySuffix = this.getKey("key", keySchema.getMergedTraits().xmlName);
@@ -13170,7 +13170,7 @@ var init_QueryShapeSerializer = __esm({
               const valueSuffix = this.getKey("value", memberSchema.getMergedTraits().xmlName);
               const valueKey = flat ? `${prefix}${i4}.${valueSuffix}` : `${prefix}entry.${i4}.${valueSuffix}`;
               this.write(keySchema, k4, key);
-              this.write(memberSchema, v5, valueKey);
+              this.write(memberSchema, v4, valueKey);
               ++i4;
             }
           }
@@ -13189,9 +13189,9 @@ var init_QueryShapeSerializer = __esm({
             if (!didWriteMember && ns.isUnionSchema()) {
               const { $unknown } = value;
               if (Array.isArray($unknown)) {
-                const [k4, v5] = $unknown;
+                const [k4, v4] = $unknown;
                 const key = `${prefix}${k4}`;
-                this.write(15, v5, key);
+                this.write(15, v4, key);
               }
             }
           }
@@ -13532,16 +13532,16 @@ var init_XmlShapeSerializer = __esm({
         }
         const { $unknown } = value;
         if ($unknown && ns.isUnionSchema() && Array.isArray($unknown) && Object.keys(value).length === 1) {
-          const [k4, v5] = $unknown;
+          const [k4, v4] = $unknown;
           const node = import_xml_builder3.XmlNode.of(k4);
-          if (typeof v5 !== "string") {
+          if (typeof v4 !== "string") {
             if (value instanceof import_xml_builder3.XmlNode || value instanceof import_xml_builder3.XmlText) {
               structXmlNode.addChildNode(value);
             } else {
               throw new Error(`@aws-sdk - $unknown union member in XML requires value of type string, @aws-sdk/xml-builder::XmlNode or XmlText.`);
             }
           }
-          this.writeSimpleInto(0, v5, node, xmlns);
+          this.writeSimpleInto(0, v4, node, xmlns);
           structXmlNode.addChildNode(node);
         }
         if (xmlns) {
@@ -16286,8 +16286,8 @@ var require_requestHelpers = __commonJS({
         hostname: url.hostname,
         port: Number(url.port),
         path: url.pathname,
-        query: Array.from(url.searchParams.entries()).reduce((acc, [k4, v5]) => {
-          acc[k4] = v5;
+        query: Array.from(url.searchParams.entries()).reduce((acc, [k4, v4]) => {
+          acc[k4] = v4;
           return acc;
         }, {}),
         fragment: url.hash
@@ -17996,7 +17996,7 @@ var require_ruleset = __commonJS({
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.ruleSet = void 0;
     var u4 = "required";
-    var v5 = "fn";
+    var v4 = "fn";
     var w4 = "argv";
     var x4 = "ref";
     var a4 = true;
@@ -18010,16 +18010,16 @@ var require_ruleset = __commonJS({
     var i4 = { [u4]: false, "type": "string" };
     var j4 = { [u4]: true, "default": false, "type": "boolean" };
     var k4 = { [x4]: "Endpoint" };
-    var l4 = { [v5]: c4, [w4]: [{ [x4]: "UseFIPS" }, true] };
-    var m4 = { [v5]: c4, [w4]: [{ [x4]: "UseDualStack" }, true] };
+    var l4 = { [v4]: c4, [w4]: [{ [x4]: "UseFIPS" }, true] };
+    var m4 = { [v4]: c4, [w4]: [{ [x4]: "UseDualStack" }, true] };
     var n4 = {};
-    var o4 = { [v5]: h4, [w4]: [{ [x4]: g4 }, "supportsFIPS"] };
+    var o4 = { [v4]: h4, [w4]: [{ [x4]: g4 }, "supportsFIPS"] };
     var p4 = { [x4]: g4 };
-    var q4 = { [v5]: c4, [w4]: [true, { [v5]: h4, [w4]: [p4, "supportsDualStack"] }] };
+    var q4 = { [v4]: c4, [w4]: [true, { [v4]: h4, [w4]: [p4, "supportsDualStack"] }] };
     var r4 = [l4];
     var s4 = [m4];
     var t4 = [{ [x4]: "Region" }];
-    var _data4 = { version: "1.0", parameters: { Region: i4, UseDualStack: j4, UseFIPS: j4, Endpoint: i4 }, rules: [{ conditions: [{ [v5]: b4, [w4]: [k4] }], rules: [{ conditions: r4, error: "Invalid Configuration: FIPS and custom endpoint are not supported", type: d4 }, { conditions: s4, error: "Invalid Configuration: Dualstack and custom endpoint are not supported", type: d4 }, { endpoint: { url: k4, properties: n4, headers: n4 }, type: e4 }], type: f4 }, { conditions: [{ [v5]: b4, [w4]: t4 }], rules: [{ conditions: [{ [v5]: "aws.partition", [w4]: t4, assign: g4 }], rules: [{ conditions: [l4, m4], rules: [{ conditions: [{ [v5]: c4, [w4]: [a4, o4] }, q4], rules: [{ endpoint: { url: "https://portal.sso-fips.{Region}.{PartitionResult#dualStackDnsSuffix}", properties: n4, headers: n4 }, type: e4 }], type: f4 }, { error: "FIPS and DualStack are enabled, but this partition does not support one or both", type: d4 }], type: f4 }, { conditions: r4, rules: [{ conditions: [{ [v5]: c4, [w4]: [o4, a4] }], rules: [{ conditions: [{ [v5]: "stringEquals", [w4]: [{ [v5]: h4, [w4]: [p4, "name"] }, "aws-us-gov"] }], endpoint: { url: "https://portal.sso.{Region}.amazonaws.com", properties: n4, headers: n4 }, type: e4 }, { endpoint: { url: "https://portal.sso-fips.{Region}.{PartitionResult#dnsSuffix}", properties: n4, headers: n4 }, type: e4 }], type: f4 }, { error: "FIPS is enabled but this partition does not support FIPS", type: d4 }], type: f4 }, { conditions: s4, rules: [{ conditions: [q4], rules: [{ endpoint: { url: "https://portal.sso.{Region}.{PartitionResult#dualStackDnsSuffix}", properties: n4, headers: n4 }, type: e4 }], type: f4 }, { error: "DualStack is enabled but this partition does not support DualStack", type: d4 }], type: f4 }, { endpoint: { url: "https://portal.sso.{Region}.{PartitionResult#dnsSuffix}", properties: n4, headers: n4 }, type: e4 }], type: f4 }], type: f4 }, { error: "Invalid Configuration: Missing Region", type: d4 }] };
+    var _data4 = { version: "1.0", parameters: { Region: i4, UseDualStack: j4, UseFIPS: j4, Endpoint: i4 }, rules: [{ conditions: [{ [v4]: b4, [w4]: [k4] }], rules: [{ conditions: r4, error: "Invalid Configuration: FIPS and custom endpoint are not supported", type: d4 }, { conditions: s4, error: "Invalid Configuration: Dualstack and custom endpoint are not supported", type: d4 }, { endpoint: { url: k4, properties: n4, headers: n4 }, type: e4 }], type: f4 }, { conditions: [{ [v4]: b4, [w4]: t4 }], rules: [{ conditions: [{ [v4]: "aws.partition", [w4]: t4, assign: g4 }], rules: [{ conditions: [l4, m4], rules: [{ conditions: [{ [v4]: c4, [w4]: [a4, o4] }, q4], rules: [{ endpoint: { url: "https://portal.sso-fips.{Region}.{PartitionResult#dualStackDnsSuffix}", properties: n4, headers: n4 }, type: e4 }], type: f4 }, { error: "FIPS and DualStack are enabled, but this partition does not support one or both", type: d4 }], type: f4 }, { conditions: r4, rules: [{ conditions: [{ [v4]: c4, [w4]: [o4, a4] }], rules: [{ conditions: [{ [v4]: "stringEquals", [w4]: [{ [v4]: h4, [w4]: [p4, "name"] }, "aws-us-gov"] }], endpoint: { url: "https://portal.sso.{Region}.amazonaws.com", properties: n4, headers: n4 }, type: e4 }, { endpoint: { url: "https://portal.sso-fips.{Region}.{PartitionResult#dnsSuffix}", properties: n4, headers: n4 }, type: e4 }], type: f4 }, { error: "FIPS is enabled but this partition does not support FIPS", type: d4 }], type: f4 }, { conditions: s4, rules: [{ conditions: [q4], rules: [{ endpoint: { url: "https://portal.sso.{Region}.{PartitionResult#dualStackDnsSuffix}", properties: n4, headers: n4 }, type: e4 }], type: f4 }, { error: "DualStack is enabled but this partition does not support DualStack", type: d4 }], type: f4 }, { endpoint: { url: "https://portal.sso.{Region}.{PartitionResult#dnsSuffix}", properties: n4, headers: n4 }, type: e4 }], type: f4 }], type: f4 }, { error: "Invalid Configuration: Missing Region", type: d4 }] };
     exports2.ruleSet = _data4;
   }
 });
@@ -20761,10 +20761,10 @@ var require_fromWebToken = __commonJS({
       if (k22 === void 0) k22 = k4;
       o4[k22] = m4[k4];
     }));
-    var __setModuleDefault2 = exports2 && exports2.__setModuleDefault || (Object.create ? (function(o4, v5) {
-      Object.defineProperty(o4, "default", { enumerable: true, value: v5 });
-    }) : function(o4, v5) {
-      o4["default"] = v5;
+    var __setModuleDefault2 = exports2 && exports2.__setModuleDefault || (Object.create ? (function(o4, v4) {
+      Object.defineProperty(o4, "default", { enumerable: true, value: v4 });
+    }) : function(o4, v4) {
+      o4["default"] = v4;
     });
     var __importStar2 = exports2 && exports2.__importStar || /* @__PURE__ */ (function() {
       var ownKeys2 = function(o4) {
@@ -21262,13 +21262,13 @@ var require_dist_cjs56 = __commonJS({
               out.BS = av.BS.map(base64Encode);
             }
             if (Array.isArray(av.L)) {
-              out.L = av.L.filter((v5) => v5 != null).map((v5) => this._write(ns, v5, container));
+              out.L = av.L.filter((v4) => v4 != null).map((v4) => this._write(ns, v4, container));
             }
             if (av.M && typeof av.M === "object") {
               out.M = {};
-              for (const [k4, v5] of Object.entries(av.M)) {
-                if (v5 != null) {
-                  out.M[k4] = this._write(ns, v5, container);
+              for (const [k4, v4] of Object.entries(av.M)) {
+                if (v4 != null) {
+                  out.M[k4] = this._write(ns, v4, container);
                 }
               }
             }
@@ -21293,12 +21293,12 @@ var require_dist_cjs56 = __commonJS({
               out.BS = av.BS.map(base64Decoder);
             }
             if (Array.isArray(av.L)) {
-              out.L = av.L.map((v5) => this._read(ns, v5));
+              out.L = av.L.map((v4) => this._read(ns, v4));
             }
             if (av.M && typeof av.M === "object") {
               out.M = {};
-              for (const [k4, v5] of Object.entries(av.M)) {
-                out.M[k4] = this._read(ns, v5);
+              for (const [k4, v4] of Object.entries(av.M)) {
+                out.M[k4] = this._read(ns, v4);
               }
             }
             return out;
@@ -21350,7 +21350,7 @@ var require_ruleset2 = __commonJS({
     var s4 = { [e4]: { [S]: "{Endpoint}", [T]: {}, [U]: {} }, [L]: e4 };
     var t4 = {};
     var u4 = { [O]: "booleanEquals", [P]: [{ [O]: "getAttr", [P]: [{ [Q]: "PartitionResult" }, "supportsFIPS"] }, true] };
-    var v5 = { [O]: "booleanEquals", [P]: [{ [O]: "getAttr", [P]: [{ [Q]: "PartitionResult" }, "supportsDualStack"] }, true] };
+    var v4 = { [O]: "booleanEquals", [P]: [{ [O]: "getAttr", [P]: [{ [Q]: "PartitionResult" }, "supportsDualStack"] }, true] };
     var w4 = { [N]: [{ [O]: "isSet", [P]: [{ [Q]: "AccountIdEndpointMode" }] }, { [O]: c4, [P]: [{ [Q]: "AccountIdEndpointMode" }, "required"] }], [M]: [{ [b4]: "Invalid Configuration: AccountIdEndpointMode is required and FIPS is enabled, but FIPS account endpoints are not supported", [L]: b4 }], [L]: f4 };
     var x4 = { [O]: "getAttr", [P]: [{ [Q]: "PartitionResult" }, "name"] };
     var y2 = { [e4]: { [S]: "https://dynamodb.{Region}.{PartitionResult#dnsSuffix}", [T]: {}, [U]: {} }, [L]: e4 };
@@ -21365,7 +21365,7 @@ var require_ruleset2 = __commonJS({
     var H2 = [{ [O]: "isSet", [P]: [{ [Q]: "AccountIdEndpointMode" }] }, { [O]: "not", [P]: [{ [O]: c4, [P]: [{ [Q]: "AccountIdEndpointMode" }, "disabled"] }] }, { [O]: c4, [P]: [x4, "aws"] }, { [O]: "not", [P]: [p4] }, { [O]: "isSet", [P]: [{ [Q]: "ResourceArnList" }] }, { [O]: "getAttr", [P]: [{ [Q]: "ResourceArnList" }, "[0]"], [R]: "FirstArn" }, { [O]: "aws.parseArn", [P]: [{ [Q]: "FirstArn" }], [R]: "ParsedArn" }, { [O]: c4, [P]: [{ [O]: "getAttr", [P]: [{ [Q]: "ParsedArn" }, "service"] }, g4] }, { [O]: "isValidHostLabel", [P]: [{ [O]: "getAttr", [P]: [{ [Q]: "ParsedArn" }, "region"] }, false] }, { [O]: c4, [P]: [{ [O]: "getAttr", [P]: [{ [Q]: "ParsedArn" }, "region"] }, "{Region}"] }, { [O]: "isValidHostLabel", [P]: [{ [O]: "getAttr", [P]: [{ [Q]: "ParsedArn" }, "accountId"] }, false] }];
     var I2 = [{ [O]: "isSet", [P]: [{ [Q]: "AccountIdEndpointMode" }] }, { [O]: "not", [P]: [{ [O]: c4, [P]: [{ [Q]: "AccountIdEndpointMode" }, "disabled"] }] }, { [O]: c4, [P]: [x4, "aws"] }, { [O]: "not", [P]: [p4] }, { [O]: "isSet", [P]: [{ [Q]: "AccountId" }] }];
     var J2 = [{ [O]: "isValidHostLabel", [P]: [{ [Q]: "AccountId" }, false] }];
-    var _data4 = { version: "1.0", parameters: { Region: h4, UseDualStack: i4, UseFIPS: i4, Endpoint: h4, AccountId: h4, AccountIdEndpointMode: h4, ResourceArn: h4, ResourceArnList: { [K]: a4, [L]: "stringArray" } }, [M]: [{ [N]: [j4, l4, n4], [M]: [o4, q4, { [N]: [{ [O]: c4, [P]: [k4, d4] }], error: "Endpoint override is not supported for dual-stack endpoints. Please enable dual-stack functionality by enabling the configuration. For more details, see: https://docs.aws.amazon.com/sdkref/latest/guide/feature-endpoints.html", [L]: b4 }, s4], [L]: f4 }, { [N]: [j4], [M]: [o4, q4, s4], [L]: f4 }, { [N]: [l4], [M]: [{ [N]: [n4], [M]: [{ [N]: [{ [O]: c4, [P]: [m4, "local"] }], [M]: [{ [N]: E2, error: "Invalid Configuration: FIPS and local endpoint are not supported", [L]: b4 }, { [N]: F2, error: "Invalid Configuration: Dualstack and local endpoint are not supported", [L]: b4 }, { endpoint: { [S]: "http://localhost:8000", [T]: { authSchemes: [{ name: "sigv4", signingName: g4, signingRegion: "us-east-1" }] }, [U]: t4 }, [L]: e4 }], [L]: f4 }, { [N]: [p4, r4], [M]: [{ [N]: [u4, v5], [M]: [w4, { endpoint: { [S]: "https://dynamodb-fips.{Region}.{PartitionResult#dualStackDnsSuffix}", [T]: t4, [U]: t4 }, [L]: e4 }], [L]: f4 }, { error: "FIPS and DualStack are enabled, but this partition does not support one or both", [L]: b4 }], [L]: f4 }, { [N]: E2, [M]: [{ [N]: [u4], [M]: [{ [N]: [{ [O]: c4, [P]: [x4, "aws-us-gov"] }], [M]: [w4, y2], [L]: f4 }, w4, { endpoint: { [S]: "https://dynamodb-fips.{Region}.{PartitionResult#dnsSuffix}", [T]: t4, [U]: t4 }, [L]: e4 }], [L]: f4 }, { error: "FIPS is enabled but this partition does not support FIPS", [L]: b4 }], [L]: f4 }, { [N]: F2, [M]: [{ [N]: [v5], [M]: [{ [N]: G2, endpoint: z2, [L]: e4 }, { [N]: H2, endpoint: z2, [L]: e4 }, { [N]: I2, [M]: [{ [N]: J2, [M]: [{ endpoint: { [S]: "https://{AccountId}.ddb.{Region}.{PartitionResult#dualStackDnsSuffix}", [T]: A2, [U]: t4 }, [L]: e4 }], [L]: f4 }, B2], [L]: f4 }, C2, { endpoint: { [S]: d4, [T]: t4, [U]: t4 }, [L]: e4 }], [L]: f4 }, { error: "DualStack is enabled but this partition does not support DualStack", [L]: b4 }], [L]: f4 }, { [N]: G2, endpoint: D2, [L]: e4 }, { [N]: H2, endpoint: D2, [L]: e4 }, { [N]: I2, [M]: [{ [N]: J2, [M]: [{ endpoint: { [S]: "https://{AccountId}.ddb.{Region}.{PartitionResult#dnsSuffix}", [T]: A2, [U]: t4 }, [L]: e4 }], [L]: f4 }, B2], [L]: f4 }, C2, y2], [L]: f4 }], [L]: f4 }, { error: "Invalid Configuration: Missing Region", [L]: b4 }] };
+    var _data4 = { version: "1.0", parameters: { Region: h4, UseDualStack: i4, UseFIPS: i4, Endpoint: h4, AccountId: h4, AccountIdEndpointMode: h4, ResourceArn: h4, ResourceArnList: { [K]: a4, [L]: "stringArray" } }, [M]: [{ [N]: [j4, l4, n4], [M]: [o4, q4, { [N]: [{ [O]: c4, [P]: [k4, d4] }], error: "Endpoint override is not supported for dual-stack endpoints. Please enable dual-stack functionality by enabling the configuration. For more details, see: https://docs.aws.amazon.com/sdkref/latest/guide/feature-endpoints.html", [L]: b4 }, s4], [L]: f4 }, { [N]: [j4], [M]: [o4, q4, s4], [L]: f4 }, { [N]: [l4], [M]: [{ [N]: [n4], [M]: [{ [N]: [{ [O]: c4, [P]: [m4, "local"] }], [M]: [{ [N]: E2, error: "Invalid Configuration: FIPS and local endpoint are not supported", [L]: b4 }, { [N]: F2, error: "Invalid Configuration: Dualstack and local endpoint are not supported", [L]: b4 }, { endpoint: { [S]: "http://localhost:8000", [T]: { authSchemes: [{ name: "sigv4", signingName: g4, signingRegion: "us-east-1" }] }, [U]: t4 }, [L]: e4 }], [L]: f4 }, { [N]: [p4, r4], [M]: [{ [N]: [u4, v4], [M]: [w4, { endpoint: { [S]: "https://dynamodb-fips.{Region}.{PartitionResult#dualStackDnsSuffix}", [T]: t4, [U]: t4 }, [L]: e4 }], [L]: f4 }, { error: "FIPS and DualStack are enabled, but this partition does not support one or both", [L]: b4 }], [L]: f4 }, { [N]: E2, [M]: [{ [N]: [u4], [M]: [{ [N]: [{ [O]: c4, [P]: [x4, "aws-us-gov"] }], [M]: [w4, y2], [L]: f4 }, w4, { endpoint: { [S]: "https://dynamodb-fips.{Region}.{PartitionResult#dnsSuffix}", [T]: t4, [U]: t4 }, [L]: e4 }], [L]: f4 }, { error: "FIPS is enabled but this partition does not support FIPS", [L]: b4 }], [L]: f4 }, { [N]: F2, [M]: [{ [N]: [v4], [M]: [{ [N]: G2, endpoint: z2, [L]: e4 }, { [N]: H2, endpoint: z2, [L]: e4 }, { [N]: I2, [M]: [{ [N]: J2, [M]: [{ endpoint: { [S]: "https://{AccountId}.ddb.{Region}.{PartitionResult#dualStackDnsSuffix}", [T]: A2, [U]: t4 }, [L]: e4 }], [L]: f4 }, B2], [L]: f4 }, C2, { endpoint: { [S]: d4, [T]: t4, [U]: t4 }, [L]: e4 }], [L]: f4 }, { error: "DualStack is enabled but this partition does not support DualStack", [L]: b4 }], [L]: f4 }, { [N]: G2, endpoint: D2, [L]: e4 }, { [N]: H2, endpoint: D2, [L]: e4 }, { [N]: I2, [M]: [{ [N]: J2, [M]: [{ endpoint: { [S]: "https://{AccountId}.ddb.{Region}.{PartitionResult#dnsSuffix}", [T]: A2, [U]: t4 }, [L]: e4 }], [L]: f4 }, B2], [L]: f4 }, C2, y2], [L]: f4 }], [L]: f4 }, { error: "Invalid Configuration: Missing Region", [L]: b4 }] };
     exports2.ruleSet = _data4;
   }
 });
@@ -27465,9 +27465,9 @@ var require_dist_cjs60 = __commonJS({
           } else if (allChildren) {
             return processAllKeysInObj(obj, processFunc, SELF);
           } else if (goToNextLevel) {
-            return Object.entries(obj ?? {}).reduce((acc, [k4, v5]) => {
-              if (typeof v5 !== "function") {
-                acc[k4] = processObj(v5, processFunc, keyNodes[NEXT_LEVEL]);
+            return Object.entries(obj ?? {}).reduce((acc, [k4, v4]) => {
+              if (typeof v4 !== "function") {
+                acc[k4] = processObj(v4, processFunc, keyNodes[NEXT_LEVEL]);
               }
               return acc;
             }, Array.isArray(obj) ? [] : {});
@@ -27482,9 +27482,9 @@ var require_dist_cjs60 = __commonJS({
         accumulator = obj.filter((item) => typeof item !== "function");
       } else {
         accumulator = {};
-        for (const [k4, v5] of Object.entries(obj)) {
-          if (typeof v5 !== "function") {
-            accumulator[k4] = v5;
+        for (const [k4, v4] of Object.entries(obj)) {
+          if (typeof v4 !== "function") {
+            accumulator[k4] = v4;
           }
         }
       }
@@ -29706,8 +29706,8 @@ var require_valid = __commonJS({
     "use strict";
     var parse = require_parse();
     var valid = (version, options) => {
-      const v5 = parse(version, options);
-      return v5 ? v5.version : null;
+      const v4 = parse(version, options);
+      return v4 ? v4.version : null;
     };
     module2.exports = valid;
   }
@@ -30627,10 +30627,10 @@ var require_max_satisfying = __commonJS({
       } catch (er) {
         return null;
       }
-      versions.forEach((v5) => {
-        if (rangeObj.test(v5)) {
-          if (!max || maxSV.compare(v5) === -1) {
-            max = v5;
+      versions.forEach((v4) => {
+        if (rangeObj.test(v4)) {
+          if (!max || maxSV.compare(v4) === -1) {
+            max = v4;
             maxSV = new SemVer(max, options);
           }
         }
@@ -30656,10 +30656,10 @@ var require_min_satisfying = __commonJS({
       } catch (er) {
         return null;
       }
-      versions.forEach((v5) => {
-        if (rangeObj.test(v5)) {
-          if (!min || minSV.compare(v5) === 1) {
-            min = v5;
+      versions.forEach((v4) => {
+        if (rangeObj.test(v4)) {
+          if (!min || minSV.compare(v4) === 1) {
+            min = v4;
             minSV = new SemVer(min, options);
           }
         }
@@ -30858,8 +30858,8 @@ var require_simplify = __commonJS({
       const set = [];
       let first = null;
       let prev = null;
-      const v5 = versions.sort((a4, b4) => compare(a4, b4, options));
-      for (const version of v5) {
+      const v4 = versions.sort((a4, b4) => compare(a4, b4, options));
+      for (const version of v4) {
         const included = satisfies(version, range2, options);
         if (included) {
           prev = version;
@@ -30881,11 +30881,11 @@ var require_simplify = __commonJS({
       for (const [min, max] of set) {
         if (min === max) {
           ranges.push(min);
-        } else if (!max && min === v5[0]) {
+        } else if (!max && min === v4[0]) {
           ranges.push("*");
         } else if (!max) {
           ranges.push(`>=${min}`);
-        } else if (min === v5[0]) {
+        } else if (min === v4[0]) {
           ranges.push(`<=${max}`);
         } else {
           ranges.push(`${min} - ${max}`);
@@ -33926,63 +33926,12 @@ var require_bcryptjs = __commonJS({
   }
 });
 
-// src/handlers/users.ts
-var users_exports = {};
-__export(users_exports, {
+// src/handlers/bookmarks.ts
+var bookmarks_exports = {};
+__export(bookmarks_exports, {
   handler: () => handler
 });
-module.exports = __toCommonJS(users_exports);
-
-// node_modules/uuid/dist/esm/stringify.js
-var byteToHex = [];
-for (let i4 = 0; i4 < 256; ++i4) {
-  byteToHex.push((i4 + 256).toString(16).slice(1));
-}
-function unsafeStringify(arr, offset = 0) {
-  return (byteToHex[arr[offset + 0]] + byteToHex[arr[offset + 1]] + byteToHex[arr[offset + 2]] + byteToHex[arr[offset + 3]] + "-" + byteToHex[arr[offset + 4]] + byteToHex[arr[offset + 5]] + "-" + byteToHex[arr[offset + 6]] + byteToHex[arr[offset + 7]] + "-" + byteToHex[arr[offset + 8]] + byteToHex[arr[offset + 9]] + "-" + byteToHex[arr[offset + 10]] + byteToHex[arr[offset + 11]] + byteToHex[arr[offset + 12]] + byteToHex[arr[offset + 13]] + byteToHex[arr[offset + 14]] + byteToHex[arr[offset + 15]]).toLowerCase();
-}
-
-// node_modules/uuid/dist/esm/rng.js
-var import_crypto = require("crypto");
-var rnds8Pool = new Uint8Array(256);
-var poolPtr = rnds8Pool.length;
-function rng() {
-  if (poolPtr > rnds8Pool.length - 16) {
-    (0, import_crypto.randomFillSync)(rnds8Pool);
-    poolPtr = 0;
-  }
-  return rnds8Pool.slice(poolPtr, poolPtr += 16);
-}
-
-// node_modules/uuid/dist/esm/native.js
-var import_crypto2 = require("crypto");
-var native_default = { randomUUID: import_crypto2.randomUUID };
-
-// node_modules/uuid/dist/esm/v4.js
-function v4(options, buf, offset) {
-  if (native_default.randomUUID && !buf && !options) {
-    return native_default.randomUUID();
-  }
-  options = options || {};
-  const rnds = options.random ?? options.rng?.() ?? rng();
-  if (rnds.length < 16) {
-    throw new Error("Random bytes length must be >= 16");
-  }
-  rnds[6] = rnds[6] & 15 | 64;
-  rnds[8] = rnds[8] & 63 | 128;
-  if (buf) {
-    offset = offset || 0;
-    if (offset < 0 || offset + 16 > buf.length) {
-      throw new RangeError(`UUID byte range ${offset}:${offset + 15} is out of buffer bounds`);
-    }
-    for (let i4 = 0; i4 < 16; ++i4) {
-      buf[offset + i4] = rnds[i4];
-    }
-    return buf;
-  }
-  return unsafeStringify(rnds);
-}
-var v4_default = v4;
+module.exports = __toCommonJS(bookmarks_exports);
 
 // src/utils/dynamo.ts
 var import_client_dynamodb = __toESM(require_dist_cjs58());
@@ -34019,6 +33968,13 @@ async function scanTable(tableName) {
   });
   const response = await docClient.send(command);
   return response.Items || [];
+}
+async function deleteItem(tableName, key) {
+  const command = new import_lib_dynamodb.DeleteCommand({
+    TableName: tableName,
+    Key: key
+  });
+  return await docClient.send(command);
 }
 
 // src/utils/response.ts
@@ -34102,122 +34058,106 @@ function withAuth(handler2) {
   };
 }
 
-// src/handlers/users.ts
+// src/handlers/bookmarks.ts
+var BOOKMARKS_TABLE = process.env.BOOKMARKS_TABLE || "friendlines-bookmarks";
+var NEWSFLASHES_TABLE = process.env.NEWSFLASHES_TABLE || "friendlines-newsflashes";
 var USERS_TABLE = process.env.USERS_TABLE || "friendlines-users";
 async function handler(event) {
-  console.log("Users Event:", JSON.stringify(event, null, 2));
-  try {
-    const method = event.httpMethod;
-    const path = event.path;
-    if (method === "GET" && path === "/users/search") {
-      return await withAuth(handleSearchUsers)(event);
+  return withAuth(async (authenticatedEvent) => {
+    console.log("Bookmarks Event:", JSON.stringify(authenticatedEvent, null, 2));
+    try {
+      const method = authenticatedEvent.httpMethod;
+      const path = authenticatedEvent.path;
+      const userId = authenticatedEvent.userId;
+      if (method === "GET" && path === "/bookmarks") {
+        return await handleGetBookmarks(userId);
+      }
+      if (method === "POST" && path === "/bookmarks") {
+        return await handleAddBookmark(authenticatedEvent, userId);
+      }
+      if (method === "DELETE" && path.startsWith("/bookmarks/") && authenticatedEvent.pathParameters?.newsflashId) {
+        return await handleRemoveBookmark(
+          authenticatedEvent.pathParameters.newsflashId,
+          userId
+        );
+      }
+      return errorResponse("Not found", 404);
+    } catch (error2) {
+      console.error("Error:", error2);
+      return errorResponse(
+        error2 instanceof Error ? error2.message : "Internal server error"
+      );
     }
-    if (method === "GET" && path === "/users") {
-      return await withAuth(handleGetUsers)(event);
-    }
-    if (method === "GET" && event.pathParameters?.id) {
-      return await withAuth(handleGetUser)(event);
-    }
-    if (method === "PUT" && event.pathParameters?.id) {
-      return await withAuth(handleUpdateUser)(event);
-    }
-    if (method === "POST" && path === "/users") {
-      return await handleCreateUser(event);
-    }
-    return errorResponse("Method not allowed", 405);
-  } catch (error2) {
-    console.error("Error:", error2);
-    return errorResponse(
-      error2 instanceof Error ? error2.message : "Internal server error"
-    );
-  }
+  })(event);
 }
-async function handleSearchUsers(event) {
-  const query = event.queryStringParameters?.q;
-  if (!query || query.trim().length === 0) {
-    return errorResponse("Search query is required", 400);
-  }
-  const searchQuery = query.trim().toLowerCase();
+async function handleGetBookmarks(userId) {
+  const allBookmarks = await scanTable(BOOKMARKS_TABLE);
+  const userBookmarks = allBookmarks.filter(
+    (b4) => b4.userId === userId
+  );
+  const allNewsflashes = await scanTable(NEWSFLASHES_TABLE);
   const allUsers = await scanTable(USERS_TABLE);
-  const matchedUsers = allUsers.filter((u4) => {
-    const name = u4.name.toLowerCase();
-    const username = u4.username.toLowerCase();
-    return name.includes(searchQuery) || username.includes(searchQuery);
-  });
-  const sanitizedUsers = matchedUsers.map((u4) => {
+  const newsflashMap = /* @__PURE__ */ new Map();
+  allNewsflashes.forEach((nf) => newsflashMap.set(nf.id, nf));
+  const userMap = /* @__PURE__ */ new Map();
+  allUsers.forEach((u4) => {
     const { passwordHash, ...userWithoutPassword } = u4;
-    return userWithoutPassword;
+    userMap.set(u4.id, userWithoutPassword);
   });
-  return successResponse({ users: sanitizedUsers });
+  const enrichedBookmarks = userBookmarks.map((bookmark) => {
+    const newsflash = newsflashMap.get(bookmark.newsflashId);
+    if (!newsflash) return null;
+    const user = userMap.get(newsflash.userId);
+    return {
+      ...newsflash,
+      user
+    };
+  }).filter(Boolean).sort(
+    (a4, b4) => new Date(b4.timestamp).getTime() - new Date(a4.timestamp).getTime()
+  );
+  return successResponse({ newsflashes: enrichedBookmarks });
 }
-async function handleGetUsers(event) {
-  const users = await scanTable(USERS_TABLE);
-  const sanitizedUsers = users.map((u4) => {
-    const { passwordHash, ...userWithoutPassword } = u4;
-    return userWithoutPassword;
-  });
-  return successResponse({ users: sanitizedUsers });
-}
-async function handleGetUser(event) {
-  const { id } = event.pathParameters;
-  const user = await getItem(USERS_TABLE, { id });
-  if (!user) {
-    return errorResponse("User not found", 404);
-  }
-  const { passwordHash, ...userWithoutPassword } = user;
-  return successResponse({ user: userWithoutPassword });
-}
-async function handleUpdateUser(event) {
-  const { id } = event.pathParameters;
-  const userId = event.userId;
-  if (id !== userId) {
-    return errorResponse("You can only update your own profile", 403);
-  }
+async function handleAddBookmark(event, userId) {
   if (!event.body) {
     return errorResponse("Request body is required", 400);
   }
   const body = JSON.parse(event.body);
-  const { name, username, avatar } = body;
-  const existingUser = await getItem(USERS_TABLE, { id });
-  if (!existingUser) {
-    return errorResponse("User not found", 404);
+  const { newsflashId } = body;
+  if (!newsflashId) {
+    return errorResponse("newsflashId is required", 400);
   }
-  if (username && username !== existingUser.username) {
-    const allUsers = await scanTable(USERS_TABLE);
-    const usernameExists = allUsers.some(
-      (u4) => u4.username === username.toLowerCase() && u4.id !== id
-    );
-    if (usernameExists) {
-      return errorResponse("Username already taken", 409);
-    }
+  const newsflash = await getItem(NEWSFLASHES_TABLE, { id: newsflashId });
+  if (!newsflash) {
+    return errorResponse("Newsflash not found", 404);
   }
-  const updatedUser = {
-    ...existingUser,
-    name: name || existingUser.name,
-    username: username ? username.toLowerCase() : existingUser.username,
-    avatar: avatar !== void 0 ? avatar : existingUser.avatar
+  const existing = await getItem(BOOKMARKS_TABLE, {
+    userId,
+    newsflashId
+  });
+  if (existing) {
+    return errorResponse("Already bookmarked", 409);
+  }
+  const bookmark = {
+    userId,
+    newsflashId,
+    createdAt: (/* @__PURE__ */ new Date()).toISOString()
   };
-  await putItem(USERS_TABLE, updatedUser);
-  const { passwordHash, ...userWithoutPassword } = updatedUser;
-  return successResponse({ user: userWithoutPassword });
+  await putItem(BOOKMARKS_TABLE, bookmark);
+  return successResponse({ bookmark }, 201);
 }
-async function handleCreateUser(event) {
-  if (!event.body) {
-    return errorResponse("Request body is required", 400);
+async function handleRemoveBookmark(newsflashId, userId) {
+  const existing = await getItem(BOOKMARKS_TABLE, {
+    userId,
+    newsflashId
+  });
+  if (!existing) {
+    return errorResponse("Bookmark not found", 404);
   }
-  const body = JSON.parse(event.body);
-  const { name, username, avatar } = body;
-  if (!name || !username) {
-    return errorResponse("Name and username are required", 400);
-  }
-  const user = {
-    id: v4_default(),
-    name,
-    username,
-    avatar: avatar || void 0
-  };
-  await putItem(USERS_TABLE, user);
-  return successResponse({ user }, 201);
+  await deleteItem(BOOKMARKS_TABLE, {
+    userId,
+    newsflashId
+  });
+  return successResponse({ message: "Bookmark removed" });
 }
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {

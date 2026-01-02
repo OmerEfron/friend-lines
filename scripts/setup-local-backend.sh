@@ -118,6 +118,20 @@ AWS_ACCESS_KEY_ID=test AWS_SECRET_ACCESS_KEY=test aws dynamodb create-table \
   --no-cli-pager \
   >/dev/null 2>&1 || echo "Friendships table already exists"
 
+AWS_ACCESS_KEY_ID=test AWS_SECRET_ACCESS_KEY=test aws dynamodb create-table \
+  --table-name friendlines-bookmarks \
+  --attribute-definitions \
+    AttributeName=userId,AttributeType=S \
+    AttributeName=newsflashId,AttributeType=S \
+  --key-schema \
+    AttributeName=userId,KeyType=HASH \
+    AttributeName=newsflashId,KeyType=RANGE \
+  --billing-mode PAY_PER_REQUEST \
+  --endpoint-url http://localhost:$DYNAMODB_PORT \
+  --region $AWS_REGION \
+  --no-cli-pager \
+  >/dev/null 2>&1 || echo "Bookmarks table already exists"
+
 echo -e "${GREEN}✓ DynamoDB tables created${NC}"
 
 echo -e "${YELLOW}Step 6: Creating S3 bucket...${NC}"
