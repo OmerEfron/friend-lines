@@ -324,6 +324,47 @@ Resources:
               Ref: FriendlinesApi
             Path: /groups/{id}
             Method: DELETE
+  FeedsFunction:
+    Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        EntryPoints:
+        - src/handlers/feeds.ts
+        Minify: false
+        Target: es2022
+      SamResourceId: FeedsFunction
+    Properties:
+      CodeUri: FeedsFunction
+      Handler: feeds.handler
+      Policies:
+      - DynamoDBCrudPolicy:
+          TableName:
+            Ref: NewsflashesTable
+      - DynamoDBCrudPolicy:
+          TableName:
+            Ref: FriendshipsTable
+      - DynamoDBCrudPolicy:
+          TableName:
+            Ref: GroupsTable
+      - DynamoDBCrudPolicy:
+          TableName:
+            Ref: UsersTable
+      Events:
+        GetMainFeed:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: FriendlinesApi
+            Path: /feeds/main
+            Method: GET
+        GetGroupFeed:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: FriendlinesApi
+            Path: /feeds/group/{groupId}
+            Method: GET
 Outputs:
   ApiEndpoint:
     Description: API Gateway endpoint URL
