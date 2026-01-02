@@ -1,16 +1,42 @@
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { StyleSheet, FlatList, View } from 'react-native';
-import { Surface, Searchbar, List, Avatar, useTheme, IconButton, Text, ActivityIndicator } from 'react-native-paper';
+import { Surface, Searchbar, List, Avatar, useTheme, Button, Text, ActivityIndicator } from 'react-native-paper';
 import { useData } from '../context/DataContext';
 import { User } from '../types';
-import { searchUsers } from '../services/api';
+import { searchUsers, apiCall } from '../services/api';
+import { useNavigation } from '@react-navigation/native';
+
+interface FriendRequest {
+  userId: string;
+  friendId: string;
+  status: string;
+  initiatorId: string;
+}
 
 export default function AddFriendScreen() {
   const theme = useTheme();
+  const navigation = useNavigation();
   const { friendships, currentUser, addFriend } = useData();
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<User[]>([]);
   const [loading, setLoading] = useState(false);
+  const [allRequests, setAllRequests] = useState<FriendRequest[]>([]);
+
+  // Load all friend requests to check status
+  useEffect(() => {
+    const loadRequests = async () => {
+      try {
+        const [received, sent] = await Promise.all([
+          apiCall<{ requests: FriendRequest[] }>('/friend-requests/received'),
+          apiCall<{ requests: FriendRequest[] }>('/friend-requests/sent'),
+        ]);
+        setAllRequests([...received.requests, ...sent.requests]);
+      } catch (error) {
+        console.error('Failed to load requests:', error);
+      }
+    };
+    loadRequests();
+  }, []);
 
   const friendIds = useMemo(() => {
     return friendships
@@ -19,10 +45,46 @@ export default function AddFriendScreen() {
   }, [friendships, currentUser.id]);
 
   const availableUsers = useMemo(() => {
-    return searchResults.filter(u => 
-      u.id !== currentUser.id && !friendIds.includes(u.id)
+    return searchResults.filter(u => u.id !== currentUser.id);
+  }, [searchResults, currentUser.id]);
+
+  const getRelationshipStatus = (userId: string) => {
+    // Check if already friends
+    if (friendIds.includes(userId)) {
+      return 'friends';
+    }
+
+    // Check for pending requests
+    const sentRequest = allRequests.find(
+      r => r.initiatorId === currentUser.id && r.friendId === userId && r.status === 'pending'
     );
-  }, [searchResults, currentUser.id, friendIds]);
+    if (sentRequest) {
+      return 'request-sent';
+    }
+
+    const receivedRequest = allRequests.find(
+      r => r.initiatorId === userId && r.friendId === currentUser.id && r.status === 'pending'
+    );
+    if (receivedRequest) {
+      return 'request-received';
+    }
+
+    return 'none';
+  };
+
+  const handleSendRequest = async (userId: string) => {
+    try {
+      await addFriend(userId);
+      // Reload requests
+      const [received, sent] = await Promise.all([
+        apiCall<{ requests: FriendRequest[] }>('/friend-requests/received'),
+        apiCall<{ requests: FriendRequest[] }>('/friend-requests/sent'),
+      ]);
+      setAllRequests([...received.requests, ...sent.requests]);
+    } catch (error) {
+      console.error('Failed to send request:', error);
+    }
+  };
 
   // Debounced search
   useEffect(() => {
@@ -55,32 +117,65 @@ export default function AddFriendScreen() {
       .slice(0, 2);
   };
 
-  const handleAddFriend = (userId: string) => {
-    addFriend(userId);
-  };
+  const renderUser = ({ item }: { item: User }) => {
+    const status = getRelationshipStatus(item.id);
 
-  const renderUser = ({ item }: { item: User }) => (
-    <List.Item
-      title={item.name}
-      description={`@${item.username}`}
-      left={() => (
-        <Avatar.Text
-          size={40}
-          label={getInitials(item.name)}
-          style={{ backgroundColor: theme.colors.primaryContainer }}
-        />
-      )}
-      right={() => (
-        <IconButton
-          icon="account-plus"
-          size={24}
-          onPress={() => handleAddFriend(item.id)}
-          iconColor={theme.colors.primary}
-        />
-      )}
-      style={styles.listItem}
-    />
-  );
+    return (
+      <List.Item
+        title={item.name}
+        description={`@${item.username}`}
+        left={() =>
+          item.avatar ? (
+            <Avatar.Image size={48} source={{ uri: item.avatar }} />
+          ) : (
+            <Avatar.Text
+              size={48}
+              label={getInitials(item.name)}
+              style={{ backgroundColor: theme.colors.primaryContainer }}
+            />
+          )
+        }
+        right={() => {
+          switch (status) {
+            case 'friends':
+              return (
+                <Text variant="labelSmall" style={styles.statusText}>
+                  Friends ✓
+                </Text>
+              );
+            case 'request-sent':
+              return (
+                <Text variant="labelSmall" style={styles.statusText}>
+                  Request Sent
+                </Text>
+              );
+            case 'request-received':
+              return (
+                <Button
+                  mode="contained"
+                  onPress={() => navigation.navigate('FriendRequests' as never)}
+                  compact
+                >
+                  Respond
+                </Button>
+              );
+            default:
+              return (
+                <Button
+                  mode="contained-tonal"
+                  onPress={() => handleSendRequest(item.id)}
+                  icon="account-plus"
+                  compact
+                >
+                  Send Request
+                </Button>
+              );
+          }
+        }}
+        style={styles.listItem}
+      />
+    );
+  };
 
   const renderEmpty = () => {
     if (loading) {
@@ -159,6 +254,11 @@ const styles = StyleSheet.create({
   },
   emptySubtext: {
     opacity: 0.4,
+  },
+  statusText: {
+    alignSelf: 'center',
+    opacity: 0.7,
+    marginRight: 8,
   },
 });
 
