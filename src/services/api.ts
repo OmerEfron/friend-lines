@@ -134,3 +134,26 @@ export async function fetchGroupFeed(groupId: string): Promise<{
   };
 }
 
+// Bookmarks API calls
+export async function fetchBookmarks(): Promise<Newsflash[]> {
+  const response = await apiCall<{ newsflashes: Newsflash[] }>('/bookmarks');
+  // Convert timestamp strings to Date objects
+  return response.newsflashes.map((nf) => ({
+    ...nf,
+    timestamp: new Date(nf.timestamp),
+  }));
+}
+
+export async function addBookmark(newsflashId: string): Promise<void> {
+  await apiCall('/bookmarks', {
+    method: 'POST',
+    body: JSON.stringify({ newsflashId }),
+  });
+}
+
+export async function removeBookmark(newsflashId: string): Promise<void> {
+  await apiCall(`/bookmarks/${newsflashId}`, {
+    method: 'DELETE',
+  });
+}
+
