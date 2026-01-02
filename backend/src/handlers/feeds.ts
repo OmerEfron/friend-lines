@@ -108,7 +108,7 @@ async function handleMainFeed(
   return successResponse({ newsflashes: enrichedNewsflashes });
 }
 
-// Get group feed
+// Get group feed (only for creator)
 async function handleGroupFeed(
   groupId: string,
   userId: string
@@ -122,9 +122,9 @@ async function handleGroupFeed(
     return errorResponse('Group not found', 404);
   }
 
-  // Check if user is a member
-  if (!group.userIds.includes(userId)) {
-    return errorResponse('Not a member of this group', 403);
+  // Check if user is the creator (groups are personal)
+  if (group.createdBy !== userId) {
+    return errorResponse('Access denied', 403);
   }
 
   // Get all newsflashes

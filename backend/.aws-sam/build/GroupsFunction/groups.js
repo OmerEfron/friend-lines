@@ -34156,7 +34156,7 @@ async function handler(event) {
 async function handleGetGroups(userId) {
   const allGroups = await scanTable(GROUPS_TABLE);
   const userGroups = allGroups.filter(
-    (g4) => g4.userIds.includes(userId)
+    (g4) => g4.createdBy === userId
   );
   return successResponse({ groups: userGroups });
 }

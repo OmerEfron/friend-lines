@@ -83,15 +83,15 @@ export async function handler(
   })(event);
 }
 
-// Get user's groups
+// Get user's groups (only groups created by the user)
 async function handleGetGroups(
   userId: string
 ): Promise<APIGatewayProxyResult> {
   const allGroups = await scanTable(GROUPS_TABLE);
   
-  // Filter groups where user is a member
+  // Filter groups where user is the creator (groups are personal, not shared)
   const userGroups = allGroups.filter((g: Group) =>
-    g.userIds.includes(userId)
+    g.createdBy === userId
   );
 
   return successResponse({ groups: userGroups });
@@ -110,9 +110,9 @@ async function handleGetGroup(
     return errorResponse('Group not found', 404);
   }
 
-  // Check if user is a member
-  if (!group.userIds.includes(userId)) {
-    return errorResponse('Not a member of this group', 403);
+  // Check if user is the creator (groups are personal)
+  if (group.createdBy !== userId) {
+    return errorResponse('Access denied', 403);
   }
 
   return successResponse({ group });
