@@ -14,6 +14,7 @@ Globals:
         NEWSFLASHES_TABLE: !Ref NewsflashesTable
         GROUPS_TABLE: !Ref GroupsTable
         FRIENDSHIPS_TABLE: !Ref FriendshipsTable
+        BOOKMARKS_TABLE: !Ref BookmarksTable
         MEDIA_BUCKET: !Ref MediaBucket
         IS_LOCAL: 'true'
         JWT_SECRET: 'local-dev-secret-change-in-production'
@@ -92,6 +93,22 @@ Resources:
         - AttributeName: userId
           KeyType: HASH
         - AttributeName: friendId
+          KeyType: RANGE
+      BillingMode: PAY_PER_REQUEST
+
+  BookmarksTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: friendlines-bookmarks
+      AttributeDefinitions:
+        - AttributeName: userId
+          AttributeType: S
+        - AttributeName: newsflashId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: userId
+          KeyType: HASH
+        - AttributeName: newsflashId
           KeyType: RANGE
       BillingMode: PAY_PER_REQUEST
 
@@ -363,6 +380,45 @@ Resources:
             RestApiId: !Ref FriendlinesApi
             Path: /uploads/presigned-url
             Method: POST
+
+  BookmarksFunction:
+    Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: false
+        Target: "es2022"
+        EntryPoints:
+          - src/handlers/bookmarks.ts
+    Properties:
+      CodeUri: ./
+      Handler: src/handlers/bookmarks.handler
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref BookmarksTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref NewsflashesTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UsersTable
+      Events:
+        GetBookmarks:
+          Type: Api
+          Properties:
+            RestApiId: !Ref FriendlinesApi
+            Path: /bookmarks
+            Method: GET
+        AddBookmark:
+          Type: Api
+          Properties:
+            RestApiId: !Ref FriendlinesApi
+            Path: /bookmarks
+            Method: POST
+        RemoveBookmark:
+          Type: Api
+          Properties:
+            RestApiId: !Ref FriendlinesApi
+            Path: /bookmarks/{newsflashId}
+            Method: DELETE
 
 Outputs:
   ApiEndpoint:
