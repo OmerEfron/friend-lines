@@ -29,6 +29,7 @@ interface AuthContextType {
   }) => Promise<void>;
   logout: () => Promise<void>;
   updateUser: (user: User) => void;
+  refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -95,6 +96,19 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const updateUser = (updatedUser: User) => {
     setUser(updatedUser);
+    authService.storeUser(updatedUser);
+  };
+
+  const refreshUser = async () => {
+    if (token) {
+      try {
+        const currentUser = await authService.getCurrentUser(token);
+        setUser(currentUser);
+        await authService.storeUser(currentUser);
+      } catch (error) {
+        console.error('Failed to refresh user:', error);
+      }
+    }
   };
 
   return (
@@ -108,6 +122,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         register,
         logout,
         updateUser,
+        refreshUser,
       }}
     >
       {children}
