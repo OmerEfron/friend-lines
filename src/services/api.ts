@@ -9,6 +9,13 @@ export async function fetchUsers(): Promise<User[]> {
   return response.users;
 }
 
+export async function searchUsers(query: string): Promise<User[]> {
+  const response = await apiCall<{ users: User[] }>(
+    `/users/search?q=${encodeURIComponent(query)}`
+  );
+  return response.users;
+}
+
 export async function createUser(
   user: Omit<User, 'id'>
 ): Promise<User> {
