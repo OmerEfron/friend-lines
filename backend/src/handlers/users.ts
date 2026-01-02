@@ -25,6 +25,11 @@ export async function handler(
     const method = event.httpMethod;
     const path = event.path;
 
+    // GET /users/search - Search users (Protected)
+    if (method === 'GET' && path === '/users/search') {
+      return await withAuth(handleSearchUsers)(event);
+    }
+
     // GET /users - List all users (Protected)
     if (method === 'GET' && path === '/users') {
       return await withAuth(handleGetUsers)(event);
@@ -52,6 +57,34 @@ export async function handler(
       error instanceof Error ? error.message : 'Internal server error'
     );
   }
+}
+
+async function handleSearchUsers(
+  event: AuthenticatedEvent
+): Promise<APIGatewayProxyResult> {
+  const query = event.queryStringParameters?.q;
+
+  if (!query || query.trim().length === 0) {
+    return errorResponse('Search query is required', 400);
+  }
+
+  const searchQuery = query.trim().toLowerCase();
+  const allUsers = await scanTable(USERS_TABLE);
+
+  // Filter users by name or username
+  const matchedUsers = allUsers.filter((u: User) => {
+    const name = u.name.toLowerCase();
+    const username = u.username.toLowerCase();
+    return name.includes(searchQuery) || username.includes(searchQuery);
+  });
+
+  // Remove password hashes from response
+  const sanitizedUsers = matchedUsers.map((u: User) => {
+    const { passwordHash, ...userWithoutPassword } = u;
+    return userWithoutPassword;
+  });
+
+  return successResponse({ users: sanitizedUsers });
 }
 
 async function handleGetUsers(
