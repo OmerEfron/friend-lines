@@ -22,6 +22,7 @@ import {
   removeFriend as apiRemoveFriend,
   fetchGroups,
   createGroup as apiCreateGroup,
+  fetchMainFeed,
 } from '../services/api';
 import { useAuth } from './AuthContext';
 
@@ -80,14 +81,15 @@ export function DataProvider({
     setLoading(true);
     setError(null);
     try {
-      const [usersData, newsflashesData, friendsData, groupsData] = await Promise.all([
+      // Use the enhanced feeds endpoint which returns filtered newsflashes
+      const [usersData, feedNewsflashes, friendsData, groupsData] = await Promise.all([
         fetchUsers(),
-        fetchNewsflashes(),
+        fetchMainFeed(), // Use main feed instead of all newsflashes
         fetchFriends(),
         fetchGroups(),
       ]);
       setUsers(usersData);
-      setNewsflashes(newsflashesData);
+      setNewsflashes(feedNewsflashes);
       setGroups(groupsData);
       
       // Convert friends to friendships format
