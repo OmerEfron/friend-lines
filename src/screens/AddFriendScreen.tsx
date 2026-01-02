@@ -1,13 +1,16 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { StyleSheet, FlatList, View } from 'react-native';
-import { Surface, Searchbar, List, Avatar, useTheme, IconButton, Text } from 'react-native-paper';
+import { Surface, Searchbar, List, Avatar, useTheme, IconButton, Text, ActivityIndicator } from 'react-native-paper';
 import { useData } from '../context/DataContext';
 import { User } from '../types';
+import { searchUsers } from '../services/api';
 
 export default function AddFriendScreen() {
   const theme = useTheme();
-  const { users, friendships, currentUser, addFriend } = useData();
+  const { friendships, currentUser, addFriend } = useData();
   const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<User[]>([]);
+  const [loading, setLoading] = useState(false);
 
   const friendIds = useMemo(() => {
     return friendships
@@ -16,22 +19,32 @@ export default function AddFriendScreen() {
   }, [friendships, currentUser.id]);
 
   const availableUsers = useMemo(() => {
-    return users.filter(u => 
+    return searchResults.filter(u => 
       u.id !== currentUser.id && !friendIds.includes(u.id)
     );
-  }, [users, currentUser.id, friendIds]);
+  }, [searchResults, currentUser.id, friendIds]);
 
-  const filteredUsers = useMemo(() => {
+  // Debounced search
+  useEffect(() => {
     if (!searchQuery.trim()) {
-      return availableUsers;
+      setSearchResults([]);
+      return;
     }
-    
-    const query = searchQuery.toLowerCase();
-    return availableUsers.filter(u =>
-      u.name.toLowerCase().includes(query) ||
-      u.username.toLowerCase().includes(query)
-    );
-  }, [availableUsers, searchQuery]);
+
+    const timeoutId = setTimeout(async () => {
+      try {
+        setLoading(true);
+        const results = await searchUsers(searchQuery);
+        setSearchResults(results);
+      } catch (error) {
+        console.error('Search failed:', error);
+      } finally {
+        setLoading(false);
+      }
+    }, 300); // 300ms debounce
+
+    return () => clearTimeout(timeoutId);
+  }, [searchQuery]);
 
   const getInitials = (name: string) => {
     return name
@@ -69,16 +82,26 @@ export default function AddFriendScreen() {
     />
   );
 
-  const renderEmpty = () => (
-    <View style={styles.emptyContainer}>
-      <Text variant="bodyLarge" style={styles.emptyText}>
-        {searchQuery ? 'No users found' : 'No users available to add'}
-      </Text>
-      <Text variant="bodySmall" style={styles.emptySubtext}>
-        {searchQuery ? 'Try a different search term' : 'You\'re already friends with everyone!'}
-      </Text>
-    </View>
-  );
+  const renderEmpty = () => {
+    if (loading) {
+      return (
+        <View style={styles.emptyContainer}>
+          <ActivityIndicator size="large" />
+        </View>
+      );
+    }
+
+    return (
+      <View style={styles.emptyContainer}>
+        <Text variant="bodyLarge" style={styles.emptyText}>
+          {searchQuery ? 'No users found' : 'Start typing to search for users'}
+        </Text>
+        <Text variant="bodySmall" style={styles.emptySubtext}>
+          {searchQuery ? 'Try a different search term' : 'Search by name or username'}
+        </Text>
+      </View>
+    );
+  };
 
   return (
     <Surface style={styles.container}>
@@ -91,13 +114,13 @@ export default function AddFriendScreen() {
         />
       </View>
       <FlatList
-        data={filteredUsers}
+        data={availableUsers}
         keyExtractor={(item) => item.id}
         renderItem={renderUser}
         ListEmptyComponent={renderEmpty}
         contentContainerStyle={[
           styles.listContainer,
-          filteredUsers.length === 0 && styles.emptyList
+          availableUsers.length === 0 && styles.emptyList
         ]}
         style={{ backgroundColor: theme.colors.background }}
       />
