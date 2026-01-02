@@ -15,7 +15,7 @@ const s3Config = isLocal
     }
   : {};
 
-const s3Client = new S3Client(s3Config);
+export const s3Client = new S3Client(s3Config);
 
 export async function uploadFile(
   bucket: string,
