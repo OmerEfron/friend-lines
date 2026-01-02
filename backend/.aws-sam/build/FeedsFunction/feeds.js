@@ -34099,8 +34099,8 @@ async function handleGroupFeed(groupId, userId) {
   if (!group) {
     return errorResponse("Group not found", 404);
   }
-  if (!group.userIds.includes(userId)) {
-    return errorResponse("Not a member of this group", 403);
+  if (group.createdBy !== userId) {
+    return errorResponse("Access denied", 403);
   }
   const allNewsflashes = await scanTable(NEWSFLASHES_TABLE);
   const feedNewsflashes = allNewsflashes.filter((n4) => group.userIds.includes(n4.userId)).sort(
