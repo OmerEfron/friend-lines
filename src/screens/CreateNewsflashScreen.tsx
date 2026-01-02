@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, KeyboardAvoidingView, Platform, Image } from 'react-native';
+import { View, StyleSheet, ScrollView, KeyboardAvoidingView, Platform, Image, Alert } from 'react-native';
 import { Surface, TextInput, Button, useTheme, Text, IconButton, Card } from 'react-native-paper';
 import * as ImagePicker from 'expo-image-picker';
 import { useData } from '../context/DataContext';
 import { useNavigation } from '@react-navigation/native';
+import { uploadImage, getFileInfo } from '../services/upload';
 
 export default function CreateNewsflashScreen() {
   const theme = useTheme();
@@ -14,6 +15,7 @@ export default function CreateNewsflashScreen() {
   const [subHeadline, setSubHeadline] = useState('');
   const [image, setImage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState('');
 
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -39,15 +41,36 @@ export default function CreateNewsflashScreen() {
 
     setIsSubmitting(true);
     
-    addNewsflash({
-      userId: currentUser.id,
-      headline: headline.trim(),
-      subHeadline: subHeadline.trim() || undefined,
-      media: image || undefined,
-    });
+    try {
+      let mediaUrl: string | undefined = undefined;
 
-    setIsSubmitting(false);
-    navigation.goBack();
+      // Upload image if one was selected
+      if (image) {
+        setUploadProgress('Uploading image...');
+        const { fileName, fileType } = getFileInfo(image);
+        mediaUrl = await uploadImage(image, fileName, fileType);
+      }
+
+      setUploadProgress('Creating newsflash...');
+      await addNewsflash({
+        userId: currentUser.id,
+        headline: headline.trim(),
+        subHeadline: subHeadline.trim() || undefined,
+        media: mediaUrl,
+      });
+
+      setUploadProgress('');
+      navigation.goBack();
+    } catch (error) {
+      console.error('Failed to create newsflash:', error);
+      Alert.alert(
+        'Error',
+        error instanceof Error ? error.message : 'Failed to create newsflash'
+      );
+      setUploadProgress('');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const isValid = headline.trim().length > 0;
@@ -113,6 +136,12 @@ export default function CreateNewsflashScreen() {
                 </Button>
               )}
             </View>
+
+            {uploadProgress ? (
+              <Text variant="bodySmall" style={styles.uploadProgress}>
+                {uploadProgress}
+              </Text>
+            ) : null}
 
             <View style={styles.actions}>
               <Button
@@ -187,6 +216,11 @@ const styles = StyleSheet.create({
   },
   button: {
     minWidth: 100,
+  },
+  uploadProgress: {
+    textAlign: 'center',
+    opacity: 0.7,
+    marginBottom: 12,
   },
 });
 

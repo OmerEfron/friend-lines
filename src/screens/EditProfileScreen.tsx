@@ -5,6 +5,8 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Alert,
+  Image,
 } from 'react-native';
 import {
   Surface,
@@ -14,8 +16,15 @@ import {
   useTheme,
   HelperText,
   Divider,
+  Avatar,
+  IconButton,
+  Card,
 } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
+import * as ImagePicker from 'expo-image-picker';
+import { useAuth } from '../context/AuthContext';
+import { apiCall } from '../config/api';
+import { uploadImage, getFileInfo } from '../services/upload';
 
 interface User {
   id: string;
@@ -25,27 +34,40 @@ interface User {
   avatar?: string;
 }
 
-interface EditProfileScreenProps {
-  user: User;
-  onUpdate: (data: {
-    name: string;
-    username: string;
-    avatar?: string;
-  }) => Promise<void>;
-}
-
-export default function EditProfileScreen({
-  user,
-  onUpdate,
-}: EditProfileScreenProps) {
+export default function EditProfileScreen() {
   const theme = useTheme();
   const navigation = useNavigation();
+  const { user, refreshUser } = useAuth();
+  
+  if (!user) {
+    return null;
+  }
+
   const [name, setName] = useState(user.name);
   const [username, setUsername] = useState(user.username);
-  const [avatar, setAvatar] = useState(user.avatar || '');
+  const [avatarUrl, setAvatarUrl] = useState(user.avatar || '');
+  const [localAvatarUri, setLocalAvatarUri] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+
+  const pickImage = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.8,
+    });
+
+    if (!result.canceled) {
+      setLocalAvatarUri(result.assets[0].uri);
+    }
+  };
+
+  const removeAvatar = () => {
+    setLocalAvatarUri(null);
+    setAvatarUrl('');
+  };
 
   const handleUpdate = async () => {
     setError('');
@@ -58,11 +80,27 @@ export default function EditProfileScreen({
 
     setLoading(true);
     try {
-      await onUpdate({
-        name: name.trim(),
-        username: username.trim().toLowerCase(),
-        avatar: avatar.trim() || undefined,
+      let finalAvatarUrl = avatarUrl;
+
+      // Upload new avatar if one was selected
+      if (localAvatarUri) {
+        const { fileName, fileType } = getFileInfo(localAvatarUri);
+        finalAvatarUrl = await uploadImage(localAvatarUri, fileName, fileType);
+      }
+
+      // Update profile via API
+      const response = await apiCall<{ user: User }>(`/users/${user.id}`, {
+        method: 'PUT',
+        body: JSON.stringify({
+          name: name.trim(),
+          username: username.trim().toLowerCase(),
+          avatar: finalAvatarUrl || undefined,
+        }),
       });
+
+      // Refresh user in auth context
+      await refreshUser();
+
       setSuccess(true);
       setTimeout(() => {
         navigation.goBack();
@@ -77,7 +115,19 @@ export default function EditProfileScreen({
   const hasChanges =
     name !== user.name ||
     username !== user.username ||
-    avatar !== (user.avatar || '');
+    avatarUrl !== (user.avatar || '') ||
+    localAvatarUri !== null;
+
+  const displayAvatar = localAvatarUri || avatarUrl || user.avatar;
+
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map(n => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
 
   return (
     <Surface style={styles.container}>
@@ -92,6 +142,39 @@ export default function EditProfileScreen({
             </Text>
 
             <View style={styles.form}>
+              <View style={styles.avatarSection}>
+                {displayAvatar ? (
+                  <View style={styles.avatarContainer}>
+                    <Avatar.Image
+                      size={80}
+                      source={{ uri: displayAvatar }}
+                    />
+                    <IconButton
+                      icon="close-circle"
+                      size={24}
+                      onPress={removeAvatar}
+                      style={styles.removeAvatarButton}
+                      iconColor={theme.colors.error}
+                    />
+                  </View>
+                ) : (
+                  <Avatar.Text
+                    size={80}
+                    label={getInitials(name || user.name)}
+                    style={{ backgroundColor: theme.colors.primary }}
+                  />
+                )}
+                <Button
+                  mode="outlined"
+                  icon="camera"
+                  onPress={pickImage}
+                  style={styles.changeAvatarButton}
+                  disabled={loading}
+                >
+                  Change Avatar
+                </Button>
+              </View>
+
               <TextInput
                 label="Full Name"
                 value={name}
@@ -110,17 +193,6 @@ export default function EditProfileScreen({
                 style={styles.input}
                 autoCapitalize="none"
                 disabled={loading}
-              />
-
-              <TextInput
-                label="Avatar URL (optional)"
-                value={avatar}
-                onChangeText={setAvatar}
-                mode="outlined"
-                style={styles.input}
-                autoCapitalize="none"
-                disabled={loading}
-                placeholder="https://example.com/avatar.jpg"
               />
 
               <Divider style={styles.divider} />
@@ -215,6 +287,23 @@ const styles = StyleSheet.create({
   },
   success: {
     color: '#4CAF50',
+  },
+  avatarSection: {
+    alignItems: 'center',
+    marginBottom: 24,
+    gap: 12,
+  },
+  avatarContainer: {
+    position: 'relative',
+  },
+  removeAvatarButton: {
+    position: 'absolute',
+    top: -8,
+    right: -8,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  changeAvatarButton: {
+    marginTop: 8,
   },
 });
 
