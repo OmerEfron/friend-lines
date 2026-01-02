@@ -341,6 +341,29 @@ Resources:
             Path: /feeds/group/{groupId}
             Method: GET
 
+  UploadsFunction:
+    Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: false
+        Target: "es2022"
+        EntryPoints:
+          - src/handlers/uploads.ts
+    Properties:
+      CodeUri: ./
+      Handler: src/handlers/uploads.handler
+      Policies:
+        - S3CrudPolicy:
+            BucketName: !Ref MediaBucket
+      Events:
+        GetPresignedUrl:
+          Type: Api
+          Properties:
+            RestApiId: !Ref FriendlinesApi
+            Path: /uploads/presigned-url
+            Method: POST
+
 Outputs:
   ApiEndpoint:
     Description: "API Gateway endpoint URL"
