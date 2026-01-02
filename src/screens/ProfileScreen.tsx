@@ -16,6 +16,7 @@ export default function ProfileScreen() {
   const { newsflashes, users, currentUser, friendships } = useData();
   const { bookmarkedIds } = useBookmarks();
   const { logout } = useAuth();
+  const [pendingRequestsCount, setPendingRequestsCount] = React.useState(0);
   
   const userNewsflashes = useMemo(() => {
     return newsflashes
@@ -26,6 +27,36 @@ export default function ProfileScreen() {
   const friendsCount = useMemo(() => {
     return friendships.filter(f => f.userId === currentUser.id).length;
   }, [friendships, currentUser.id]);
+
+  // Load pending requests count
+  React.useEffect(() => {
+    const loadPendingCount = async () => {
+      try {
+        const response = await fetch(
+          `${require('../config/api').apiConfig.baseUrl}/friend-requests/received`,
+          {
+            headers: {
+              Authorization: `Bearer ${await require('../services/auth').getToken()}`,
+            },
+          }
+        );
+        if (response.ok) {
+          const data = await response.json();
+          setPendingRequestsCount(data.requests?.length || 0);
+        }
+      } catch (error) {
+        console.error('Failed to load pending requests count:', error);
+      }
+    };
+
+    const unsubscribe = navigation.addListener('focus', () => {
+      loadPendingCount();
+    });
+
+    loadPendingCount();
+
+    return unsubscribe;
+  }, [navigation]);
 
   const getInitials = (name: string) => {
     return name
@@ -83,6 +114,39 @@ export default function ProfileScreen() {
         />
         
         <Divider style={styles.divider} />
+        
+        <List.Item
+          title="Friend Requests"
+          description={
+            pendingRequestsCount > 0
+              ? `${pendingRequestsCount} pending request${pendingRequestsCount !== 1 ? 's' : ''}`
+              : 'No pending requests'
+          }
+          left={() => (
+            <MaterialCommunityIcons 
+              name="account-clock" 
+              size={24} 
+              color={theme.colors.primary}
+              style={styles.themeIcon}
+            />
+          )}
+          right={() => (
+            <View style={styles.rightContainer}>
+              {pendingRequestsCount > 0 && (
+                <View style={[styles.badge, { backgroundColor: theme.colors.error }]}>
+                  <Text style={styles.badgeText}>{pendingRequestsCount}</Text>
+                </View>
+              )}
+              <MaterialCommunityIcons 
+                name="chevron-right" 
+                size={24} 
+                color={theme.colors.onSurfaceVariant}
+              />
+            </View>
+          )}
+          onPress={() => navigation.navigate('FriendRequests' as never)}
+          style={styles.listItem}
+        />
         
         <List.Item
           title="My Friends"
@@ -235,6 +299,24 @@ const styles = StyleSheet.create({
   themeIcon: {
     marginLeft: 8,
     alignSelf: 'center',
+  },
+  rightContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  badge: {
+    minWidth: 20,
+    height: 20,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 6,
+  },
+  badgeText: {
+    color: 'white',
+    fontSize: 12,
+    fontWeight: 'bold',
   },
 });
 

@@ -34068,6 +34068,24 @@ async function handler(event) {
       const method = authenticatedEvent.httpMethod;
       const path = authenticatedEvent.path;
       const userId = authenticatedEvent.userId;
+      if (method === "GET" && path === "/friend-requests/received") {
+        return await handleGetReceivedRequests(userId);
+      }
+      if (method === "GET" && path === "/friend-requests/sent") {
+        return await handleGetSentRequests(userId);
+      }
+      if (method === "PUT" && path.match(/^\/friend-requests\/[^/]+\/accept$/) && authenticatedEvent.pathParameters?.requestId) {
+        return await handleAcceptRequest(
+          userId,
+          authenticatedEvent.pathParameters.requestId
+        );
+      }
+      if (method === "PUT" && path.match(/^\/friend-requests\/[^/]+\/reject$/) && authenticatedEvent.pathParameters?.requestId) {
+        return await handleRejectRequest(
+          userId,
+          authenticatedEvent.pathParameters.requestId
+        );
+      }
       if (method === "GET" && path === "/friendships") {
         return await handleGetFriendships(userId);
       }
@@ -34075,7 +34093,7 @@ async function handler(event) {
         return await handleGetFriends(userId);
       }
       if (method === "POST" && path === "/friendships") {
-        return await handleAddFriend(authenticatedEvent, userId);
+        return await handleSendRequest(authenticatedEvent, userId);
       }
       if (method === "DELETE" && path.startsWith("/friendships/") && authenticatedEvent.pathParameters?.friendId) {
         return await handleRemoveFriend(
@@ -34092,30 +34110,117 @@ async function handler(event) {
     }
   })(event);
 }
+async function handleGetReceivedRequests(userId) {
+  const allFriendships = await scanTable(FRIENDSHIPS_TABLE);
+  const receivedRequests = allFriendships.filter(
+    (f4) => f4.friendId === userId && f4.status === "pending"
+  );
+  const allUsers = await scanTable(USERS_TABLE);
+  const usersMap = /* @__PURE__ */ new Map();
+  allUsers.forEach((u4) => {
+    const { passwordHash, ...userWithoutPassword } = u4;
+    usersMap.set(u4.id, userWithoutPassword);
+  });
+  const enrichedRequests = receivedRequests.map((req) => ({
+    ...req,
+    user: usersMap.get(req.initiatorId)
+  }));
+  return successResponse({ requests: enrichedRequests });
+}
+async function handleGetSentRequests(userId) {
+  const allFriendships = await scanTable(FRIENDSHIPS_TABLE);
+  const sentRequests = allFriendships.filter(
+    (f4) => f4.initiatorId === userId && f4.status === "pending"
+  );
+  const allUsers = await scanTable(USERS_TABLE);
+  const usersMap = /* @__PURE__ */ new Map();
+  allUsers.forEach((u4) => {
+    const { passwordHash, ...userWithoutPassword } = u4;
+    usersMap.set(u4.id, userWithoutPassword);
+  });
+  const enrichedRequests = sentRequests.map((req) => ({
+    ...req,
+    user: usersMap.get(req.friendId)
+  }));
+  return successResponse({ requests: enrichedRequests });
+}
+async function handleAcceptRequest(userId, requestId) {
+  const [initiatorId, receiverId] = requestId.split("_");
+  if (receiverId !== userId) {
+    return errorResponse("You can only accept requests sent to you", 403);
+  }
+  const request = await getItem(FRIENDSHIPS_TABLE, {
+    userId: initiatorId,
+    friendId: receiverId
+  });
+  if (!request) {
+    return errorResponse("Friend request not found", 404);
+  }
+  if (request.status !== "pending") {
+    return errorResponse("This request has already been processed", 400);
+  }
+  const now = (/* @__PURE__ */ new Date()).toISOString();
+  const acceptedRequest = {
+    ...request,
+    status: "accepted",
+    updatedAt: now
+  };
+  await putItem(FRIENDSHIPS_TABLE, acceptedRequest);
+  const reverseRequest = {
+    userId: receiverId,
+    friendId: initiatorId,
+    status: "accepted",
+    initiatorId,
+    createdAt: now,
+    updatedAt: now
+  };
+  await putItem(FRIENDSHIPS_TABLE, reverseRequest);
+  return successResponse({ message: "Friend request accepted" });
+}
+async function handleRejectRequest(userId, requestId) {
+  const [initiatorId, receiverId] = requestId.split("_");
+  if (receiverId !== userId) {
+    return errorResponse("You can only reject requests sent to you", 403);
+  }
+  const request = await getItem(FRIENDSHIPS_TABLE, {
+    userId: initiatorId,
+    friendId: receiverId
+  });
+  if (!request) {
+    return errorResponse("Friend request not found", 404);
+  }
+  if (request.status !== "pending") {
+    return errorResponse("This request has already been processed", 400);
+  }
+  const rejectedRequest = {
+    ...request,
+    status: "rejected",
+    updatedAt: (/* @__PURE__ */ new Date()).toISOString()
+  };
+  await putItem(FRIENDSHIPS_TABLE, rejectedRequest);
+  return successResponse({ message: "Friend request rejected" });
+}
 async function handleGetFriendships(userId) {
   const allFriendships = await scanTable(FRIENDSHIPS_TABLE);
   const userFriendships = allFriendships.filter(
-    (f4) => f4.userId === userId
+    (f4) => f4.userId === userId && f4.status === "accepted"
   );
   return successResponse({ friendships: userFriendships });
 }
 async function handleGetFriends(userId) {
   const allFriendships = await scanTable(FRIENDSHIPS_TABLE);
   const userFriendships = allFriendships.filter(
-    (f4) => f4.userId === userId
+    (f4) => f4.userId === userId && f4.status === "accepted"
   );
+  const friendIds = userFriendships.map((f4) => f4.friendId);
   const allUsers = await scanTable(USERS_TABLE);
-  const friends = userFriendships.map((friendship) => {
-    const friend = allUsers.find((u4) => u4.id === friendship.friendId);
-    if (friend) {
-      const { passwordHash, ...friendData } = friend;
-      return friendData;
-    }
-    return null;
-  }).filter((f4) => f4 !== null);
+  const friends = allUsers.filter((u4) => friendIds.includes(u4.id)).map((u4) => {
+    const { passwordHash, ...userWithoutPassword } = u4;
+    return userWithoutPassword;
+  });
   return successResponse({ friends });
 }
-async function handleAddFriend(event, userId) {
+async function handleSendRequest(event, userId) {
   if (!event.body) {
     return errorResponse("Request body is required", 400);
   }
@@ -34125,32 +34230,57 @@ async function handleAddFriend(event, userId) {
     return errorResponse("friendId is required", 400);
   }
   if (friendId === userId) {
-    return errorResponse("Cannot add yourself as a friend", 400);
+    return errorResponse("You cannot send a friend request to yourself", 400);
   }
-  const friend = await getItem(USERS_TABLE, { id: friendId });
-  if (!friend) {
+  const friendUser = await getItem(USERS_TABLE, { id: friendId });
+  if (!friendUser) {
     return errorResponse("User not found", 404);
   }
-  const allFriendships = await scanTable(FRIENDSHIPS_TABLE);
-  const exists = allFriendships.some(
-    (f4) => f4.userId === userId && f4.friendId === friendId
-  );
-  if (exists) {
-    return errorResponse("Already friends", 409);
-  }
-  const friendship = {
+  const existing = await getItem(FRIENDSHIPS_TABLE, {
     userId,
     friendId
+  });
+  if (existing) {
+    if (existing.status === "pending") {
+      return errorResponse("Friend request already sent", 409);
+    }
+    if (existing.status === "accepted") {
+      return errorResponse("Already friends", 409);
+    }
+  }
+  const reverseRequest = await getItem(FRIENDSHIPS_TABLE, {
+    userId: friendId,
+    friendId: userId
+  });
+  if (reverseRequest && reverseRequest.status === "pending") {
+    return errorResponse(
+      "This user has already sent you a friend request. Accept it instead.",
+      409
+    );
+  }
+  const now = (/* @__PURE__ */ new Date()).toISOString();
+  const friendship = {
+    userId,
+    friendId,
+    status: "pending",
+    initiatorId: userId,
+    createdAt: now,
+    updatedAt: now
   };
   await putItem(FRIENDSHIPS_TABLE, friendship);
   return successResponse({ friendship }, 201);
 }
 async function handleRemoveFriend(userId, friendId) {
-  await deleteItem(FRIENDSHIPS_TABLE, {
+  const friendship = await getItem(FRIENDSHIPS_TABLE, {
     userId,
     friendId
   });
-  return successResponse({ message: "Friendship removed" });
+  if (!friendship || friendship.status !== "accepted") {
+    return errorResponse("Friendship not found", 404);
+  }
+  await deleteItem(FRIENDSHIPS_TABLE, { userId, friendId });
+  await deleteItem(FRIENDSHIPS_TABLE, { userId: friendId, friendId: userId });
+  return successResponse({ message: "Friend removed" });
 }
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
