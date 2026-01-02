@@ -249,6 +249,30 @@ Resources:
         - DynamoDBCrudPolicy:
             TableName: !Ref UsersTable
       Events:
+        GetReceivedRequests:
+          Type: Api
+          Properties:
+            RestApiId: !Ref FriendlinesApi
+            Path: /friend-requests/received
+            Method: GET
+        GetSentRequests:
+          Type: Api
+          Properties:
+            RestApiId: !Ref FriendlinesApi
+            Path: /friend-requests/sent
+            Method: GET
+        AcceptRequest:
+          Type: Api
+          Properties:
+            RestApiId: !Ref FriendlinesApi
+            Path: /friend-requests/{requestId}/accept
+            Method: PUT
+        RejectRequest:
+          Type: Api
+          Properties:
+            RestApiId: !Ref FriendlinesApi
+            Path: /friend-requests/{requestId}/reject
+            Method: PUT
         GetFriendships:
           Type: Api
           Properties:
@@ -261,7 +285,7 @@ Resources:
             RestApiId: !Ref FriendlinesApi
             Path: /friends
             Method: GET
-        AddFriend:
+        SendRequest:
           Type: Api
           Properties:
             RestApiId: !Ref FriendlinesApi

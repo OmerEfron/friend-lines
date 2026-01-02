@@ -142,9 +142,15 @@ async function createUser(userData) {
 }
 
 async function createFriendship(userId, friendId) {
+  const now = new Date().toISOString();
+  
   const friendship = {
     userId,
     friendId,
+    status: 'accepted',
+    initiatorId: userId,
+    createdAt: now,
+    updatedAt: now,
   };
 
   await docClient.send(new PutCommand({
@@ -283,13 +289,41 @@ async function main() {
     console.error(`❌ Failed to create groups:`, error.message);
   }
 
+  // Create some pending friend requests for testing
+  console.log('\n' + '='.repeat(50));
+  console.log('\n🔔 Creating pending friend requests...\n');
+
+  try {
+    // If there's a 5th user created, send a pending request to YOUR_USER
+    if (createdUsers.length > 0) {
+      const pendingRequest = {
+        userId: createdUsers[createdUsers.length - 1].id,
+        friendId: YOUR_USER_ID,
+        status: 'pending',
+        initiatorId: createdUsers[createdUsers.length - 1].id,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+
+      await docClient.send(new PutCommand({
+        TableName: 'friendlines-friendships',
+        Item: pendingRequest,
+      }));
+
+      console.log(`✅ Created pending friend request from ${createdUsers[createdUsers.length - 1].name}`);
+    }
+  } catch (error) {
+    console.error(`❌ Failed to create pending requests:`, error.message);
+  }
+
   console.log('\n' + '='.repeat(50));
   console.log('\n✅ Seeding complete!\n');
   console.log('Summary:');
   console.log(`  - Created ${createdUsers.length} test users`);
-  console.log(`  - Created ${createdUsers.length * 2} friendships`);
+  console.log(`  - Created ${createdUsers.length * 2} accepted friendships`);
   console.log(`  - Created ${createdUsers.length + 2} newsflashes`);
   console.log(`  - Created ${groups.length} groups`);
+  console.log(`  - Created 1 pending friend request`);
   console.log('\n📋 Test User Credentials:');
   console.log('  Email: sarah@example.com, michael@example.com, etc.');
   console.log('  Password: password123 (for all test users)');
