@@ -106,3 +106,31 @@ export async function deleteGroup(groupId: string): Promise<void> {
   });
 }
 
+// Feeds API calls
+export async function fetchMainFeed(): Promise<Newsflash[]> {
+  const response = await apiCall<{ newsflashes: Newsflash[] }>('/feeds/main');
+  // Convert timestamp strings to Date objects
+  return response.newsflashes.map((nf) => ({
+    ...nf,
+    timestamp: new Date(nf.timestamp),
+  }));
+}
+
+export async function fetchGroupFeed(groupId: string): Promise<{
+  group: Group;
+  newsflashes: Newsflash[];
+}> {
+  const response = await apiCall<{
+    group: Group;
+    newsflashes: Newsflash[];
+  }>(`/feeds/group/${groupId}`);
+  // Convert timestamp strings to Date objects
+  return {
+    group: response.group,
+    newsflashes: response.newsflashes.map((nf) => ({
+      ...nf,
+      timestamp: new Date(nf.timestamp),
+    })),
+  };
+}
+
