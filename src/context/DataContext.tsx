@@ -32,6 +32,9 @@ interface DataContextType {
   addFriend: (friendId: string) => void;
   removeFriend: (friendId: string) => void;
   refreshData: () => Promise<void>;
+  refreshFriends: () => Promise<void>;
+  refreshGroups: () => Promise<void>;
+  refreshNewsflashes: () => Promise<void>;
   loadMoreNewsflashes: () => Promise<void>;
 }
 
@@ -99,6 +102,35 @@ export function DataProvider({ children }: DataProviderProps) {
 
   const refreshData = async () => {
     await loadDataFromApi();
+  };
+
+  const refreshFriends = async () => {
+    try {
+      const friendsData = await fetchFriends();
+      setFriends(friendsData);
+    } catch (err) {
+      console.error('Failed to refresh friends:', err);
+    }
+  };
+
+  const refreshGroups = async () => {
+    try {
+      const groupsData = await fetchGroups();
+      setGroups(groupsData);
+    } catch (err) {
+      console.error('Failed to refresh groups:', err);
+    }
+  };
+
+  const refreshNewsflashes = async () => {
+    try {
+      const feedResponse = await fetchMainFeed(20);
+      setNewsflashes(feedResponse.newsflashes);
+      setNextCursor(feedResponse.nextCursor);
+      setHasMore(feedResponse.hasMore);
+    } catch (err) {
+      console.error('Failed to refresh newsflashes:', err);
+    }
   };
 
   const addNewsflash = async (
@@ -174,6 +206,9 @@ export function DataProvider({ children }: DataProviderProps) {
         addFriend,
         removeFriend,
         refreshData,
+        refreshFriends,
+        refreshGroups,
+        refreshNewsflashes,
         loadMoreNewsflashes,
       }}
     >
