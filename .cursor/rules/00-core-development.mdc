@@ -1,0 +1,56 @@
+---
+description: Core development principles for Friendlines
+alwaysApply: true
+---
+
+# Core Development Rules
+
+## Principles
+
+1. **Verify First**: Read code before editing. Never assume file contents.
+2. **Smallest Diff**: Make minimal changes. No unnecessary refactors.
+3. **No Hallucinations**: Only use APIs/functions that exist in codebase.
+4. **Localized Changes**: Keep edits scoped. One feature = one PR mindset.
+
+## Workflow
+
+1. **Plan**: State what you'll change and why
+2. **Edit**: Make targeted changes
+3. **Verify**: Check TypeScript compiles, no new errors
+
+## Safety Rules
+
+### Do
+- Read files before modifying
+- Use existing patterns from codebase
+- Test auth flows after auth changes
+- Keep files under 150 lines
+
+### Do NOT
+- Run `rm` or delete commands without explicit request
+- Modify `.env`, `env.json` secrets
+- Change `JWT_SECRET` values
+- Edit `template.yaml` structure without understanding SAM
+- Start servers without user request
+
+## Response Format
+
+```
+## Plan
+- File: path/to/file
+- Change: Description
+
+## Changes Made
+- Modified X to do Y
+
+## Verification
+- [ ] TypeScript: `npx tsc --noEmit`
+- [ ] Backend: `cd backend && sam build`
+```
+
+## Verification Checklist
+
+- [ ] Changes are minimal and focused
+- [ ] No new TypeScript errors introduced
+- [ ] Existing patterns followed
+- [ ] No secrets exposed or modified

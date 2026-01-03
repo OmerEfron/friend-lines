@@ -1,5 +1,4 @@
 import React from 'react';
-import { Platform } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -14,17 +13,45 @@ import AddFriendScreen from '../screens/AddFriendScreen';
 import FriendRequestsScreen from '../screens/FriendRequestsScreen';
 import CreateNewsflashScreen from '../screens/CreateNewsflashScreen';
 import CreateGroupScreen from '../screens/CreateGroupScreen';
+import { Group } from '../types';
 
-const Tab = createBottomTabNavigator();
-const GroupStack = createNativeStackNavigator();
-const ProfileStack = createNativeStackNavigator();
-const RootStack = createNativeStackNavigator();
+// Type definitions for navigation
+type GroupStackParamList = {
+  GroupsList: undefined;
+  GroupFeed: { group: Group };
+};
+
+type ProfileStackParamList = {
+  ProfileMain: undefined;
+  Saved: undefined;
+  FriendsList: undefined;
+  AddFriend: undefined;
+  FriendRequests: undefined;
+};
+
+type RootStackParamList = {
+  MainTabs: undefined;
+  CreateNewsflash: undefined;
+  CreateGroup: undefined;
+};
+
+type TabParamList = {
+  Feed: undefined;
+  Groups: undefined;
+  Profile: undefined;
+};
+
+const Tab = createBottomTabNavigator<TabParamList>();
+const GroupStack = createNativeStackNavigator<GroupStackParamList>();
+const ProfileStack = createNativeStackNavigator<ProfileStackParamList>();
+const RootStack = createNativeStackNavigator<RootStackParamList>();
 
 function GroupsStackScreen() {
   const theme = useTheme();
   
   return (
     <GroupStack.Navigator
+      id="GroupStack"
       screenOptions={{
         headerStyle: {
           backgroundColor: theme.colors.surface,
@@ -40,7 +67,7 @@ function GroupsStackScreen() {
       <GroupStack.Screen 
         name="GroupFeed" 
         component={GroupFeedScreen}
-        options={({ route }: any) => ({ 
+        options={({ route }) => ({ 
           title: route.params?.group?.name || 'Group Feed' 
         })}
       />
@@ -53,6 +80,7 @@ function ProfileStackScreen() {
   
   return (
     <ProfileStack.Navigator
+      id="ProfileStack"
       screenOptions={{
         headerStyle: {
           backgroundColor: theme.colors.surface,
@@ -94,6 +122,7 @@ function MainTabNavigator() {
   
   return (
     <Tab.Navigator
+      id="MainTabs"
       screenOptions={({ route }) => ({
         headerShown: false,
         tabBarActiveTintColor: theme.colors.primary,
@@ -163,6 +192,7 @@ export default function TabNavigator() {
   
   return (
     <RootStack.Navigator
+      id="RootStack"
       screenOptions={{
         headerStyle: {
           backgroundColor: theme.colors.surface,

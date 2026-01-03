@@ -2,16 +2,24 @@ import React from 'react';
 import { StyleSheet, FlatList } from 'react-native';
 import { Surface, List, useTheme, FAB } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useData } from '../context/DataContext';
 import { Group } from '../types';
 
+type GroupStackParamList = {
+  GroupsList: undefined;
+  GroupFeed: { group: Group };
+};
+
+type NavigationProp = NativeStackNavigationProp<GroupStackParamList, 'GroupsList'>;
+
 export default function GroupsScreen() {
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp>();
   const theme = useTheme();
   const { groups } = useData();
 
   const handleGroupPress = (group: Group) => {
-    navigation.navigate('GroupFeed' as never, { group } as never);
+    navigation.navigate('GroupFeed', { group });
   };
 
   const renderGroup = ({ item }: { item: Group }) => (

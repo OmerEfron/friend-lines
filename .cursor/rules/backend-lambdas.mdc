@@ -1,0 +1,132 @@
+---
+description: Backend Lambda development rules for AWS SAM
+globs:
+  - "backend/**/*.ts"
+  - "backend/**/*.yaml"
+  - "backend/**/*.json"
+---
+
+# Backend Lambda Rules
+
+## Tech Stack
+
+- AWS SAM (Serverless Application Model)
+- Node.js 20.x runtime
+- TypeScript with esbuild
+- DynamoDB for data
+- S3 for media storage
+- JWT for authentication
+
+## File Organization
+
+```
+backend/
+├── src/
+│   ├── handlers/    # Lambda entry points
+│   └── utils/       # Shared utilities
+├── template.yaml    # SAM infrastructure
+├── env.json         # Local environment vars
+└── tsconfig.json
+```
+
+## Handler Structure
+
+```typescript
+import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
+import { successResponse, errorResponse } from '../utils/response';
+import { withAuth, AuthenticatedEvent } from '../utils/middleware';
+
+export async function handler(
+  event: APIGatewayProxyEvent
+): Promise<APIGatewayProxyResult> {
+  console.log('Event:', JSON.stringify(event, null, 2));
+
+  try {
+    const { httpMethod: method, path } = event;
+
+    if (method === 'GET' && path === '/resource') {
+      return await withAuth(handleGet)(event);
+    }
+
+    return errorResponse('Not found', 404);
+  } catch (error) {
+    console.error('Error:', error);
+    return errorResponse(error.message);
+  }
+}
+```
+
+## Conventions
+
+### Responses
+```typescript
+// Success (200 default)
+return successResponse({ data }, 200);
+return successResponse({ item }, 201); // Created
+
+// Error
+return errorResponse('Message', 400); // Bad request
+return errorResponse('Not found', 404);
+return errorResponse('Unauthorized', 401);
+```
+
+### Protected Routes
+```typescript
+// Wrap handler with withAuth
+return await withAuth(handleProtected)(event);
+
+// Access userId in handler
+async function handleProtected(event: AuthenticatedEvent) {
+  const userId = event.userId!;
+}
+```
+
+### DynamoDB Operations
+```typescript
+import { putItem, getItem, scanTable, deleteItem } from '../utils/dynamo';
+
+// Get table name from env
+const TABLE = process.env.MY_TABLE || 'friendlines-mytable';
+```
+
+## Adding New Endpoint
+
+1. Add handler function in `backend/src/handlers/`
+2. Add to `template.yaml`:
+   - Function definition
+   - API Gateway events
+   - IAM policies
+3. Add env vars to `backend/env.json`
+4. Rebuild: `sam build`
+
+## Do
+
+- Log events at handler start
+- Validate request body exists
+- Use `withAuth` for protected routes
+- Return proper HTTP status codes
+- Keep handlers < 150 lines
+
+## Do NOT
+
+- Expose `passwordHash` in responses
+- Use `localhost` in Lambda (use `dynamodb-local`)
+- Hardcode table names (use env vars)
+- Skip input validation
+- Modify `JWT_SECRET`
+
+## Environment Variables
+
+Access via `process.env.VAR_NAME`:
+- `USERS_TABLE`, `NEWSFLASHES_TABLE`, etc.
+- `JWT_SECRET` for token signing
+- `IS_LOCAL` for endpoint switching
+- `MEDIA_BUCKET` for S3 operations
+
+## Verification
+
+- [ ] `cd backend && sam build` succeeds
+- [ ] `npx tsc --noEmit` passes
+- [ ] Endpoint works: `curl http://localhost:3000/endpoint`
+- [ ] Auth required endpoints return 401 without token
+- [ ] `./scripts/test-full-api.sh` passes

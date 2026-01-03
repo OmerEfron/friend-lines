@@ -46,10 +46,16 @@ export async function apiCall<T>(
     // Get token from storage
     const token = await AsyncStorage.getItem(TOKEN_KEY);
     
+    // Build headers object properly to avoid type issues
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
-      ...options?.headers,
     };
+    
+    // Merge in any custom headers from options
+    if (options?.headers) {
+      const optHeaders = options.headers as Record<string, string>;
+      Object.assign(headers, optHeaders);
+    }
 
     // Add Authorization header if token exists
     if (token && !headers.Authorization) {

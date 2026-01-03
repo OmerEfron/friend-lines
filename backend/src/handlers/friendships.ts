@@ -110,9 +110,9 @@ export async function handler(
 async function handleGetReceivedRequests(
   userId: string
 ): Promise<APIGatewayProxyResult> {
-  const allFriendships = await scanTable(FRIENDSHIPS_TABLE);
+  const allFriendships = (await scanTable(FRIENDSHIPS_TABLE)) as Friendship[];
   const receivedRequests = allFriendships.filter(
-    (f: Friendship) => f.friendId === userId && f.status === 'pending'
+    (f) => f.friendId === userId && f.status === 'pending'
   );
 
   // Enrich with initiator user data
@@ -123,7 +123,7 @@ async function handleGetReceivedRequests(
     usersMap.set(u.id, userWithoutPassword);
   });
 
-  const enrichedRequests = receivedRequests.map((req: Friendship) => ({
+  const enrichedRequests = receivedRequests.map((req) => ({
     ...req,
     user: usersMap.get(req.initiatorId),
   }));
@@ -135,9 +135,9 @@ async function handleGetReceivedRequests(
 async function handleGetSentRequests(
   userId: string
 ): Promise<APIGatewayProxyResult> {
-  const allFriendships = await scanTable(FRIENDSHIPS_TABLE);
+  const allFriendships = (await scanTable(FRIENDSHIPS_TABLE)) as Friendship[];
   const sentRequests = allFriendships.filter(
-    (f: Friendship) => f.initiatorId === userId && f.status === 'pending'
+    (f) => f.initiatorId === userId && f.status === 'pending'
   );
 
   // Enrich with recipient user data
@@ -148,7 +148,7 @@ async function handleGetSentRequests(
     usersMap.set(u.id, userWithoutPassword);
   });
 
-  const enrichedRequests = sentRequests.map((req: Friendship) => ({
+  const enrichedRequests = sentRequests.map((req) => ({
     ...req,
     user: usersMap.get(req.friendId),
   }));
@@ -250,9 +250,9 @@ async function handleRejectRequest(
 async function handleGetFriendships(
   userId: string
 ): Promise<APIGatewayProxyResult> {
-  const allFriendships = await scanTable(FRIENDSHIPS_TABLE);
+  const allFriendships = (await scanTable(FRIENDSHIPS_TABLE)) as Friendship[];
   const userFriendships = allFriendships.filter(
-    (f: Friendship) => f.userId === userId && f.status === 'accepted'
+    (f) => f.userId === userId && f.status === 'accepted'
   );
 
   return successResponse({ friendships: userFriendships });
@@ -262,12 +262,12 @@ async function handleGetFriendships(
 async function handleGetFriends(
   userId: string
 ): Promise<APIGatewayProxyResult> {
-  const allFriendships = await scanTable(FRIENDSHIPS_TABLE);
+  const allFriendships = (await scanTable(FRIENDSHIPS_TABLE)) as Friendship[];
   const userFriendships = allFriendships.filter(
-    (f: Friendship) => f.userId === userId && f.status === 'accepted'
+    (f) => f.userId === userId && f.status === 'accepted'
   );
 
-  const friendIds = userFriendships.map((f: Friendship) => f.friendId);
+  const friendIds = userFriendships.map((f) => f.friendId);
 
   // Get all users
   const allUsers = (await scanTable(USERS_TABLE)) as User[];
