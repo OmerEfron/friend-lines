@@ -87,12 +87,10 @@ export async function handler(
 async function handleGetGroups(
   userId: string
 ): Promise<APIGatewayProxyResult> {
-  const allGroups = await scanTable(GROUPS_TABLE);
+  const allGroups = (await scanTable(GROUPS_TABLE)) as Group[];
   
   // Filter groups where user is the creator (groups are personal, not shared)
-  const userGroups = allGroups.filter((g: Group) =>
-    g.createdBy === userId
-  );
+  const userGroups = allGroups.filter((g) => g.createdBy === userId);
 
   return successResponse({ groups: userGroups });
 }

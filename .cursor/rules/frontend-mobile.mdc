@@ -1,0 +1,106 @@
+---
+description: Frontend mobile development rules for Expo/React Native
+globs:
+  - "src/**/*.ts"
+  - "src/**/*.tsx"
+  - "App.js"
+---
+
+# Frontend Mobile Rules
+
+## Tech Stack
+
+- Expo SDK 54 / React Native 0.81
+- React Navigation (Bottom Tabs + Native Stack)
+- React Native Paper (Material Design 3)
+- TypeScript
+- AsyncStorage for local data
+
+## File Organization
+
+```
+src/
+├── components/     # Reusable UI (keep small, focused)
+├── config/         # API config, constants
+├── context/        # React contexts (Auth, Data, Theme)
+├── navigation/     # TabNavigator.tsx
+├── screens/        # One file per screen
+├── services/       # API call functions
+├── theme/          # Material Design theme
+└── types/          # TypeScript interfaces
+```
+
+## Conventions
+
+### Screens
+- Name: `{Feature}Screen.tsx`
+- Export: `export default function FeatureScreen()`
+- Use hooks at top, then handlers, then render
+
+### Components
+- Name: `{Name}.tsx`
+- Props interface above component
+- Use `StyleSheet.create()` at bottom
+
+### API Calls
+- Always use `apiCall()` from `src/config/api.ts`
+- Wrap in service functions in `src/services/api.ts`
+- Handle errors with try/catch
+
+## Example: New Screen
+
+```typescript
+import React, { useState, useEffect } from 'react';
+import { View, StyleSheet } from 'react-native';
+import { Text, Surface } from 'react-native-paper';
+
+export default function MyScreen() {
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const loadData = async () => {
+    // API call here
+  };
+
+  return (
+    <Surface style={styles.container}>
+      <Text variant="headlineMedium">Title</Text>
+    </Surface>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1, padding: 16 },
+});
+```
+
+## Do
+
+- Use `useAuth()` for current user
+- Use `useNavigation()` for navigation
+- Use Paper components (Text, Surface, Button, Card)
+- Convert API timestamps to Date objects
+
+## Do NOT
+
+- Direct `fetch()` calls - use `apiCall()`
+- Hardcode API URLs
+- Store sensitive data in state
+- Create files > 150 lines
+
+## Navigation
+
+Add screens to `src/navigation/TabNavigator.tsx`:
+1. Import screen
+2. Add to appropriate Stack.Navigator
+3. Navigate with `navigation.navigate('ScreenName', { params })`
+
+## Verification
+
+- [ ] `npx tsc --noEmit` passes
+- [ ] No console errors in Metro
+- [ ] Screen renders correctly
+- [ ] Navigation works both ways

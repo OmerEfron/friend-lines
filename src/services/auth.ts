@@ -86,4 +86,8 @@ export async function isAuthenticated(): Promise<boolean> {
   return token !== null;
 }
 
+// Store user in AsyncStorage
+export async function storeUser(user: User): Promise<void> {
+  await AsyncStorage.setItem(USER_KEY, JSON.stringify(user));
+}
 

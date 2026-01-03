@@ -69,17 +69,17 @@ async function handleSearchUsers(
   }
 
   const searchQuery = query.trim().toLowerCase();
-  const allUsers = await scanTable(USERS_TABLE);
+  const allUsers = (await scanTable(USERS_TABLE)) as User[];
 
   // Filter users by name or username
-  const matchedUsers = allUsers.filter((u: User) => {
+  const matchedUsers = allUsers.filter((u) => {
     const name = u.name.toLowerCase();
     const username = u.username.toLowerCase();
     return name.includes(searchQuery) || username.includes(searchQuery);
   });
 
   // Remove password hashes from response
-  const sanitizedUsers = matchedUsers.map((u: User) => {
+  const sanitizedUsers = matchedUsers.map((u) => {
     const { passwordHash, ...userWithoutPassword } = u;
     return userWithoutPassword;
   });
@@ -90,10 +90,10 @@ async function handleSearchUsers(
 async function handleGetUsers(
   event: AuthenticatedEvent
 ): Promise<APIGatewayProxyResult> {
-  const users = await scanTable(USERS_TABLE);
+  const users = (await scanTable(USERS_TABLE)) as User[];
   
   // Remove password hashes from response
-  const sanitizedUsers = users.map((u: User) => {
+  const sanitizedUsers = users.map((u) => {
     const { passwordHash, ...userWithoutPassword } = u;
     return userWithoutPassword;
   });
@@ -143,9 +143,9 @@ async function handleUpdateUser(
 
   // If username is being changed, check if it's available
   if (username && username !== existingUser.username) {
-    const allUsers = await scanTable(USERS_TABLE);
+    const allUsers = (await scanTable(USERS_TABLE)) as User[];
     const usernameExists = allUsers.some(
-      (u: User) => u.username === username.toLowerCase() && u.id !== id
+      (u) => u.username === username.toLowerCase() && u.id !== id
     );
 
     if (usernameExists) {

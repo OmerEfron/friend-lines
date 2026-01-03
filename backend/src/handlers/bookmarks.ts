@@ -78,10 +78,8 @@ async function handleGetBookmarks(
   userId: string
 ): Promise<APIGatewayProxyResult> {
   // Get all bookmarks for this user
-  const allBookmarks = await scanTable(BOOKMARKS_TABLE);
-  const userBookmarks = allBookmarks.filter(
-    (b: Bookmark) => b.userId === userId
-  );
+  const allBookmarks = (await scanTable(BOOKMARKS_TABLE)) as Bookmark[];
+  const userBookmarks = allBookmarks.filter((b) => b.userId === userId);
 
   // Get all newsflashes and users for enrichment
   const allNewsflashes = (await scanTable(NEWSFLASHES_TABLE)) as Newsflash[];
@@ -99,7 +97,7 @@ async function handleGetBookmarks(
 
   // Enrich bookmarks with newsflash and user data
   const enrichedBookmarks = userBookmarks
-    .map((bookmark: Bookmark) => {
+    .map((bookmark) => {
       const newsflash = newsflashMap.get(bookmark.newsflashId);
       if (!newsflash) return null;
 

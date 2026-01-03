@@ -3,7 +3,8 @@ import { StyleSheet, FlatList, View } from 'react-native';
 import { Surface, Searchbar, List, Avatar, useTheme, Button, Text, ActivityIndicator } from 'react-native-paper';
 import { useData } from '../context/DataContext';
 import { User } from '../types';
-import { searchUsers, apiCall } from '../services/api';
+import { searchUsers } from '../services/api';
+import { apiCall } from '../config/api';
 import { useNavigation } from '@react-navigation/native';
 
 interface FriendRequest {

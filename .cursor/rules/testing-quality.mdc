@@ -1,0 +1,122 @@
+---
+description: Testing and quality rules for Friendlines
+---
+
+# Testing & Quality Rules
+
+## Current Testing Infrastructure
+
+### Integration Tests (Bash)
+- `scripts/test-api.sh` - Basic API tests
+- `scripts/test-full-api.sh` - Comprehensive auth + CRUD tests
+
+### Type Checking
+- Frontend: `npx tsc --noEmit`
+- Backend: `cd backend && npx tsc --noEmit`
+
+### Build Verification
+- Backend: `cd backend && sam build`
+
+## Running Tests
+
+```bash
+# Start backend first
+./scripts/start-api.sh
+
+# In another terminal - run tests
+./scripts/test-full-api.sh
+```
+
+## Test Coverage Strategy
+
+### Must Test
+1. Authentication (register, login, token validation)
+2. Protected endpoint access
+3. CRUD operations on main entities
+4. Error responses (400, 401, 404)
+
+### Test Script Structure
+
+```bash
+# Pattern from test-full-api.sh
+test_endpoint() {
+  local name="$1"
+  local method="$2"
+  local endpoint="$3"
+  local data="$4"
+  local expected_status="${5:-200}"
+  
+  # Make request with auth header
+  # Check HTTP status
+  # Parse response
+}
+```
+
+## Quality Checklist
+
+### Before Committing
+
+- [ ] TypeScript compiles (FE + BE)
+- [ ] SAM builds successfully
+- [ ] Integration tests pass
+- [ ] No console errors
+- [ ] Changes are focused/minimal
+
+### When Adding Features
+
+- [ ] Add test case to `test-full-api.sh` for new endpoints
+- [ ] Test happy path + error cases
+- [ ] Test with and without auth token
+
+## Adding Tests
+
+### New API Endpoint Test
+
+Add to `scripts/test-full-api.sh`:
+
+```bash
+echo "Testing My New Endpoint..."
+
+# Test success case
+test_endpoint "Create Item" POST "/myendpoint" \
+  '{"field":"value"}' 201
+
+# Test error case
+test_endpoint "Invalid Input" POST "/myendpoint" \
+  '{}' 400
+```
+
+### Manual Testing Checklist
+
+For UI changes:
+1. [ ] Test on Android emulator
+2. [ ] Test on iOS simulator (if available)
+3. [ ] Test navigation to/from screen
+4. [ ] Test loading states
+5. [ ] Test error states
+
+## Definition of Done
+
+A feature is complete when:
+
+1. Code compiles without errors
+2. Integration tests pass
+3. Manual testing completed
+4. No regressions in existing features
+5. Files stay under 150 lines
+
+## Known Gaps
+
+- No unit test framework (Jest) configured
+- No frontend component tests
+- No E2E tests (Detox/Appium)
+- No test coverage reporting
+
+## Suggested Improvements
+
+When adding unit tests:
+1. Add Jest to both FE and BE
+2. Create `__tests__` folders
+3. Focus on business logic first
+4. Mock API calls in frontend tests
+5. Mock DynamoDB in backend tests
