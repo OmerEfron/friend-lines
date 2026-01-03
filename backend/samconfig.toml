@@ -1,0 +1,29 @@
+# SAM CLI Development Configuration
+# Usage: sam deploy (uses this by default)
+# For local development, use: sam local start-api
+
+version = 0.1
+
+[default.global.parameters]
+stack_name = "friendlines-backend-dev"
+region = "us-east-1"
+
+[default.build.parameters]
+cached = true
+parallel = true
+
+[default.deploy.parameters]
+capabilities = "CAPABILITY_IAM"
+confirm_changeset = true
+resolve_s3 = true
+s3_prefix = "friendlines-backend-dev"
+# Dev uses default values from template.yaml (no Secrets Manager needed)
+parameter_overrides = "Environment=dev S3BucketName=friendlines-media-dev"
+
+[default.validate.parameters]
+lint = true
+
+[default.local_start_api.parameters]
+docker_network = "friendlines-net"
+env_vars = "env.json"
+
