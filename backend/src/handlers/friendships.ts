@@ -6,6 +6,15 @@ import { withAuth, AuthenticatedEvent } from '../utils/middleware';
 const FRIENDSHIPS_TABLE =
   process.env.FRIENDSHIPS_TABLE || 'friendlines-friendships';
 const USERS_TABLE = process.env.USERS_TABLE || 'friendlines-users';
+const GROUPS_TABLE = process.env.GROUPS_TABLE || 'friendlines-groups';
+
+interface Group {
+  id: string;
+  name: string;
+  userIds: string[];
+  createdBy: string;
+  createdAt: string;
+}
 
 interface Friendship {
   userId: string;
@@ -373,5 +382,56 @@ async function handleRemoveFriend(
   await deleteItem(FRIENDSHIPS_TABLE, { userId, friendId });
   await deleteItem(FRIENDSHIPS_TABLE, { userId: friendId, friendId: userId });
 
+  // Cascade: Remove friend from all groups created by this user
+  // Don't fail the operation if groups cleanup fails (e.g., table doesn't exist)
+  try {
+    await removeFriendFromUserGroups(userId, friendId);
+  } catch (error) {
+    console.warn('Failed to remove friend from groups (non-critical):', error);
+    // Continue - friend removal succeeded even if groups cleanup failed
+  }
+
   return successResponse({ message: 'Friend removed' });
+}
+
+// Helper: Remove a friend from all groups created by a user
+async function removeFriendFromUserGroups(
+  userId: string,
+  friendId: string
+): Promise<void> {
+  try {
+    console.log(`Removing friend ${friendId} from groups created by ${userId}`);
+    const allGroups = (await scanTable(GROUPS_TABLE)) as Group[];
+    console.log(`Found ${allGroups.length} total groups`);
+    
+    const userGroups = allGroups.filter((g) => g.createdBy === userId);
+    console.log(`Found ${userGroups.length} groups created by user ${userId}`);
+
+    let updatedCount = 0;
+    for (const group of userGroups) {
+      if (group.userIds.includes(friendId)) {
+        console.log(`Removing friend ${friendId} from group ${group.id} (${group.name})`);
+        const updatedUserIds = group.userIds.filter((id) => id !== friendId);
+        const updatedGroup = { ...group, userIds: updatedUserIds };
+        await putItem(GROUPS_TABLE, updatedGroup);
+        updatedCount++;
+        console.log(`Updated group ${group.id}: removed friend, ${updatedUserIds.length} members remaining`);
+      }
+    }
+    
+    if (updatedCount === 0) {
+      console.log(`No groups found containing friend ${friendId}`);
+    } else {
+      console.log(`Successfully updated ${updatedCount} group(s)`);
+    }
+  } catch (error: any) {
+    // If table doesn't exist or other error, log and rethrow
+    // The caller will handle it gracefully
+    console.error(`Error removing friend from groups:`, error);
+    if (error.name === 'ResourceNotFoundException') {
+      console.warn(`Groups table ${GROUPS_TABLE} does not exist, skipping group cleanup`);
+      return; // Table doesn't exist, nothing to clean up
+    }
+    throw error; // Re-throw other errors
+  }
 }

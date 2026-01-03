@@ -12,12 +12,14 @@ export interface Newsflash {
   subHeadline?: string;
   media?: string;
   timestamp: Date;
+  user?: User; // Enriched user data from API
 }
 
 export interface Group {
   id: string;
   name: string;
   userIds: string[];
+  createdBy?: string;
 }
 
 export interface Friendship {

@@ -1,11 +1,13 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { v4 as uuidv4 } from 'uuid';
-import { putItem, scanTable, queryItems } from '../utils/dynamo';
+import { putItem, scanTable, queryItems, getItem, deleteItem } from '../utils/dynamo';
 import { uploadFile } from '../utils/s3';
 import { successResponse, errorResponse } from '../utils/response';
+import { withAuth, AuthenticatedEvent } from '../utils/middleware';
 
 const NEWSFLASHES_TABLE =
   process.env.NEWSFLASHES_TABLE || 'friendlines-newsflashes';
+const BOOKMARKS_TABLE = process.env.BOOKMARKS_TABLE || 'friendlines-bookmarks';
 const MEDIA_BUCKET = process.env.MEDIA_BUCKET || 'friendlines-media-local';
 
 interface Newsflash {
@@ -15,6 +17,11 @@ interface Newsflash {
   subHeadline?: string;
   media?: string;
   timestamp: string;
+}
+
+interface Bookmark {
+  userId: string;
+  newsflashId: string;
 }
 
 export async function handler(
@@ -91,6 +98,15 @@ export async function handler(
       return successResponse({ newsflash }, 201);
     }
 
+    // DELETE /newsflashes/{id} - Delete a newsflash (Protected)
+    if (
+      method === 'DELETE' &&
+      path.startsWith('/newsflashes/') &&
+      (event as AuthenticatedEvent).pathParameters?.id
+    ) {
+      return await withAuth(handleDeleteNewsflash)(event as AuthenticatedEvent);
+    }
+
     return errorResponse('Method not allowed', 405);
   } catch (error) {
     console.error('Error:', error);
@@ -98,5 +114,43 @@ export async function handler(
       error instanceof Error ? error.message : 'Internal server error'
     );
   }
+}
+
+// Delete a newsflash (only owner can delete)
+async function handleDeleteNewsflash(
+  event: AuthenticatedEvent
+): Promise<APIGatewayProxyResult> {
+  const { id } = event.pathParameters!;
+  const userId = event.userId!;
+
+  // Get the newsflash
+  const newsflash = (await getItem(NEWSFLASHES_TABLE, { id })) as
+    | Newsflash
+    | undefined;
+
+  if (!newsflash) {
+    return errorResponse('Newsflash not found', 404);
+  }
+
+  // Only owner can delete
+  if (newsflash.userId !== userId) {
+    return errorResponse('You can only delete your own newsflashes', 403);
+  }
+
+  // Cascade: Delete all bookmarks referencing this newsflash
+  const allBookmarks = (await scanTable(BOOKMARKS_TABLE)) as Bookmark[];
+  for (const b of allBookmarks) {
+    if (b.newsflashId === id) {
+      await deleteItem(BOOKMARKS_TABLE, {
+        userId: b.userId,
+        newsflashId: b.newsflashId,
+      });
+    }
+  }
+
+  // Delete the newsflash
+  await deleteItem(NEWSFLASHES_TABLE, { id });
+
+  return successResponse({ message: 'Newsflash deleted' });
 }
 

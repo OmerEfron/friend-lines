@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { StyleSheet, FlatList, View } from 'react-native';
 import { Surface, Searchbar, List, Avatar, useTheme, Button, Text, ActivityIndicator } from 'react-native-paper';
 import { useData } from '../context/DataContext';
@@ -17,7 +17,7 @@ interface FriendRequest {
 export default function AddFriendScreen() {
   const theme = useTheme();
   const navigation = useNavigation();
-  const { friendships, currentUser, addFriend } = useData();
+  const { friends, currentUser, addFriend } = useData();
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<User[]>([]);
   const [loading, setLoading] = useState(false);
@@ -40,10 +40,8 @@ export default function AddFriendScreen() {
   }, []);
 
   const friendIds = useMemo(() => {
-    return friendships
-      .filter(f => f.userId === currentUser.id)
-      .map(f => f.friendId);
-  }, [friendships, currentUser.id]);
+    return friends.map(f => f.id);
+  }, [friends]);
 
   const availableUsers = useMemo(() => {
     return searchResults.filter(u => u.id !== currentUser.id);

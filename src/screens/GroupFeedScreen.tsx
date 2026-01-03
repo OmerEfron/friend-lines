@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { Surface, ActivityIndicator, Text } from 'react-native-paper';
 import FeedList from '../components/FeedList';
-import { useData } from '../context/DataContext';
 import { Group, Newsflash } from '../types';
 import { fetchGroupFeed } from '../services/api';
 
@@ -16,7 +15,6 @@ interface GroupFeedScreenProps {
 
 export default function GroupFeedScreen({ route }: GroupFeedScreenProps) {
   const { group } = route.params;
-  const { users } = useData();
   const [newsflashes, setNewsflashes] = useState<Newsflash[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -57,7 +55,7 @@ export default function GroupFeedScreen({ route }: GroupFeedScreenProps) {
 
   return (
     <Surface style={styles.container}>
-      <FeedList newsflashes={newsflashes} users={users} />
+      <FeedList newsflashes={newsflashes} />
     </Surface>
   );
 }

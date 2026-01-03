@@ -2,12 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet } from 'react-native';
 import { Surface, ActivityIndicator } from 'react-native-paper';
 import FeedList from '../components/FeedList';
-import { useData } from '../context/DataContext';
 import { Newsflash } from '../types';
 import { fetchBookmarks } from '../services/api';
 
 export default function SavedScreen() {
-  const { users } = useData();
   const [savedNewsflashes, setSavedNewsflashes] = useState<Newsflash[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -37,7 +35,7 @@ export default function SavedScreen() {
 
   return (
     <Surface style={styles.container}>
-      <FeedList newsflashes={savedNewsflashes} users={users} />
+      <FeedList newsflashes={savedNewsflashes} />
     </Surface>
   );
 }

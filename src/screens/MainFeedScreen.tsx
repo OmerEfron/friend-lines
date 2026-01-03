@@ -7,30 +7,30 @@ import { useData } from '../context/DataContext';
 
 export default function MainFeedScreen() {
   const navigation = useNavigation();
-  const { newsflashes, users, friendships, currentUser } = useData();
+  const { newsflashes, loadMoreNewsflashes, loadingMore, hasMore } = useData();
   const [searchQuery, setSearchQuery] = useState('');
-  
-  const friendIds = useMemo(() => {
-    return friendships
-      .filter(f => f.userId === currentUser.id)
-      .map(f => f.friendId);
-  }, [friendships, currentUser.id]);
 
-  const friendNewsflashes = useMemo(() => {
-    const filtered = newsflashes.filter(n => friendIds.includes(n.userId));
+  // Backend already returns filtered feed (friends + self), just apply search
+  const filteredNewsflashes = useMemo(() => {
+    const sorted = [...newsflashes].sort(
+      (a, b) => b.timestamp.getTime() - a.timestamp.getTime()
+    );
     
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase();
-      return filtered
-        .filter(n => 
-          n.headline.toLowerCase().includes(query) ||
-          (n.subHeadline && n.subHeadline.toLowerCase().includes(query))
-        )
-        .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+    if (!searchQuery.trim()) {
+      return sorted;
     }
     
-    return filtered.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
-  }, [newsflashes, friendIds, searchQuery]);
+    const query = searchQuery.toLowerCase();
+    return sorted.filter(n => 
+      n.headline.toLowerCase().includes(query) ||
+      (n.subHeadline && n.subHeadline.toLowerCase().includes(query))
+    );
+  }, [newsflashes, searchQuery]);
+
+  // Only enable infinite scroll when not searching
+  const handleEndReached = !searchQuery.trim() && hasMore
+    ? loadMoreNewsflashes
+    : undefined;
 
   return (
     <Surface style={styles.container}>
@@ -42,7 +42,11 @@ export default function MainFeedScreen() {
           style={styles.searchbar}
         />
       </View>
-      <FeedList newsflashes={friendNewsflashes} users={users} />
+      <FeedList
+        newsflashes={filteredNewsflashes}
+        onEndReached={handleEndReached}
+        loadingMore={loadingMore}
+      />
       <FAB
         icon="plus"
         style={styles.fab}

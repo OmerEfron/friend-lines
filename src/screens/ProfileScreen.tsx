@@ -13,7 +13,7 @@ export default function ProfileScreen() {
   const theme = useTheme();
   const navigation = useNavigation();
   const { isDark, toggleTheme } = useAppTheme();
-  const { newsflashes, users, currentUser, friendships } = useData();
+  const { newsflashes, currentUser, friends } = useData();
   const { bookmarkedIds } = useBookmarks();
   const { logout } = useAuth();
   const [pendingRequestsCount, setPendingRequestsCount] = React.useState(0);
@@ -24,9 +24,7 @@ export default function ProfileScreen() {
       .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
   }, [newsflashes, currentUser.id]);
 
-  const friendsCount = useMemo(() => {
-    return friendships.filter(f => f.userId === currentUser.id).length;
-  }, [friendships, currentUser.id]);
+  const friendsCount = friends.length;
 
   // Load pending requests count
   React.useEffect(() => {
@@ -254,7 +252,7 @@ export default function ProfileScreen() {
           style={styles.listItem}
         />
       </Surface>
-      <FeedList newsflashes={userNewsflashes} users={users} />
+      <FeedList newsflashes={userNewsflashes} />
     </Surface>
   );
 }

@@ -1,10 +1,16 @@
 import { APIGatewayProxyResult } from 'aws-lambda';
 import { v4 as uuidv4 } from 'uuid';
-import { putItem, getItem, scanTable } from '../utils/dynamo';
+import { putItem, getItem, scanTable, deleteItem } from '../utils/dynamo';
 import { successResponse, errorResponse } from '../utils/response';
 import { withAuth, AuthenticatedEvent } from '../utils/middleware';
 
 const USERS_TABLE = process.env.USERS_TABLE || 'friendlines-users';
+const FRIENDSHIPS_TABLE =
+  process.env.FRIENDSHIPS_TABLE || 'friendlines-friendships';
+const GROUPS_TABLE = process.env.GROUPS_TABLE || 'friendlines-groups';
+const BOOKMARKS_TABLE = process.env.BOOKMARKS_TABLE || 'friendlines-bookmarks';
+const NEWSFLASHES_TABLE =
+  process.env.NEWSFLASHES_TABLE || 'friendlines-newsflashes';
 
 interface User {
   id: string;
@@ -14,6 +20,29 @@ interface User {
   avatar?: string;
   passwordHash?: string;
   createdAt?: string;
+}
+
+interface Friendship {
+  userId: string;
+  friendId: string;
+  status: string;
+}
+
+interface Group {
+  id: string;
+  name: string;
+  userIds: string[];
+  createdBy: string;
+}
+
+interface Bookmark {
+  userId: string;
+  newsflashId: string;
+}
+
+interface Newsflash {
+  id: string;
+  userId: string;
 }
 
 export async function handler(
@@ -48,6 +77,11 @@ export async function handler(
     // POST /users - Create new user (kept for backward compatibility, not used with auth)
     if (method === 'POST' && path === '/users') {
       return await handleCreateUser(event);
+    }
+
+    // DELETE /users/{id} - Delete user account (Protected)
+    if (method === 'DELETE' && event.pathParameters?.id) {
+      return await withAuth(handleDeleteUser)(event);
     }
 
     return errorResponse('Method not allowed', 405);
@@ -191,5 +225,90 @@ async function handleCreateUser(
 
   await putItem(USERS_TABLE, user);
   return successResponse({ user }, 201);
+}
+
+async function handleDeleteUser(
+  event: AuthenticatedEvent
+): Promise<APIGatewayProxyResult> {
+  const { id } = event.pathParameters!;
+  const userId = event.userId!;
+
+  // Users can only delete their own account
+  if (id !== userId) {
+    return errorResponse('You can only delete your own account', 403);
+  }
+
+  // Verify user exists
+  const existingUser = (await getItem(USERS_TABLE, { id })) as User | undefined;
+  if (!existingUser) {
+    return errorResponse('User not found', 404);
+  }
+
+  // Cascade delete all related data
+  await cascadeDeleteUserData(userId);
+
+  // Delete the user
+  await deleteItem(USERS_TABLE, { id });
+
+  return successResponse({ message: 'Account deleted' });
+}
+
+// Helper: Delete all data related to a user
+async function cascadeDeleteUserData(userId: string): Promise<void> {
+  // 1. Delete all friendships involving this user
+  const allFriendships = (await scanTable(FRIENDSHIPS_TABLE)) as Friendship[];
+  for (const f of allFriendships) {
+    if (f.userId === userId || f.friendId === userId) {
+      await deleteItem(FRIENDSHIPS_TABLE, {
+        userId: f.userId,
+        friendId: f.friendId,
+      });
+    }
+  }
+
+  // 2. Delete all groups created by this user
+  const allGroups = (await scanTable(GROUPS_TABLE)) as Group[];
+  for (const g of allGroups) {
+    if (g.createdBy === userId) {
+      await deleteItem(GROUPS_TABLE, { id: g.id });
+    }
+  }
+
+  // 3. Remove user from other users' groups
+  for (const g of allGroups) {
+    if (g.createdBy !== userId && g.userIds.includes(userId)) {
+      const updatedUserIds = g.userIds.filter((id) => id !== userId);
+      const updatedGroup = { ...g, userIds: updatedUserIds };
+      await putItem(GROUPS_TABLE, updatedGroup);
+    }
+  }
+
+  // 4. Delete all bookmarks by this user
+  const allBookmarks = (await scanTable(BOOKMARKS_TABLE)) as Bookmark[];
+  for (const b of allBookmarks) {
+    if (b.userId === userId) {
+      await deleteItem(BOOKMARKS_TABLE, {
+        userId: b.userId,
+        newsflashId: b.newsflashId,
+      });
+    }
+  }
+
+  // 5. Delete all newsflashes by this user
+  const allNewsflashes = (await scanTable(NEWSFLASHES_TABLE)) as Newsflash[];
+  for (const nf of allNewsflashes) {
+    if (nf.userId === userId) {
+      // Also delete any bookmarks referencing this newsflash
+      for (const b of allBookmarks) {
+        if (b.newsflashId === nf.id) {
+          await deleteItem(BOOKMARKS_TABLE, {
+            userId: b.userId,
+            newsflashId: b.newsflashId,
+          });
+        }
+      }
+      await deleteItem(NEWSFLASHES_TABLE, { id: nf.id });
+    }
+  }
 }
 
