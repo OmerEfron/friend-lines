@@ -200,3 +200,4 @@ npx tsc --noEmit
 4. **Media uploads**: Partially implemented, may need work
 5. **Friend request flow**: Has `status` field but UI handling unclear
 
+

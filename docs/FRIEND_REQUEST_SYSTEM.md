@@ -370,3 +370,5 @@ Consider adding:
 
 The friend request system provides a proper social media experience where users must consent to friendships. It follows industry best practices and provides clear feedback at every step of the flow.
 
+
+

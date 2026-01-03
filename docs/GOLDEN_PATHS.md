@@ -340,3 +340,4 @@ Before submitting changes:
 2. No shared types package between FE/BE
 3. No database migrations - schema changes require manual table updates
 
+
