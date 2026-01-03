@@ -4,18 +4,10 @@ import React, {
   useContext,
   ReactNode,
   useEffect,
+  useCallback,
 } from 'react';
+import { User, Newsflash, Group } from '../types';
 import {
-  users as initialUsers,
-  newsflashes as initialNewsflashes,
-  groups as initialGroups,
-  friendships as initialFriendships,
-  currentUser as initialCurrentUser,
-} from '../data/mock';
-import { User, Newsflash, Group, Friendship } from '../types';
-import {
-  fetchUsers,
-  fetchNewsflashes,
   createNewsflash as apiCreateNewsflash,
   fetchFriends,
   addFriend as apiAddFriend,
@@ -27,77 +19,60 @@ import {
 import { useAuth } from './AuthContext';
 
 interface DataContextType {
-  users: User[];
   newsflashes: Newsflash[];
   groups: Group[];
-  friendships: Friendship[];
+  friends: User[];
   currentUser: User;
   loading: boolean;
+  loadingMore: boolean;
+  hasMore: boolean;
   error: string | null;
   addNewsflash: (newsflash: Omit<Newsflash, 'id' | 'timestamp'>) => Promise<void>;
   addGroup: (group: Omit<Group, 'id'>) => void;
   addFriend: (friendId: string) => void;
   removeFriend: (friendId: string) => void;
   refreshData: () => Promise<void>;
+  loadMoreNewsflashes: () => Promise<void>;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
 interface DataProviderProps {
   children: ReactNode;
-  useApi?: boolean; // Flag to enable/disable API integration
 }
 
-export function DataProvider({
-  children,
-  useApi = false,
-}: DataProviderProps) {
-  const auth = useApi ? useAuth() : null;
+export function DataProvider({ children }: DataProviderProps) {
+  const auth = useAuth();
   
-  // Use empty arrays when API mode, mock data otherwise
-  const [users, setUsers] = useState<User[]>(useApi ? [] : initialUsers);
-  const [newsflashes, setNewsflashes] = useState<Newsflash[]>(
-    useApi ? [] : initialNewsflashes
-  );
-  const [groups, setGroups] = useState<Group[]>(useApi ? [] : initialGroups);
-  const [friendships, setFriendships] = useState<Friendship[]>(
-    useApi ? [] : initialFriendships
-  );
-  
-  // Get current user from auth context when using API, otherwise use mock
-  const currentUser = useApi && auth?.user ? auth.user : initialCurrentUser;
-  
-  const [loading, setLoading] = useState(false);
+  const [newsflashes, setNewsflashes] = useState<Newsflash[]>([]);
+  const [groups, setGroups] = useState<Group[]>([]);
+  const [friends, setFriends] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(false);
+  const [nextCursor, setNextCursor] = useState<string | undefined>();
   const [error, setError] = useState<string | null>(null);
+  
+  const currentUser = auth.user!;
 
-  // Load data from API on mount if enabled
   useEffect(() => {
-    if (useApi) {
-      loadDataFromApi();
-    }
-  }, [useApi]);
+    loadDataFromApi();
+  }, []);
 
   const loadDataFromApi = async () => {
     setLoading(true);
     setError(null);
     try {
-      // Use the enhanced feeds endpoint which returns filtered newsflashes
-      const [usersData, feedNewsflashes, friendsData, groupsData] = await Promise.all([
-        fetchUsers(),
-        fetchMainFeed(), // Use main feed instead of all newsflashes
+      const [feedResponse, friendsData, groupsData] = await Promise.all([
+        fetchMainFeed(20),
         fetchFriends(),
         fetchGroups(),
       ]);
-      setUsers(usersData);
-      setNewsflashes(feedNewsflashes);
+      setNewsflashes(feedResponse.newsflashes);
+      setNextCursor(feedResponse.nextCursor);
+      setHasMore(feedResponse.hasMore);
+      setFriends(friendsData);
       setGroups(groupsData);
-      
-      // Convert friends to friendships format
-      const friendshipsData = friendsData.map((friend) => ({
-        userId: currentUser.id,
-        friendId: friend.id,
-      }));
-      setFriendships(friendshipsData);
     } catch (err) {
       console.error('Failed to load data from API:', err);
       setError(err instanceof Error ? err.message : 'Failed to load data');
@@ -106,114 +81,100 @@ export function DataProvider({
     }
   };
 
-  const refreshData = async () => {
-    if (useApi) {
-      await loadDataFromApi();
+  const loadMoreNewsflashes = useCallback(async () => {
+    if (loadingMore || !hasMore || !nextCursor) return;
+    
+    setLoadingMore(true);
+    try {
+      const feedResponse = await fetchMainFeed(20, nextCursor);
+      setNewsflashes((prev) => [...prev, ...feedResponse.newsflashes]);
+      setNextCursor(feedResponse.nextCursor);
+      setHasMore(feedResponse.hasMore);
+    } catch (err) {
+      console.error('Failed to load more newsflashes:', err);
+    } finally {
+      setLoadingMore(false);
     }
+  }, [loadingMore, hasMore, nextCursor]);
+
+  const refreshData = async () => {
+    await loadDataFromApi();
   };
 
   const addNewsflash = async (
     newsflash: Omit<Newsflash, 'id' | 'timestamp'>
   ) => {
-    if (useApi) {
-      try {
-        const newNewsflash = await apiCreateNewsflash(newsflash);
-        setNewsflashes((prev) => [newNewsflash, ...prev]);
-      } catch (err) {
-        console.error('Failed to create newsflash:', err);
-        throw err;
-      }
-    } else {
-      // Fallback to local state
-      const newNewsflash: Newsflash = {
-        ...newsflash,
-        id: String(Date.now()),
-        timestamp: new Date(),
+    try {
+      const newNewsflash = await apiCreateNewsflash(newsflash);
+      // Add current user data to the newsflash for display
+      const enrichedNewsflash: Newsflash = {
+        ...newNewsflash,
+        user: currentUser,
       };
-      setNewsflashes((prev) => [newNewsflash, ...prev]);
+      setNewsflashes((prev) => [enrichedNewsflash, ...prev]);
+    } catch (err) {
+      console.error('Failed to create newsflash:', err);
+      throw err;
     }
   };
 
   const addGroup = async (group: Omit<Group, 'id'>) => {
-    if (useApi) {
-      try {
-        const newGroup = await apiCreateGroup({
-          name: group.name,
-          userIds: group.userIds,
-        });
-        setGroups((prev) => [...prev, newGroup]);
-      } catch (err) {
-        console.error('Failed to create group:', err);
-        throw err;
-      }
-    } else {
-      const newGroup: Group = {
-        ...group,
-        id: String(Date.now()),
-      };
+    try {
+      const newGroup = await apiCreateGroup({
+        name: group.name,
+        userIds: group.userIds,
+      });
       setGroups((prev) => [...prev, newGroup]);
+    } catch (err) {
+      console.error('Failed to create group:', err);
+      throw err;
     }
   };
 
   const addFriend = async (friendId: string) => {
-    if (useApi) {
-      try {
-        await apiAddFriend(friendId);
-        const newFriendship: Friendship = {
-          userId: currentUser.id,
-          friendId: friendId,
-        };
-        setFriendships((prev) => [...prev, newFriendship]);
-      } catch (err) {
-        console.error('Failed to add friend:', err);
-        throw err;
-      }
-    } else {
-      const newFriendship: Friendship = {
-        userId: currentUser.id,
-        friendId: friendId,
-      };
-      setFriendships((prev) => [...prev, newFriendship]);
+    try {
+      await apiAddFriend(friendId);
+      // Refresh friends list to get the new friend's data
+      const updatedFriends = await fetchFriends();
+      setFriends(updatedFriends);
+    } catch (err) {
+      console.error('Failed to add friend:', err);
+      throw err;
     }
   };
 
   const removeFriend = async (friendId: string) => {
-    if (useApi) {
-      try {
-        await apiRemoveFriend(friendId);
-        setFriendships((prev) =>
-          prev.filter(
-            (f) => !(f.userId === currentUser.id && f.friendId === friendId)
-          )
-        );
-      } catch (err) {
-        console.error('Failed to remove friend:', err);
-        throw err;
-      }
-    } else {
-      setFriendships((prev) =>
-        prev.filter(
-          (f) => !(f.userId === currentUser.id && f.friendId === friendId)
-        )
-      );
+    try {
+      await apiRemoveFriend(friendId);
+      setFriends((prev) => prev.filter((f) => f.id !== friendId));
+      // Refresh groups to reflect the friend removal from groups
+      // Backend updates groups synchronously before returning, so this should get updated data
+      const updatedGroups = await fetchGroups();
+      setGroups(updatedGroups);
+      console.log('Groups refreshed after friend removal');
+    } catch (err) {
+      console.error('Failed to remove friend:', err);
+      throw err;
     }
   };
 
   return (
     <DataContext.Provider
       value={{
-        users,
         newsflashes,
         groups,
-        friendships,
+        friends,
         currentUser,
         loading,
+        loadingMore,
+        hasMore,
         error,
         addNewsflash,
         addGroup,
         addFriend,
         removeFriend,
         refreshData,
+        loadMoreNewsflashes,
       }}
     >
       {children}

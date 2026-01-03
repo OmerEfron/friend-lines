@@ -1,25 +1,24 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { StyleSheet, FlatList, View } from 'react-native';
-import { Surface, List, Avatar, useTheme, IconButton, Text } from 'react-native-paper';
+import {
+  Surface,
+  List,
+  Avatar,
+  useTheme,
+  IconButton,
+  Text,
+} from 'react-native-paper';
 import { useData } from '../context/DataContext';
 import { User } from '../types';
 
 export default function FriendsListScreen() {
   const theme = useTheme();
-  const { users, friendships, currentUser, removeFriend } = useData();
-
-  const friendsList = useMemo(() => {
-    const friendIds = friendships
-      .filter(f => f.userId === currentUser.id)
-      .map(f => f.friendId);
-    
-    return users.filter(u => friendIds.includes(u.id));
-  }, [users, friendships, currentUser.id]);
+  const { friends, removeFriend } = useData();
 
   const getInitials = (name: string) => {
     return name
       .split(' ')
-      .map(n => n[0])
+      .map((n) => n[0])
       .join('')
       .toUpperCase()
       .slice(0, 2);
@@ -66,13 +65,13 @@ export default function FriendsListScreen() {
   return (
     <Surface style={styles.container}>
       <FlatList
-        data={friendsList}
+        data={friends}
         keyExtractor={(item) => item.id}
         renderItem={renderFriend}
         ListEmptyComponent={renderEmpty}
         contentContainerStyle={[
           styles.listContainer,
-          friendsList.length === 0 && styles.emptyList
+          friends.length === 0 && styles.emptyList,
         ]}
         style={{ backgroundColor: theme.colors.background }}
       />
@@ -107,7 +106,3 @@ const styles = StyleSheet.create({
     opacity: 0.4,
   },
 });
-
-
-
-

@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { Surface, TextInput, Button, useTheme, Text, Checkbox, List } from 'react-native-paper';
 import { useData } from '../context/DataContext';
@@ -7,19 +7,11 @@ import { useNavigation } from '@react-navigation/native';
 export default function CreateGroupScreen() {
   const theme = useTheme();
   const navigation = useNavigation();
-  const { addGroup, users, friendships, currentUser } = useData();
+  const { addGroup, friends } = useData();
   
   const [groupName, setGroupName] = useState('');
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const friends = useMemo(() => {
-    const friendIds = friendships
-      .filter(f => f.userId === currentUser.id)
-      .map(f => f.friendId);
-    
-    return users.filter(u => friendIds.includes(u.id));
-  }, [users, friendships, currentUser.id]);
 
   const toggleUser = (userId: string) => {
     setSelectedUserIds(prev =>

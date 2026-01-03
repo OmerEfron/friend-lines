@@ -1,4 +1,11 @@
-import React, { createContext, useState, useContext, useEffect, ReactNode, useCallback } from 'react';
+import React, {
+  createContext,
+  useState,
+  useContext,
+  useEffect,
+  ReactNode,
+  useCallback,
+} from 'react';
 import { apiCall } from '../config/api';
 import { useAuth } from './AuthContext';
 
@@ -10,20 +17,21 @@ interface BookmarksContextType {
   refreshBookmarks: () => Promise<void>;
 }
 
-const BookmarksContext = createContext<BookmarksContextType | undefined>(undefined);
+const BookmarksContext = createContext<BookmarksContextType | undefined>(
+  undefined
+);
 
 interface BookmarksProviderProps {
   children: ReactNode;
-  useApi?: boolean;
 }
 
-export function BookmarksProvider({ children, useApi = false }: BookmarksProviderProps) {
+export function BookmarksProvider({ children }: BookmarksProviderProps) {
   const { isAuthenticated } = useAuth();
   const [bookmarkedIds, setBookmarkedIds] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
 
   const loadBookmarks = useCallback(async () => {
-    if (!useApi || !isAuthenticated) {
+    if (!isAuthenticated) {
       setLoading(false);
       return;
     }
@@ -38,39 +46,27 @@ export function BookmarksProvider({ children, useApi = false }: BookmarksProvide
     } finally {
       setLoading(false);
     }
-  }, [useApi, isAuthenticated]);
+  }, [isAuthenticated]);
 
   useEffect(() => {
     loadBookmarks();
   }, [loadBookmarks]);
 
   const toggleBookmark = async (newsflashId: string) => {
-    if (!useApi) {
-      // Fallback to local state
-      setBookmarkedIds(prev =>
-        prev.includes(newsflashId)
-          ? prev.filter(id => id !== newsflashId)
-          : [...prev, newsflashId]
-      );
-      return;
-    }
-
     try {
       const isCurrentlyBookmarked = bookmarkedIds.includes(newsflashId);
 
       if (isCurrentlyBookmarked) {
-        // Remove bookmark
         await apiCall(`/bookmarks/${newsflashId}`, {
           method: 'DELETE',
         });
-        setBookmarkedIds(prev => prev.filter(id => id !== newsflashId));
+        setBookmarkedIds((prev) => prev.filter((id) => id !== newsflashId));
       } else {
-        // Add bookmark
         await apiCall('/bookmarks', {
           method: 'POST',
           body: JSON.stringify({ newsflashId }),
         });
-        setBookmarkedIds(prev => [...prev, newsflashId]);
+        setBookmarkedIds((prev) => [...prev, newsflashId]);
       }
     } catch (error) {
       console.error('Failed to toggle bookmark:', error);
@@ -86,7 +82,7 @@ export function BookmarksProvider({ children, useApi = false }: BookmarksProvide
     await loadBookmarks();
   };
 
-  if (loading && useApi) {
+  if (loading) {
     return null;
   }
 
@@ -112,4 +108,3 @@ export function useBookmarks() {
   }
   return context;
 }
-

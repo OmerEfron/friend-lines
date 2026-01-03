@@ -1,20 +1,21 @@
 import React from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
-import { Text, useTheme } from 'react-native-paper';
-import { Newsflash, User } from '../types';
+import { Text, useTheme, ActivityIndicator } from 'react-native-paper';
+import { Newsflash } from '../types';
 import NewsflashCard from './NewsflashCard';
 
 interface FeedListProps {
   newsflashes: Newsflash[];
-  users: User[];
+  onEndReached?: () => void;
+  loadingMore?: boolean;
 }
 
-export default function FeedList({ newsflashes, users }: FeedListProps) {
+export default function FeedList({
+  newsflashes,
+  onEndReached,
+  loadingMore,
+}: FeedListProps) {
   const theme = useTheme();
-  
-  const getUserById = (userId: string): User | undefined => {
-    return users.find(u => u.id === userId);
-  };
 
   const renderEmpty = () => (
     <View style={styles.emptyContainer}>
@@ -27,19 +28,31 @@ export default function FeedList({ newsflashes, users }: FeedListProps) {
     </View>
   );
 
+  const renderFooter = () => {
+    if (!loadingMore) return null;
+    return (
+      <View style={styles.footerLoader}>
+        <ActivityIndicator size="small" />
+      </View>
+    );
+  };
+
   return (
     <FlatList
       data={newsflashes}
       keyExtractor={(item) => item.id}
       renderItem={({ item }) => {
-        const user = getUserById(item.userId);
-        if (!user) return null;
-        return <NewsflashCard newsflash={item} user={user} />;
+        // Use embedded user data from API response
+        if (!item.user) return null;
+        return <NewsflashCard newsflash={item} user={item.user} />;
       }}
       ListEmptyComponent={renderEmpty}
+      ListFooterComponent={renderFooter}
+      onEndReached={onEndReached}
+      onEndReachedThreshold={0.5}
       contentContainerStyle={[
         styles.contentContainer,
-        newsflashes.length === 0 && styles.emptyList
+        newsflashes.length === 0 && styles.emptyList,
       ]}
       style={{ backgroundColor: theme.colors.background }}
     />
@@ -66,6 +79,10 @@ const styles = StyleSheet.create({
   },
   emptySubtext: {
     opacity: 0.4,
+  },
+  footerLoader: {
+    paddingVertical: 20,
+    alignItems: 'center',
   },
 });
 

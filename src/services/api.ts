@@ -114,40 +114,80 @@ export async function deleteGroup(groupId: string): Promise<void> {
 }
 
 // Feeds API calls
-export async function fetchMainFeed(): Promise<Newsflash[]> {
-  const response = await apiCall<{ newsflashes: Newsflash[] }>('/feeds/main');
-  // Convert timestamp strings to Date objects
-  return response.newsflashes.map((nf) => ({
-    ...nf,
-    timestamp: new Date(nf.timestamp),
-  }));
+export interface PaginatedFeedResponse {
+  newsflashes: Newsflash[];
+  nextCursor?: string;
+  hasMore: boolean;
 }
 
-export async function fetchGroupFeed(groupId: string): Promise<{
+export async function fetchMainFeed(
+  limit: number = 20,
+  cursor?: string
+): Promise<PaginatedFeedResponse> {
+  const params = new URLSearchParams({ limit: String(limit) });
+  if (cursor) params.append('cursor', cursor);
+  
+  const response = await apiCall<{
+    newsflashes: any[];
+    nextCursor?: string;
+    hasMore?: boolean;
+  }>(`/feeds/main?${params}`);
+  
+  // Convert timestamp strings to Date objects, preserve embedded user data
+  return {
+    newsflashes: response.newsflashes.map((nf) => ({
+      ...nf,
+      timestamp: new Date(nf.timestamp),
+      user: nf.user || undefined,
+    })),
+    nextCursor: response.nextCursor,
+    hasMore: response.hasMore ?? false,
+  };
+}
+
+export interface PaginatedGroupFeedResponse {
   group: Group;
   newsflashes: Newsflash[];
-}> {
+  nextCursor?: string;
+  hasMore: boolean;
+}
+
+export async function fetchGroupFeed(
+  groupId: string,
+  limit: number = 20,
+  cursor?: string
+): Promise<PaginatedGroupFeedResponse> {
+  const params = new URLSearchParams({ limit: String(limit) });
+  if (cursor) params.append('cursor', cursor);
+  
   const response = await apiCall<{
     group: Group;
-    newsflashes: Newsflash[];
-  }>(`/feeds/group/${groupId}`);
-  // Convert timestamp strings to Date objects
+    newsflashes: any[];
+    nextCursor?: string;
+    hasMore?: boolean;
+  }>(`/feeds/group/${groupId}?${params}`);
+  
+  // Convert timestamp strings to Date objects, preserve embedded user data
   return {
     group: response.group,
     newsflashes: response.newsflashes.map((nf) => ({
       ...nf,
       timestamp: new Date(nf.timestamp),
+      user: nf.user || undefined,
     })),
+    nextCursor: response.nextCursor,
+    hasMore: response.hasMore ?? false,
   };
 }
 
 // Bookmarks API calls
 export async function fetchBookmarks(): Promise<Newsflash[]> {
-  const response = await apiCall<{ newsflashes: Newsflash[] }>('/bookmarks');
-  // Convert timestamp strings to Date objects
+  const response = await apiCall<{ newsflashes: any[] }>('/bookmarks');
+  // Convert timestamp strings to Date objects, preserve embedded user data
   return response.newsflashes.map((nf) => ({
     ...nf,
     timestamp: new Date(nf.timestamp),
+    user: nf.user || undefined,
   }));
 }
 

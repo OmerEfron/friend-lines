@@ -10,7 +10,7 @@ import { AuthProvider, useAuth } from './src/context/AuthContext';
 import LoginScreen from './src/screens/LoginScreen';
 import SignupScreen from './src/screens/SignupScreen';
 
-function AuthenticatedApp({ useApi }) {
+function AuthenticatedApp() {
   const { paperTheme, navigationTheme } = useAppTheme();
   const { isAuthenticated, loading, login, register } = useAuth();
   const [showSignup, setShowSignup] = useState(false);
@@ -43,8 +43,8 @@ function AuthenticatedApp({ useApi }) {
 
   // Only render DataProvider when authenticated
   return (
-    <DataProvider useApi={useApi}>
-      <BookmarksProvider useApi={useApi}>
+    <DataProvider>
+      <BookmarksProvider>
         <PaperProvider theme={paperTheme}>
           <NavigationContainer theme={navigationTheme}>
             <TabNavigator />
@@ -56,13 +56,10 @@ function AuthenticatedApp({ useApi }) {
 }
 
 export default function App() {
-  // Set useApi to true to enable backend integration
-  const USE_API = true;
-  
   return (
     <ThemeProvider>
       <AuthProvider>
-        <AuthenticatedApp useApi={USE_API} />
+        <AuthenticatedApp />
       </AuthProvider>
     </ThemeProvider>
   );

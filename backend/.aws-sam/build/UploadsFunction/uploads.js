@@ -3080,7 +3080,7 @@ var init_ListSchema = __esm({
   "node_modules/@smithy/core/dist-es/submodules/schema/schemas/ListSchema.js"() {
     init_Schema();
     ListSchema = class _ListSchema extends Schema {
-      static symbol = /* @__PURE__ */ Symbol.for("@smithy/lis");
+      static symbol = Symbol.for("@smithy/lis");
       name;
       traits;
       valueSchema;
@@ -3101,7 +3101,7 @@ var init_MapSchema = __esm({
   "node_modules/@smithy/core/dist-es/submodules/schema/schemas/MapSchema.js"() {
     init_Schema();
     MapSchema = class _MapSchema extends Schema {
-      static symbol = /* @__PURE__ */ Symbol.for("@smithy/map");
+      static symbol = Symbol.for("@smithy/map");
       name;
       traits;
       keySchema;
@@ -3124,7 +3124,7 @@ var init_OperationSchema = __esm({
   "node_modules/@smithy/core/dist-es/submodules/schema/schemas/OperationSchema.js"() {
     init_Schema();
     OperationSchema = class _OperationSchema extends Schema {
-      static symbol = /* @__PURE__ */ Symbol.for("@smithy/ope");
+      static symbol = Symbol.for("@smithy/ope");
       name;
       traits;
       input;
@@ -3147,7 +3147,7 @@ var init_StructureSchema = __esm({
   "node_modules/@smithy/core/dist-es/submodules/schema/schemas/StructureSchema.js"() {
     init_Schema();
     StructureSchema = class _StructureSchema extends Schema {
-      static symbol = /* @__PURE__ */ Symbol.for("@smithy/str");
+      static symbol = Symbol.for("@smithy/str");
       name;
       traits;
       memberNames;
@@ -3171,7 +3171,7 @@ var init_ErrorSchema = __esm({
     init_Schema();
     init_StructureSchema();
     ErrorSchema = class _ErrorSchema extends StructureSchema {
-      static symbol = /* @__PURE__ */ Symbol.for("@smithy/err");
+      static symbol = Symbol.for("@smithy/err");
       ctor;
       symbol = _ErrorSchema.symbol;
     };
@@ -3233,7 +3233,7 @@ var init_NormalizedSchema = __esm({
     NormalizedSchema = class _NormalizedSchema {
       ref;
       memberName;
-      static symbol = /* @__PURE__ */ Symbol.for("@smithy/nor");
+      static symbol = Symbol.for("@smithy/nor");
       symbol = _NormalizedSchema.symbol;
       name;
       schema;
@@ -3465,7 +3465,7 @@ var init_SimpleSchema = __esm({
   "node_modules/@smithy/core/dist-es/submodules/schema/schemas/SimpleSchema.js"() {
     init_Schema();
     SimpleSchema = class _SimpleSchema extends Schema {
-      static symbol = /* @__PURE__ */ Symbol.for("@smithy/sim");
+      static symbol = Symbol.for("@smithy/sim");
       name;
       schemaRef;
       traits;
@@ -4517,7 +4517,7 @@ var init_tslib_es6 = __esm({
       };
       return __assign.apply(this, arguments);
     };
-    __createBinding = Object.create ? (function(o4, m4, k4, k22) {
+    __createBinding = Object.create ? function(o4, m4, k4, k22) {
       if (k22 === void 0) k22 = k4;
       var desc = Object.getOwnPropertyDescriptor(m4, k4);
       if (!desc || ("get" in desc ? !m4.__esModule : desc.writable || desc.configurable)) {
@@ -4526,13 +4526,13 @@ var init_tslib_es6 = __esm({
         } };
       }
       Object.defineProperty(o4, k22, desc);
-    }) : (function(o4, m4, k4, k22) {
+    } : function(o4, m4, k4, k22) {
       if (k22 === void 0) k22 = k4;
       o4[k22] = m4[k4];
-    });
-    __setModuleDefault = Object.create ? (function(o4, v4) {
+    };
+    __setModuleDefault = Object.create ? function(o4, v4) {
       Object.defineProperty(o4, "default", { enumerable: true, value: v4 });
-    }) : function(o4, v4) {
+    } : function(o4, v4) {
       o4["default"] = v4;
     };
     ownKeys = function(o4) {
@@ -4976,7 +4976,7 @@ var init_EventStreamSerde = __esm({
         const unionSchema = requestSchema.getMemberSchema(eventStreamMember);
         const serializer = this.serializer;
         const defaultContentType = this.defaultContentType;
-        const initialRequestMarker = /* @__PURE__ */ Symbol("initialRequestMarker");
+        const initialRequestMarker = Symbol("initialRequestMarker");
         const eventStreamIterable = {
           async *[Symbol.asyncIterator]() {
             if (initialRequest) {
@@ -5026,7 +5026,7 @@ var init_EventStreamSerde = __esm({
         const eventStreamMember = responseSchema.getEventStreamMember();
         const unionSchema = responseSchema.getMemberSchema(eventStreamMember);
         const memberSchemas = unionSchema.getMemberSchemas();
-        const initialResponseMarker = /* @__PURE__ */ Symbol("initialResponseMarker");
+        const initialResponseMarker = Symbol("initialResponseMarker");
         const asyncIterable = marshaller.deserialize(response.body, async (event) => {
           const unionMember = Object.keys(event).find((key) => {
             return key !== "__type";
@@ -5308,11 +5308,6 @@ var init_HttpProtocol = __esm({
         throw new Error(`@smithy/core/protocols - ${this.constructor.name} getDefaultContentType() implementation missing.`);
       }
       async deserializeHttpMessage(schema, context, response, arg4, arg5) {
-        void schema;
-        void context;
-        void response;
-        void arg4;
-        void arg5;
         return [];
       }
       getEventStreamMarshaller() {
@@ -7164,7 +7159,7 @@ var init_cbor_types = __esm({
     extendedFloat32 = 26;
     extendedFloat64 = 27;
     minorIndefinite = 31;
-    tagSymbol = /* @__PURE__ */ Symbol("@smithy/core/cbor::tagSymbol");
+    tagSymbol = Symbol("@smithy/core/cbor::tagSymbol");
   }
 });
 
@@ -10136,7 +10131,7 @@ var require_fxp = __commonJS({
             }
           }
         }
-        return i5 ? 1 == n5.length ? x4("InvalidTag", "Unclosed tag '" + n5[0].tagName + "'.", N(t5, n5[0].tagStartPos)) : !(n5.length > 0) || x4("InvalidXml", "Invalid '" + JSON.stringify(n5.map(((t6) => t6.tagName)), null, 4).replace(/\r?\n/g, "") + "' found.", { line: 1, col: 1 }) : x4("InvalidXml", "Start tag expected.", 1);
+        return i5 ? 1 == n5.length ? x4("InvalidTag", "Unclosed tag '" + n5[0].tagName + "'.", N(t5, n5[0].tagStartPos)) : !(n5.length > 0) || x4("InvalidXml", "Invalid '" + JSON.stringify(n5.map((t6) => t6.tagName), null, 4).replace(/\r?\n/g, "") + "' found.", { line: 1, col: 1 }) : x4("InvalidXml", "Start tag expected.", 1);
       }
       function l4(t5) {
         return " " === t5 || "	" === t5 || "\n" === t5 || "\r" === t5;
@@ -10201,14 +10196,14 @@ var require_fxp = __commonJS({
       }
       function m4(t5, e5) {
         if (";" === t5[++e5]) return -1;
-        if ("#" === t5[e5]) return (function(t6, e6) {
+        if ("#" === t5[e5]) return function(t6, e6) {
           let n6 = /\d/;
           for ("x" === t6[e6] && (e6++, n6 = /[\da-fA-F]/); e6 < t6.length; e6++) {
             if (";" === t6[e6]) return e6;
             if (!t6[e6].match(n6)) break;
           }
           return -1;
-        })(t5, ++e5);
+        }(t5, ++e5);
         let n5 = 0;
         for (; e5 < t5.length; e5++, n5++) if (!(t5[e5].match(/\w/) && n5 < 20)) {
           if (";" === t5[e5]) break;
@@ -10237,7 +10232,7 @@ var require_fxp = __commonJS({
         return t5;
       }, captureMetaData: false };
       let y2;
-      y2 = "function" != typeof Symbol ? "@@xmlMetadata" : /* @__PURE__ */ Symbol("XML Node Metadata");
+      y2 = "function" != typeof Symbol ? "@@xmlMetadata" : Symbol("XML Node Metadata");
       class T {
         constructor(t5) {
           this.tagname = t5, this.child = [], this[":@"] = {};
@@ -10514,7 +10509,7 @@ var require_fxp = __commonJS({
         return s5 + e5.length - 1;
       }
       function z2(t5, e5, n5, i5 = ">") {
-        const s5 = (function(t6, e6, n6 = ">") {
+        const s5 = function(t6, e6, n6 = ">") {
           let i6, s6 = "";
           for (let r6 = e6; r6 < t6.length; r6++) {
             let e7 = t6[r6];
@@ -10526,7 +10521,7 @@ var require_fxp = __commonJS({
             } else "	" === e7 && (e7 = " ");
             s6 += e7;
           }
-        })(t5, e5 + 1, i5);
+        }(t5, e5 + 1, i5);
         if (!s5) return;
         let r5 = s5.data;
         const o5 = s5.index, a5 = r5.search(/\s/);
@@ -10557,18 +10552,18 @@ var require_fxp = __commonJS({
       function H2(t5, e5, n5) {
         if (e5 && "string" == typeof t5) {
           const e6 = t5.trim();
-          return "true" === e6 || "false" !== e6 && (function(t6, e7 = {}) {
+          return "true" === e6 || "false" !== e6 && function(t6, e7 = {}) {
             if (e7 = Object.assign({}, V, e7), !t6 || "string" != typeof t6) return t6;
             let n6 = t6.trim();
             if (void 0 !== e7.skipLike && e7.skipLike.test(n6)) return t6;
             if ("0" === t6) return 0;
-            if (e7.hex && j4.test(n6)) return (function(t7) {
+            if (e7.hex && j4.test(n6)) return function(t7) {
               if (parseInt) return parseInt(t7, 16);
               if (Number.parseInt) return Number.parseInt(t7, 16);
               if (window && window.parseInt) return window.parseInt(t7, 16);
               throw new Error("parseInt, Number.parseInt, window.parseInt are not supported");
-            })(n6);
-            if (-1 !== n6.search(/.+[eE].+/)) return (function(t7, e8, n7) {
+            }(n6);
+            if (-1 !== n6.search(/.+[eE].+/)) return function(t7, e8, n7) {
               if (!n7.eNotation) return t7;
               const i6 = e8.match(M);
               if (i6) {
@@ -10577,7 +10572,7 @@ var require_fxp = __commonJS({
                 return o5.length > 1 && a5 ? t7 : 1 !== o5.length || !i6[3].startsWith(`.${r5}`) && i6[3][0] !== r5 ? n7.leadingZeros && !a5 ? (e8 = (i6[1] || "") + i6[3], Number(e8)) : t7 : Number(e8);
               }
               return t7;
-            })(t6, n6, e7);
+            }(t6, n6, e7);
             {
               const s5 = D2.exec(n6);
               if (s5) {
@@ -10597,7 +10592,7 @@ var require_fxp = __commonJS({
               return t6;
             }
             var i5;
-          })(t5, n5);
+          }(t5, n5);
         }
         return void 0 !== t5 ? t5 : "";
       }
@@ -10645,9 +10640,9 @@ var require_fxp = __commonJS({
       }
       class st {
         constructor(t5) {
-          this.externalEntities = {}, this.options = (function(t6) {
+          this.externalEntities = {}, this.options = function(t6) {
             return Object.assign({}, v4, t6);
-          })(t5);
+          }(t5);
         }
         parse(t5, e5) {
           if ("string" == typeof t5) ;
@@ -12256,7 +12251,7 @@ var require_aws_crc32c = __commonJS({
     var index_1 = require_main2();
     var AwsCrc32c = (
       /** @class */
-      (function() {
+      function() {
         function AwsCrc32c2() {
           this.crc32c = new index_1.Crc32c();
         }
@@ -12276,7 +12271,7 @@ var require_aws_crc32c = __commonJS({
           this.crc32c = new index_1.Crc32c();
         };
         return AwsCrc32c2;
-      })()
+      }()
     );
     exports2.AwsCrc32c = AwsCrc32c;
   }
@@ -12296,7 +12291,7 @@ var require_main2 = __commonJS({
     exports2.crc32c = crc32c;
     var Crc32c = (
       /** @class */
-      (function() {
+      function() {
         function Crc32c2() {
           this.checksum = 4294967295;
         }
@@ -12322,7 +12317,7 @@ var require_main2 = __commonJS({
           return (this.checksum ^ 4294967295) >>> 0;
         };
         return Crc32c2;
-      })()
+      }()
     );
     exports2.Crc32c = Crc32c;
     var a_lookupTable = [
@@ -12703,7 +12698,7 @@ var require_aws_crc32 = __commonJS({
     var index_1 = require_main3();
     var AwsCrc32 = (
       /** @class */
-      (function() {
+      function() {
         function AwsCrc322() {
           this.crc32 = new index_1.Crc32();
         }
@@ -12723,7 +12718,7 @@ var require_aws_crc32 = __commonJS({
           this.crc32 = new index_1.Crc32();
         };
         return AwsCrc322;
-      })()
+      }()
     );
     exports2.AwsCrc32 = AwsCrc32;
   }
@@ -12743,7 +12738,7 @@ var require_main3 = __commonJS({
     exports2.crc32 = crc32;
     var Crc32 = (
       /** @class */
-      (function() {
+      function() {
         function Crc322() {
           this.checksum = 4294967295;
         }
@@ -12769,7 +12764,7 @@ var require_main3 = __commonJS({
           return (this.checksum ^ 4294967295) >>> 0;
         };
         return Crc322;
-      })()
+      }()
     );
     exports2.Crc32 = Crc32;
     var a_lookUpTable = [
@@ -13578,9 +13573,9 @@ var PROTECTED_KEYS, NO_GLOBAL_AWS_LAMBDA, InvokeStoreBase, InvokeStoreSingle, In
 var init_invoke_store = __esm({
   "node_modules/@aws/lambda-invoke-store/dist-es/invoke-store.js"() {
     PROTECTED_KEYS = {
-      REQUEST_ID: /* @__PURE__ */ Symbol.for("_AWS_LAMBDA_REQUEST_ID"),
-      X_RAY_TRACE_ID: /* @__PURE__ */ Symbol.for("_AWS_LAMBDA_X_RAY_TRACE_ID"),
-      TENANT_ID: /* @__PURE__ */ Symbol.for("_AWS_LAMBDA_TENANT_ID")
+      REQUEST_ID: Symbol.for("_AWS_LAMBDA_REQUEST_ID"),
+      X_RAY_TRACE_ID: Symbol.for("_AWS_LAMBDA_X_RAY_TRACE_ID"),
+      TENANT_ID: Symbol.for("_AWS_LAMBDA_TENANT_ID")
     };
     NO_GLOBAL_AWS_LAMBDA = ["true", "1"].includes(process.env?.AWS_LAMBDA_NODEJS_NO_GLOBAL_AWSLAMBDA ?? "");
     if (!NO_GLOBAL_AWS_LAMBDA) {
@@ -22490,7 +22485,7 @@ var require_dist_cjs60 = __commonJS({
 var require_fromWebToken = __commonJS({
   "node_modules/@aws-sdk/credential-provider-web-identity/dist-cjs/fromWebToken.js"(exports2) {
     "use strict";
-    var __createBinding2 = exports2 && exports2.__createBinding || (Object.create ? (function(o4, m4, k4, k22) {
+    var __createBinding2 = exports2 && exports2.__createBinding || (Object.create ? function(o4, m4, k4, k22) {
       if (k22 === void 0) k22 = k4;
       var desc = Object.getOwnPropertyDescriptor(m4, k4);
       if (!desc || ("get" in desc ? !m4.__esModule : desc.writable || desc.configurable)) {
@@ -22499,16 +22494,16 @@ var require_fromWebToken = __commonJS({
         } };
       }
       Object.defineProperty(o4, k22, desc);
-    }) : (function(o4, m4, k4, k22) {
+    } : function(o4, m4, k4, k22) {
       if (k22 === void 0) k22 = k4;
       o4[k22] = m4[k4];
-    }));
-    var __setModuleDefault2 = exports2 && exports2.__setModuleDefault || (Object.create ? (function(o4, v4) {
+    });
+    var __setModuleDefault2 = exports2 && exports2.__setModuleDefault || (Object.create ? function(o4, v4) {
       Object.defineProperty(o4, "default", { enumerable: true, value: v4 });
-    }) : function(o4, v4) {
+    } : function(o4, v4) {
       o4["default"] = v4;
     });
-    var __importStar2 = exports2 && exports2.__importStar || /* @__PURE__ */ (function() {
+    var __importStar2 = exports2 && exports2.__importStar || /* @__PURE__ */ function() {
       var ownKeys2 = function(o4) {
         ownKeys2 = Object.getOwnPropertyNames || function(o5) {
           var ar = [];
@@ -22526,7 +22521,7 @@ var require_fromWebToken = __commonJS({
         __setModuleDefault2(result, mod);
         return result;
       };
-    })();
+    }();
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.fromWebToken = void 0;
     var fromWebToken = (init) => async (awsIdentityProperties) => {
@@ -34440,7 +34435,7 @@ var require_range = __commonJS({
 var require_comparator = __commonJS({
   "node_modules/semver/classes/comparator.js"(exports2, module2) {
     "use strict";
-    var ANY = /* @__PURE__ */ Symbol("SemVer ANY");
+    var ANY = Symbol("SemVer ANY");
     var Comparator = class _Comparator {
       static get ANY() {
         return ANY;
@@ -36467,7 +36462,7 @@ var require_bcrypt = __commonJS({
           res.push(rs[off].charCodeAt(0));
         return res;
       }
-      var utfx = (function() {
+      var utfx = function() {
         "use strict";
         var utfx2 = {};
         utfx2.MAX_CODEPOINT = 1114111;
@@ -36569,7 +36564,7 @@ var require_bcrypt = __commonJS({
           return [n4, l4];
         };
         return utfx2;
-      })();
+      }();
       Date.now = Date.now || function() {
         return +/* @__PURE__ */ new Date();
       };
