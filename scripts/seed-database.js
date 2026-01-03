@@ -31,16 +31,27 @@ const { DynamoDBDocumentClient, PutCommand, ScanCommand } = require('@aws-sdk/li
 const bcrypt = require('bcryptjs');
 const { v4: uuidv4 } = require('uuid');
 
-// Configure DynamoDB client for local
-const client = new DynamoDBClient({
-  endpoint: 'http://localhost:8000',
-  region: 'us-east-1',
-  credentials: {
-    accessKeyId: 'test',
-    secretAccessKey: 'test',
-  },
-});
+// Check for --prod flag
+const IS_PRODUCTION = process.argv.includes('--prod');
+const AWS_REGION = 'us-east-1';
 
+// Configure DynamoDB client based on environment
+const clientConfig = IS_PRODUCTION
+  ? {
+      // Production: Use default AWS credentials from environment/profile
+      region: AWS_REGION,
+    }
+  : {
+      // Local: Use local DynamoDB
+      endpoint: 'http://localhost:8000',
+      region: AWS_REGION,
+      credentials: {
+        accessKeyId: 'test',
+        secretAccessKey: 'test',
+      },
+    };
+
+const client = new DynamoDBClient(clientConfig);
 const docClient = DynamoDBDocumentClient.from(client);
 
 // Your existing user email (will be found or created)
@@ -304,9 +315,39 @@ async function createBookmark(userId, newsflashId) {
   }));
 }
 
+async function confirmProduction() {
+  const readline = require('readline');
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
+
+  return new Promise((resolve) => {
+    rl.question('⚠️  You are about to seed PRODUCTION database. Continue? (yes/no): ', (answer) => {
+      rl.close();
+      resolve(answer.toLowerCase() === 'yes');
+    });
+  });
+}
+
 async function main() {
+  const envLabel = IS_PRODUCTION ? '🚀 PRODUCTION' : '💻 LOCAL';
+  
   console.log('🌱 Seeding Friendlines Database...\n');
   console.log('='.repeat(50));
+  console.log(`Environment: ${envLabel}`);
+  console.log(`Region: ${AWS_REGION}`);
+  console.log('='.repeat(50));
+
+  // Confirm if production
+  if (IS_PRODUCTION) {
+    const confirmed = await confirmProduction();
+    if (!confirmed) {
+      console.log('\n❌ Seeding cancelled.');
+      process.exit(0);
+    }
+    console.log('\n✅ Confirmed. Proceeding with production seeding...\n');
+  }
 
   // Find or create your user first
   await findOrCreateYourUser();
@@ -443,6 +484,7 @@ async function main() {
 
   console.log('\n' + '='.repeat(50));
   console.log('\n✅ Seeding complete!\n');
+  console.log(`Environment: ${IS_PRODUCTION ? '🚀 PRODUCTION' : '💻 LOCAL'}`);
   console.log('Summary:');
   console.log(`  - Your user: ${YOUR_USER_ID ? 'Found/Created' : 'Missing'}`);
   console.log(`  - Created ${createdUsers.length} test users`);
@@ -456,6 +498,22 @@ async function main() {
   console.log(`  Your email: ${YOUR_EMAIL}`);
   console.log('  Your password: password123');
   console.log('\n🔄 Reload your app to see the new data!');
+}
+
+// Show usage if --help flag
+if (process.argv.includes('--help')) {
+  console.log(`
+Usage: node seed-database.js [options]
+
+Options:
+  --prod    Seed production DynamoDB (uses AWS credentials from environment)
+  --help    Show this help message
+
+Examples:
+  node scripts/seed-database.js           # Seed local DynamoDB
+  node scripts/seed-database.js --prod    # Seed production DynamoDB
+`);
+  process.exit(0);
 }
 
 main().catch(error => {

@@ -69,31 +69,6 @@ export async function scanTable(tableName: string) {
   return response.Items || [];
 }
 
-export interface PaginatedResult<T> {
-  items: T[];
-  nextCursor?: string;
-}
-
-export async function scanTablePaginated<T>(
-  tableName: string,
-  limit: number = 20,
-  cursor?: string
-): Promise<PaginatedResult<T>> {
-  const command = new ScanCommand({
-    TableName: tableName,
-    Limit: limit,
-    ExclusiveStartKey: cursor ? JSON.parse(Buffer.from(cursor, 'base64').toString()) : undefined,
-  });
-  const response = await docClient.send(command);
-  
-  return {
-    items: (response.Items || []) as T[],
-    nextCursor: response.LastEvaluatedKey 
-      ? Buffer.from(JSON.stringify(response.LastEvaluatedKey)).toString('base64')
-      : undefined,
-  };
-}
-
 export async function deleteItem(
   tableName: string,
   key: Record<string, any>

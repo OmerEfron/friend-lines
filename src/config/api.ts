@@ -1,11 +1,20 @@
 import { Platform } from 'react-native';
 
 // API Configuration
+// Set to true to use production API, false for local development
+const USE_PRODUCTION_API = true;
+
+const PRODUCTION_API_URL = 'https://2o4rel1lxj.execute-api.us-east-1.amazonaws.com/prod';
+
 // Android emulator uses 10.0.2.2 to access host machine's localhost
 // iOS simulator can use localhost directly
 const getApiUrl = () => {
   if (process.env.API_URL) {
     return process.env.API_URL;
+  }
+
+  if (USE_PRODUCTION_API) {
+    return PRODUCTION_API_URL;
   }
   
   if (Platform.OS === 'android') {

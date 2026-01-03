@@ -65,7 +65,7 @@ export async function handler(
       }
 
       const body = JSON.parse(event.body);
-      const { userId, headline, subHeadline, mediaBase64 } = body;
+      const { userId, headline, subHeadline, mediaBase64, media } = body;
 
       if (!userId || !headline) {
         return errorResponse('userId and headline are required', 400);
@@ -73,8 +73,12 @@ export async function handler(
 
       let mediaUrl: string | undefined;
 
-      // Handle media upload if provided
-      if (mediaBase64) {
+      // Handle media: use provided URL or upload base64
+      if (media) {
+        // Use pre-uploaded media URL (from presigned URL upload)
+        mediaUrl = media;
+      } else if (mediaBase64) {
+        // Legacy: upload base64 encoded image
         const mediaId = uuidv4();
         const buffer = Buffer.from(mediaBase64, 'base64');
         mediaUrl = await uploadFile(

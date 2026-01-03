@@ -12,6 +12,7 @@ import {
   Button,
 } from 'react-native-paper';
 import { apiCall } from '../config/api';
+import { useData } from '../context/DataContext';
 
 interface User {
   id: string;
@@ -31,6 +32,7 @@ interface FriendRequest {
 
 export default function FriendRequestsScreen() {
   const theme = useTheme();
+  const { refreshFriends, refreshNewsflashes } = useData();
   const [tab, setTab] = useState('received');
   const [receivedRequests, setReceivedRequests] = useState<FriendRequest[]>([]);
   const [sentRequests, setSentRequests] = useState<FriendRequest[]>([]);
@@ -63,8 +65,9 @@ export default function FriendRequestsScreen() {
       await apiCall(`/friend-requests/${requestId}/accept`, {
         method: 'PUT',
       });
-      // Reload requests
+      // Reload requests and refresh global data
       await loadRequests();
+      await Promise.all([refreshFriends(), refreshNewsflashes()]);
     } catch (error) {
       console.error('Failed to accept request:', error);
     } finally {
