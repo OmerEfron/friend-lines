@@ -47,6 +47,9 @@ jobs:
         working-directory: backend
         run: npm ci
 
+      - name: Install esbuild globally
+        run: npm install -g esbuild
+
       - name: Build SAM application
         working-directory: backend
         run: sam build
