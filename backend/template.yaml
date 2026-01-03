@@ -2,6 +2,29 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: Friendlines Serverless Backend
 
+Parameters:
+  Environment:
+    Type: String
+    Default: dev
+    AllowedValues:
+      - dev
+      - prod
+    Description: Deployment environment (dev or prod)
+  
+  JwtSecretArn:
+    Type: String
+    Default: ''
+    Description: ARN of the JWT secret in AWS Secrets Manager (required for prod)
+  
+  S3BucketName:
+    Type: String
+    Default: friendlines-media-local
+    Description: S3 bucket name for media storage
+
+Conditions:
+  IsProduction: !Equals [!Ref Environment, 'prod']
+  HasJwtSecretArn: !Not [!Equals [!Ref JwtSecretArn, '']]
+
 Globals:
   Function:
     Timeout: 30
@@ -16,15 +39,16 @@ Globals:
         FRIENDSHIPS_TABLE: !Ref FriendshipsTable
         BOOKMARKS_TABLE: !Ref BookmarksTable
         MEDIA_BUCKET: !Ref MediaBucket
-        IS_LOCAL: 'true'
-        JWT_SECRET: 'local-dev-secret-change-in-production'
+        ENVIRONMENT: !Ref Environment
+        IS_LOCAL: !If [IsProduction, 'false', 'true']
+        JWT_SECRET: !If [HasJwtSecretArn, !Sub '{{resolve:secretsmanager:${JwtSecretArn}:SecretString}}', 'local-dev-secret-change-in-production']
 
 Resources:
   # API Gateway
   FriendlinesApi:
     Type: AWS::Serverless::Api
     Properties:
-      StageName: dev
+      StageName: !Ref Environment
       Cors:
         AllowMethods: "'GET,POST,PUT,DELETE,OPTIONS'"
         AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
@@ -116,7 +140,7 @@ Resources:
   MediaBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: friendlines-media-local
+      BucketName: !Ref S3BucketName
       CorsConfiguration:
         CorsRules:
           - AllowedHeaders:
@@ -447,10 +471,16 @@ Resources:
 Outputs:
   ApiEndpoint:
     Description: "API Gateway endpoint URL"
-    Value: !Sub "https://${FriendlinesApi}.execute-api.${AWS::Region}.amazonaws.com/dev/"
+    Value: !Sub "https://${FriendlinesApi}.execute-api.${AWS::Region}.amazonaws.com/${Environment}/"
+  Environment:
+    Description: "Deployment environment"
+    Value: !Ref Environment
   UsersTableName:
     Description: "Users DynamoDB table name"
     Value: !Ref UsersTable
   NewsflashesTableName:
     Description: "Newsflashes DynamoDB table name"
     Value: !Ref NewsflashesTable
+  MediaBucketName:
+    Description: "S3 bucket name for media storage"
+    Value: !Ref MediaBucket
