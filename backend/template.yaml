@@ -541,6 +541,34 @@ Resources:
             Path: /devices/token
             Method: DELETE
 
+  MorningBriefingFunction:
+    Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: false
+        Target: "es2022"
+        EntryPoints:
+          - src/handlers/briefing.ts
+    Properties:
+      CodeUri: ./
+      Handler: src/handlers/briefing.handler
+      Timeout: 60
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref NewsflashesTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UsersTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref DeviceTokensTable
+      Events:
+        DailySchedule:
+          Type: Schedule
+          Properties:
+            Schedule: cron(0 8 * * ? *)
+            Description: Morning briefing at 8 AM UTC daily
+            Enabled: !If [IsProduction, true, false]
+
 Outputs:
   ApiEndpoint:
     Description: "API Gateway endpoint URL"
