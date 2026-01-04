@@ -12,43 +12,54 @@ interface NewsTickerProps {
 
 export default function NewsTicker({ newsflashes }: NewsTickerProps) {
   const theme = useTheme();
-  const scrollAnim = useRef(new Animated.Value(0)).current;
+  const scrollAnim = useRef(new Animated.Value(SCREEN_WIDTH)).current;
 
-  // Get top 5 recent headlines
+  // Get top 5 recent headlines - filter out any without headlines
   const headlines = newsflashes
+    .filter((n) => n.headline && n.headline.trim().length > 0)
     .slice(0, 5)
     .map((n) => {
       const prefix = n.severity === 'BREAKING' ? '🔴 ' : '';
-      const userName = n.user?.name || 'Someone';
+      // Try multiple fallbacks for user name
+      const userName = n.user?.name || n.user?.username || `User ${n.userId?.slice(0, 4) || 'Unknown'}`;
       return `${prefix}${userName}: ${n.headline}`;
     });
 
   const tickerText = headlines.join('  •  ');
-  const textWidth = tickerText.length * 8; // Approximate width
 
   useEffect(() => {
-    if (headlines.length === 0) return;
+    if (headlines.length === 0 || !tickerText.trim()) {
+      return;
+    }
 
-    const totalWidth = textWidth + SCREEN_WIDTH;
-    const duration = (totalWidth / TICKER_SPEED) * 1000;
+    // Estimate text width (rough: ~7px per character)
+    const estimatedTextWidth = tickerText.length * 7;
+    const totalDistance = SCREEN_WIDTH + estimatedTextWidth;
+    const duration = (totalDistance / TICKER_SPEED) * 1000;
 
-    const startAnimation = () => {
+    const animate = () => {
       scrollAnim.setValue(SCREEN_WIDTH);
       Animated.timing(scrollAnim, {
-        toValue: -textWidth,
+        toValue: -estimatedTextWidth,
         duration,
         useNativeDriver: true,
       }).start(({ finished }) => {
-        if (finished) startAnimation();
+        if (finished) {
+          animate();
+        }
       });
     };
 
-    startAnimation();
+    animate();
 
-    return () => scrollAnim.stopAnimation();
-  }, [tickerText, textWidth, scrollAnim, headlines.length]);
+    return () => {
+      scrollAnim.stopAnimation();
+    };
+  }, [tickerText, scrollAnim, headlines.length]);
 
-  if (headlines.length === 0) return null;
+  if (headlines.length === 0 || !tickerText.trim()) {
+    return null;
+  }
 
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.primaryContainer }]}>
@@ -59,8 +70,12 @@ export default function NewsTicker({ newsflashes }: NewsTickerProps) {
         <Animated.Text
           style={[
             styles.tickerText,
-            { color: theme.colors.onPrimaryContainer },
-            { transform: [{ translateX: scrollAnim }] },
+            {
+              color: theme.dark 
+                ? theme.colors.onPrimaryContainer || '#E6E1E5'
+                : theme.colors.onPrimaryContainer || '#1C1B1F',
+              transform: [{ translateX: scrollAnim }],
+            },
           ]}
           numberOfLines={1}
         >
@@ -92,12 +107,11 @@ const styles = StyleSheet.create({
   tickerContainer: {
     flex: 1,
     overflow: 'hidden',
+    justifyContent: 'center',
   },
   tickerText: {
     fontSize: 13,
     fontWeight: '500',
-    position: 'absolute',
-    whiteSpace: 'nowrap',
+    lineHeight: 32,
   },
 });
-
