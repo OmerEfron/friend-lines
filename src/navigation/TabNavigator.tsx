@@ -12,6 +12,7 @@ import FriendsListScreen from '../screens/FriendsListScreen';
 import AddFriendScreen from '../screens/AddFriendScreen';
 import FriendRequestsScreen from '../screens/FriendRequestsScreen';
 import UserFeedScreen from '../screens/UserFeedScreen';
+import EditProfileScreen from '../screens/EditProfileScreen';
 import CreateNewsflashScreen from '../screens/CreateNewsflashScreen';
 import CreateGroupScreen from '../screens/CreateGroupScreen';
 import { Group } from '../types';
@@ -29,6 +30,7 @@ type ProfileStackParamList = {
   AddFriend: undefined;
   FriendRequests: undefined;
   UserFeed: undefined;
+  EditProfile: undefined;
 };
 
 type RootStackParamList = {
@@ -119,6 +121,11 @@ function ProfileStackScreen() {
         name="UserFeed" 
         component={UserFeedScreen}
         options={{ title: 'Filed Reports' }}
+      />
+      <ProfileStack.Screen 
+        name="EditProfile" 
+        component={EditProfileScreen}
+        options={{ title: 'Update Press Pass' }}
       />
     </ProfileStack.Navigator>
   );
