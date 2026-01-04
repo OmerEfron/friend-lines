@@ -17,6 +17,13 @@ Parameters:
     Type: String
     Default: friendlines-media-local
     Description: S3 bucket name for media storage
+  EnableMorningBriefing:
+    Type: String
+    Default: 'false'
+    AllowedValues:
+    - 'true'
+    - 'false'
+    Description: Enable morning briefing scheduled Lambda (requires EventBridge permissions)
 Conditions:
   IsProduction:
     Fn::Equals:
@@ -27,6 +34,10 @@ Conditions:
     - Fn::Equals:
       - Ref: JwtSecretArn
       - ''
+  EnableBriefing:
+    Fn::Equals:
+    - Ref: EnableMorningBriefing
+    - 'true'
 Globals:
   Function:
     Timeout: 30
@@ -598,6 +609,38 @@ Resources:
               Ref: FriendlinesApi
             Path: /devices/token
             Method: DELETE
+  MorningBriefingFunction:
+    Type: AWS::Serverless::Function
+    Condition: EnableBriefing
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        EntryPoints:
+        - src/handlers/briefing.ts
+        Minify: false
+        Target: es2022
+      SamResourceId: MorningBriefingFunction
+    Properties:
+      CodeUri: MorningBriefingFunction
+      Handler: briefing.handler
+      Timeout: 60
+      Policies:
+      - DynamoDBCrudPolicy:
+          TableName:
+            Ref: NewsflashesTable
+      - DynamoDBCrudPolicy:
+          TableName:
+            Ref: UsersTable
+      - DynamoDBCrudPolicy:
+          TableName:
+            Ref: DeviceTokensTable
+      Events:
+        DailySchedule:
+          Type: Schedule
+          Properties:
+            Schedule: cron(0 8 * * ? *)
+            Description: Morning briefing at 8 AM UTC daily
+            Enabled: true
 Outputs:
   ApiEndpoint:
     Description: API Gateway endpoint URL
