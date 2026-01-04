@@ -90,7 +90,11 @@ export function DataProvider({ children }: DataProviderProps) {
     setLoadingMore(true);
     try {
       const feedResponse = await fetchMainFeed(20, nextCursor);
-      setNewsflashes((prev) => [...prev, ...feedResponse.newsflashes]);
+      setNewsflashes((prev) => {
+        const existingIds = new Set(prev.map((n) => n.id));
+        const newItems = feedResponse.newsflashes.filter((n) => !existingIds.has(n.id));
+        return [...prev, ...newItems];
+      });
       setNextCursor(feedResponse.nextCursor);
       setHasMore(feedResponse.hasMore);
     } catch (err) {
@@ -143,7 +147,13 @@ export function DataProvider({ children }: DataProviderProps) {
         ...newNewsflash,
         user: currentUser,
       };
-      setNewsflashes((prev) => [enrichedNewsflash, ...prev]);
+      setNewsflashes((prev) => {
+        // Avoid duplicates if the newsflash already exists
+        if (prev.some((n) => n.id === enrichedNewsflash.id)) {
+          return prev;
+        }
+        return [enrichedNewsflash, ...prev];
+      });
     } catch (err) {
       console.error('Failed to create newsflash:', err);
       throw err;
