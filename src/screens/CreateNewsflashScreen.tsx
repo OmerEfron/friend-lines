@@ -1,12 +1,24 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView, KeyboardAvoidingView, Platform, Alert } from 'react-native';
-import { Surface, TextInput, Button, useTheme, Text, IconButton, Card } from 'react-native-paper';
+import { Surface, TextInput, Button, useTheme, Text, IconButton, Card, Chip } from 'react-native-paper';
 import * as ImagePicker from 'expo-image-picker';
 import { useData } from '../context/DataContext';
 import { useNavigation } from '@react-navigation/native';
 import { uploadImage, getFileInfo } from '../services/upload';
 import { NewsCategory, NewsSeverity } from '../types';
 import NewsOptions from '../components/NewsOptions';
+
+const HEADLINE_MAX = 150;
+const SUBHEADLINE_MAX = 200;
+
+// Quick headline starters
+const HEADLINE_STARTERS = [
+  'Just discovered...',
+  'Can confirm:',
+  'Breaking news from my life:',
+  'Update:',
+  'Plot twist:',
+];
 
 export default function CreateNewsflashScreen() {
   const theme = useTheme();
@@ -15,6 +27,7 @@ export default function CreateNewsflashScreen() {
   
   const [headline, setHeadline] = useState('');
   const [subHeadline, setSubHeadline] = useState('');
+  const [showSubheadline, setShowSubheadline] = useState(false);
   const [image, setImage] = useState<string | null>(null);
   const [category, setCategory] = useState<NewsCategory>('GENERAL');
   const [severity, setSeverity] = useState<NewsSeverity>('STANDARD');
@@ -28,27 +41,15 @@ export default function CreateNewsflashScreen() {
       aspect: [16, 9],
       quality: 0.8,
     });
-
-    if (!result.canceled) {
-      setImage(result.assets[0].uri);
-    }
-  };
-
-  const removeImage = () => {
-    setImage(null);
+    if (!result.canceled) setImage(result.assets[0].uri);
   };
 
   const handleSubmit = async () => {
-    if (!headline.trim()) {
-      return;
-    }
-
+    if (!headline.trim()) return;
     setIsSubmitting(true);
     
     try {
-      let mediaUrl: string | undefined = undefined;
-
-      // Upload image if one was selected
+      let mediaUrl: string | undefined;
       if (image) {
         setUploadProgress('Uploading image...');
         const { fileName, fileType } = getFileInfo(image);
@@ -64,15 +65,9 @@ export default function CreateNewsflashScreen() {
         category,
         severity,
       });
-
-      setUploadProgress('');
       navigation.goBack();
     } catch (error) {
-      console.error('Failed to create newsflash:', error);
-      Alert.alert(
-        'Error',
-        error instanceof Error ? error.message : 'Failed to create newsflash'
-      );
+      Alert.alert('Error', error instanceof Error ? error.message : 'Failed to create newsflash');
       setUploadProgress('');
     } finally {
       setIsSubmitting(false);
@@ -80,6 +75,7 @@ export default function CreateNewsflashScreen() {
   };
 
   const isValid = headline.trim().length > 0;
+  const headlineRemaining = HEADLINE_MAX - headline.length;
 
   return (
     <Surface style={styles.container}>
@@ -87,155 +83,183 @@ export default function CreateNewsflashScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardView}
       >
-        <ScrollView contentContainerStyle={styles.scrollContent}>
+        <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
           <View style={styles.content}>
-            <Text variant="titleLarge" style={styles.title}>
-              File a Report
+            {/* Header */}
+            <Text variant="headlineSmall" style={styles.title}>
+              What's the story?
+            </Text>
+            <Text variant="bodySmall" style={styles.subtitle}>
+              Share what's happening in your world
             </Text>
 
+            {/* Quick Starters */}
+            {!headline && (
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.startersRow}>
+                {HEADLINE_STARTERS.map((starter, idx) => (
+                  <Chip
+                    key={idx}
+                    onPress={() => setHeadline(starter + ' ')}
+                    mode="outlined"
+                    compact
+                    style={styles.starterChip}
+                  >
+                    {starter}
+                  </Chip>
+                ))}
+              </ScrollView>
+            )}
+
+            {/* Headline Input */}
+            <View style={styles.inputWrapper}>
+              <TextInput
+                value={headline}
+                onChangeText={setHeadline}
+                mode="flat"
+                style={[styles.headlineInput, { backgroundColor: 'transparent' }]}
+                maxLength={HEADLINE_MAX}
+                placeholder="Write your headline..."
+                placeholderTextColor={theme.colors.onSurfaceVariant}
+                multiline
+                autoFocus
+              />
+              <Text 
+                variant="labelSmall" 
+                style={[
+                  styles.charCount,
+                  headlineRemaining < 20 && { color: theme.colors.error }
+                ]}
+              >
+                {headlineRemaining}
+              </Text>
+            </View>
+
+            {/* Subheadline Toggle & Input */}
+            {!showSubheadline ? (
+              <Button
+                mode="text"
+                icon="plus"
+                onPress={() => setShowSubheadline(true)}
+                compact
+                style={styles.addSubheadline}
+              >
+                Add details
+              </Button>
+            ) : (
+              <View style={styles.inputWrapper}>
+                <TextInput
+                  value={subHeadline}
+                  onChangeText={setSubHeadline}
+                  mode="flat"
+                  style={[styles.subheadlineInput, { backgroundColor: 'transparent' }]}
+                  maxLength={SUBHEADLINE_MAX}
+                  placeholder="Add more context..."
+                  placeholderTextColor={theme.colors.onSurfaceVariant}
+                  multiline
+                />
+                <Text variant="labelSmall" style={styles.charCount}>
+                  {SUBHEADLINE_MAX - subHeadline.length}
+                </Text>
+              </View>
+            )}
+
+            {/* Image Section */}
+            <View style={styles.mediaSection}>
+              {image ? (
+                <View style={styles.imagePreview}>
+                  <Card style={styles.imageCard}>
+                    <Card.Cover source={{ uri: image }} style={styles.imageCover} />
+                  </Card>
+                  <IconButton
+                    icon="close-circle"
+                    size={24}
+                    onPress={() => setImage(null)}
+                    style={styles.removeImageBtn}
+                    iconColor="white"
+                  />
+                </View>
+              ) : (
+                <Button mode="outlined" icon="camera" onPress={pickImage} style={styles.addImageBtn}>
+                  Add photo
+                </Button>
+              )}
+            </View>
+
+            {/* Category & Severity Options */}
             <NewsOptions
               category={category}
               severity={severity}
               onCategoryChange={setCategory}
               onSeverityChange={setSeverity}
-              onTemplateSelect={(tpl) => setHeadline(tpl)}
-              userName={currentUser.name}
-            />
-            
-            <TextInput
-              label="Headline *"
-              value={headline}
-              onChangeText={setHeadline}
-              mode="outlined"
-              style={styles.input}
-              maxLength={150}
-              placeholder="What's happening?"
-              multiline
-              numberOfLines={3}
-            />
-            
-            <TextInput
-              label="Subheadline (optional)"
-              value={subHeadline}
-              onChangeText={setSubHeadline}
-              mode="outlined"
-              style={styles.input}
-              maxLength={200}
-              placeholder="Add more details..."
-              multiline
-              numberOfLines={4}
             />
 
-            <View style={styles.imageSection}>
-              {image ? (
-                <View style={styles.imagePreview}>
-                  <Card style={styles.imageCard}>
-                    <Card.Cover source={{ uri: image }} />
-                    <IconButton
-                      icon="close-circle"
-                      size={28}
-                      onPress={removeImage}
-                      style={styles.removeImageButton}
-                      iconColor={theme.colors.error}
-                    />
-                  </Card>
-                </View>
-              ) : (
-                <Button
-                  mode="outlined"
-                  icon="image-plus"
-                  onPress={pickImage}
-                  style={styles.imageButton}
-                >
-                  Add Image
-                </Button>
-              )}
-            </View>
-
+            {/* Progress */}
             {uploadProgress ? (
-              <Text variant="bodySmall" style={styles.uploadProgress}>
-                {uploadProgress}
-              </Text>
+              <Text variant="bodySmall" style={styles.progress}>{uploadProgress}</Text>
             ) : null}
-
-            <View style={styles.actions}>
-              <Button
-                mode="outlined"
-                onPress={() => navigation.goBack()}
-                style={styles.button}
-                disabled={isSubmitting}
-              >
-                Cancel
-              </Button>
-              
-              <Button
-                mode="contained"
-                onPress={handleSubmit}
-                style={styles.button}
-                disabled={!isValid || isSubmitting}
-                loading={isSubmitting}
-              >
-                Report
-              </Button>
-            </View>
           </View>
         </ScrollView>
+
+        {/* Bottom Actions - Fixed */}
+        <View style={[styles.bottomBar, { borderTopColor: theme.colors.outlineVariant }]}>
+          <Button mode="text" onPress={() => navigation.goBack()} disabled={isSubmitting}>
+            Cancel
+          </Button>
+          <Button
+            mode="contained"
+            onPress={handleSubmit}
+            disabled={!isValid || isSubmitting}
+            loading={isSubmitting}
+            icon="send"
+          >
+            Publish
+          </Button>
+        </View>
       </KeyboardAvoidingView>
     </Surface>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
+  container: { flex: 1 },
+  keyboardView: { flex: 1 },
+  scrollContent: { flexGrow: 1 },
+  content: { padding: 16, paddingBottom: 100 },
+  title: { fontWeight: 'bold', marginBottom: 4 },
+  subtitle: { opacity: 0.6, marginBottom: 16 },
+  startersRow: { marginBottom: 16 },
+  starterChip: { marginRight: 8 },
+  inputWrapper: { marginBottom: 8 },
+  headlineInput: {
+    fontSize: 20,
+    fontWeight: '600',
+    paddingHorizontal: 0,
+    minHeight: 60,
   },
-  keyboardView: {
-    flex: 1,
+  subheadlineInput: {
+    fontSize: 16,
+    paddingHorizontal: 0,
+    minHeight: 50,
   },
-  scrollContent: {
-    flexGrow: 1,
-  },
-  content: {
-    padding: 16,
-  },
-  title: {
-    marginBottom: 24,
-    fontWeight: 'bold',
-  },
-  input: {
-    marginBottom: 16,
-  },
-  imageSection: {
-    marginBottom: 16,
-  },
-  imageButton: {
-    borderStyle: 'dashed',
-  },
-  imagePreview: {
-    position: 'relative',
-  },
-  imageCard: {
-    overflow: 'hidden',
-  },
-  removeImageButton: {
+  charCount: { textAlign: 'right', opacity: 0.5, marginTop: -4 },
+  addSubheadline: { alignSelf: 'flex-start', marginBottom: 16 },
+  mediaSection: { marginBottom: 16 },
+  imagePreview: { position: 'relative' },
+  imageCard: { borderRadius: 12, overflow: 'hidden' },
+  imageCover: { height: 180 },
+  removeImageBtn: {
     position: 'absolute',
     top: 8,
     right: 8,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(0,0,0,0.5)',
   },
-  actions: {
+  addImageBtn: { borderStyle: 'dashed' },
+  progress: { textAlign: 'center', opacity: 0.7, marginTop: 8 },
+  bottomBar: {
     flexDirection: 'row',
-    justifyContent: 'flex-end',
-    gap: 12,
-    marginTop: 24,
-  },
-  button: {
-    minWidth: 100,
-  },
-  uploadProgress: {
-    textAlign: 'center',
-    opacity: 0.7,
-    marginBottom: 12,
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 16,
+    borderTopWidth: 1,
   },
 });
-
