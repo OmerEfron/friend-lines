@@ -4,10 +4,16 @@ import { putItem, scanTable, queryItems, getItem, deleteItem } from '../utils/dy
 import { uploadFile } from '../utils/s3';
 import { successResponse, errorResponse } from '../utils/response';
 import { withAuth, AuthenticatedEvent } from '../utils/middleware';
+import { sendPushToTokens } from '../utils/push';
 
 const NEWSFLASHES_TABLE =
   process.env.NEWSFLASHES_TABLE || 'friendlines-newsflashes';
 const BOOKMARKS_TABLE = process.env.BOOKMARKS_TABLE || 'friendlines-bookmarks';
+const FRIENDSHIPS_TABLE =
+  process.env.FRIENDSHIPS_TABLE || 'friendlines-friendships';
+const USERS_TABLE = process.env.USERS_TABLE || 'friendlines-users';
+const DEVICE_TOKENS_TABLE =
+  process.env.DEVICE_TOKENS_TABLE || 'friendlines-device-tokens';
 const MEDIA_BUCKET = process.env.MEDIA_BUCKET || 'friendlines-media-local';
 
 interface Newsflash {
@@ -22,6 +28,22 @@ interface Newsflash {
 interface Bookmark {
   userId: string;
   newsflashId: string;
+}
+
+interface Friendship {
+  userId: string;
+  friendId: string;
+  status: string;
+}
+
+interface User {
+  id: string;
+  name: string;
+}
+
+interface DeviceToken {
+  userId: string;
+  expoPushToken: string;
 }
 
 export async function handler(
@@ -99,6 +121,12 @@ export async function handler(
       };
 
       await putItem(NEWSFLASHES_TABLE, newsflash);
+
+      // Send push notifications to friends (async, don't block response)
+      notifyFriendsOfNewsflash(userId, headline).catch((err) =>
+        console.error('Failed to notify friends:', err)
+      );
+
       return successResponse({ newsflash }, 201);
     }
 
@@ -156,5 +184,41 @@ async function handleDeleteNewsflash(
   await deleteItem(NEWSFLASHES_TABLE, { id });
 
   return successResponse({ message: 'Newsflash deleted' });
+}
+
+/**
+ * Send push notifications to friends when a newsflash is created
+ */
+async function notifyFriendsOfNewsflash(
+  userId: string,
+  headline: string
+): Promise<void> {
+  // Get user's friends (where user is in friendId position = friends who added this user)
+  const allFriendships = (await scanTable(FRIENDSHIPS_TABLE)) as Friendship[];
+  const friendIds = allFriendships
+    .filter((f) => f.userId === userId && f.status === 'accepted')
+    .map((f) => f.friendId);
+
+  if (friendIds.length === 0) return;
+
+  // Get user's name for notification
+  const user = (await getItem(USERS_TABLE, { id: userId })) as User | undefined;
+  const userName = user?.name || 'Someone';
+
+  // Get push tokens for friends
+  const allTokens = (await scanTable(DEVICE_TOKENS_TABLE)) as DeviceToken[];
+  const friendTokens = allTokens
+    .filter((t) => friendIds.includes(t.userId))
+    .map((t) => t.expoPushToken);
+
+  if (friendTokens.length === 0) return;
+
+  // Send notification
+  await sendPushToTokens(
+    friendTokens,
+    `${userName} posted`,
+    headline.length > 50 ? headline.substring(0, 47) + '...' : headline,
+    { type: 'newsflash', userId }
+  );
 }
 

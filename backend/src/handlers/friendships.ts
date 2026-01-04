@@ -2,11 +2,19 @@ import { APIGatewayProxyResult } from 'aws-lambda';
 import { putItem, scanTable, deleteItem, getItem } from '../utils/dynamo';
 import { successResponse, errorResponse } from '../utils/response';
 import { withAuth, AuthenticatedEvent } from '../utils/middleware';
+import { sendPushToTokens } from '../utils/push';
 
 const FRIENDSHIPS_TABLE =
   process.env.FRIENDSHIPS_TABLE || 'friendlines-friendships';
 const USERS_TABLE = process.env.USERS_TABLE || 'friendlines-users';
 const GROUPS_TABLE = process.env.GROUPS_TABLE || 'friendlines-groups';
+const DEVICE_TOKENS_TABLE =
+  process.env.DEVICE_TOKENS_TABLE || 'friendlines-device-tokens';
+
+interface DeviceToken {
+  userId: string;
+  expoPushToken: string;
+}
 
 interface Group {
   id: string;
@@ -214,6 +222,11 @@ async function handleAcceptRequest(
 
   await putItem(FRIENDSHIPS_TABLE, reverseRequest);
 
+  // Send push notification to initiator (async, don't block response)
+  notifyFriendAccepted(initiatorId, receiverId).catch((err) =>
+    console.error('Failed to notify friend accepted:', err)
+  );
+
   return successResponse({ message: 'Friend request accepted' });
 }
 
@@ -360,6 +373,11 @@ async function handleSendRequest(
 
   await putItem(FRIENDSHIPS_TABLE, friendship);
 
+  // Send push notification to recipient (async, don't block response)
+  notifyFriendRequest(friendId, userId).catch((err) =>
+    console.error('Failed to notify friend request:', err)
+  );
+
   return successResponse({ friendship }, 201);
 }
 
@@ -434,4 +452,58 @@ async function removeFriendFromUserGroups(
     }
     throw error; // Re-throw other errors
   }
+}
+
+/**
+ * Send push notification when a friend request is sent
+ */
+async function notifyFriendRequest(
+  recipientId: string,
+  senderId: string
+): Promise<void> {
+  // Get sender's name
+  const sender = (await getItem(USERS_TABLE, { id: senderId })) as User | undefined;
+  const senderName = sender?.name || 'Someone';
+
+  // Get recipient's push tokens
+  const allTokens = (await scanTable(DEVICE_TOKENS_TABLE)) as DeviceToken[];
+  const recipientTokens = allTokens
+    .filter((t) => t.userId === recipientId)
+    .map((t) => t.expoPushToken);
+
+  if (recipientTokens.length === 0) return;
+
+  await sendPushToTokens(
+    recipientTokens,
+    'New Friend Request',
+    `${senderName} sent you a friend request`,
+    { type: 'friend_request', senderId }
+  );
+}
+
+/**
+ * Send push notification when a friend request is accepted
+ */
+async function notifyFriendAccepted(
+  initiatorId: string,
+  accepterId: string
+): Promise<void> {
+  // Get accepter's name
+  const accepter = (await getItem(USERS_TABLE, { id: accepterId })) as User | undefined;
+  const accepterName = accepter?.name || 'Someone';
+
+  // Get initiator's push tokens
+  const allTokens = (await scanTable(DEVICE_TOKENS_TABLE)) as DeviceToken[];
+  const initiatorTokens = allTokens
+    .filter((t) => t.userId === initiatorId)
+    .map((t) => t.expoPushToken);
+
+  if (initiatorTokens.length === 0) return;
+
+  await sendPushToTokens(
+    initiatorTokens,
+    'Friend Request Accepted',
+    `${accepterName} accepted your friend request`,
+    { type: 'friend_accepted', accepterId }
+  );
 }
