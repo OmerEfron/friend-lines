@@ -1,10 +1,9 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
-import { View, StyleSheet, Animated, LayoutChangeEvent, Platform, Dimensions } from 'react-native';
+import { View, StyleSheet, Animated, LayoutChangeEvent, Platform } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import { Newsflash } from '../types';
 
 const TICKER_SPEED = 60; // pixels per second
-const SCREEN_WIDTH = Dimensions.get('window').width;
 
 interface NewsTickerProps {
   newsflashes: Newsflash[];
@@ -12,8 +11,9 @@ interface NewsTickerProps {
 
 export default function NewsTicker({ newsflashes }: NewsTickerProps) {
   const theme = useTheme();
-  const scrollAnim = useRef(new Animated.Value(SCREEN_WIDTH)).current;
+  const scrollAnim = useRef(new Animated.Value(0)).current;
   const [textWidth, setTextWidth] = useState(0);
+  const [containerWidth, setContainerWidth] = useState(0);
   const [isReady, setIsReady] = useState(false);
   const animationRef = useRef<Animated.CompositeAnimation | null>(null);
 
@@ -29,13 +29,26 @@ export default function NewsTicker({ newsflashes }: NewsTickerProps) {
 
   const tickerText = headlines.length > 0 ? headlines.join('   •   ') : '';
 
-  const handleLayout = useCallback((e: LayoutChangeEvent) => {
+  const handleTextLayout = useCallback((e: LayoutChangeEvent) => {
     const width = e.nativeEvent.layout.width;
-    if (width > 0 && width !== textWidth) {
+    if (width > 0) {
       setTextWidth(width);
+    }
+  }, []);
+
+  const handleContainerLayout = useCallback((e: LayoutChangeEvent) => {
+    const width = e.nativeEvent.layout.width;
+    if (width > 0) {
+      setContainerWidth(width);
+    }
+  }, []);
+
+  // Start animation when both widths are measured
+  useEffect(() => {
+    if (textWidth > 0 && containerWidth > 0) {
       setTimeout(() => setIsReady(true), 100);
     }
-  }, [textWidth]);
+  }, [textWidth, containerWidth]);
 
   useEffect(() => {
     if (animationRef.current) {
@@ -43,23 +56,23 @@ export default function NewsTicker({ newsflashes }: NewsTickerProps) {
       animationRef.current = null;
     }
 
-    if (!isReady || textWidth === 0 || headlines.length === 0) {
+    if (!isReady || textWidth === 0 || containerWidth === 0 || headlines.length === 0) {
       return;
     }
 
-    // Classic marquee: start from right edge, scroll left until text exits left
-    // Total distance = screen width + text width (to fully exit)
-    const totalDistance = SCREEN_WIDTH + textWidth;
+    // Classic marquee: start from right edge of container, scroll until text exits left
+    const startPosition = containerWidth;
+    const endPosition = -textWidth;
+    const totalDistance = startPosition - endPosition;
     const duration = (totalDistance / TICKER_SPEED) * 1000;
 
     const useNative = Platform.OS === 'ios';
 
-    // Start off-screen right, end off-screen left
-    scrollAnim.setValue(SCREEN_WIDTH);
+    scrollAnim.setValue(startPosition);
     
     animationRef.current = Animated.loop(
       Animated.timing(scrollAnim, {
-        toValue: -textWidth, // Fully exit on left
+        toValue: endPosition,
         duration,
         useNativeDriver: useNative,
       })
@@ -72,13 +85,12 @@ export default function NewsTicker({ newsflashes }: NewsTickerProps) {
         animationRef.current.stop();
       }
     };
-  }, [textWidth, isReady, headlines.length, scrollAnim]);
+  }, [textWidth, containerWidth, isReady, headlines.length, scrollAnim]);
 
   // Reset when headlines change
   useEffect(() => {
     setIsReady(false);
-    scrollAnim.setValue(SCREEN_WIDTH);
-  }, [tickerText, scrollAnim]);
+  }, [tickerText]);
 
   if (headlines.length === 0) {
     return null;
@@ -93,20 +105,19 @@ export default function NewsTicker({ newsflashes }: NewsTickerProps) {
       <View style={[styles.label, { backgroundColor: theme.colors.error }]}>
         <Text style={styles.labelText}>LIVE</Text>
       </View>
-      <View style={styles.tickerWrapper}>
-        <Animated.View
+      <View style={styles.tickerWrapper} onLayout={handleContainerLayout}>
+        <Animated.Text
           style={[
-            styles.tickerContent,
-            { transform: [{ translateX: scrollAnim }] },
+            styles.tickerText,
+            { 
+              color: textColor,
+              transform: [{ translateX: scrollAnim }],
+            },
           ]}
+          onLayout={handleTextLayout}
         >
-          <Text
-            style={[styles.tickerText, { color: textColor }]}
-            onLayout={handleLayout}
-          >
-            {tickerText}
-          </Text>
-        </Animated.View>
+          {tickerText}
+        </Animated.Text>
       </View>
     </View>
   );
@@ -132,15 +143,16 @@ const styles = StyleSheet.create({
   },
   tickerWrapper: {
     flex: 1,
+    height: 36,
     overflow: 'hidden',
-  },
-  tickerContent: {
-    flexDirection: 'row',
-    position: 'absolute',
+    justifyContent: 'center',
   },
   tickerText: {
     fontSize: 14,
     fontWeight: '500',
+    position: 'absolute',
+    left: 0,
+    top: 0,
     lineHeight: 36,
   },
 });
