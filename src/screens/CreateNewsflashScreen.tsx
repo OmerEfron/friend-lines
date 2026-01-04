@@ -160,7 +160,7 @@ export default function CreateNewsflashScreen() {
                 disabled={!isValid || isSubmitting}
                 loading={isSubmitting}
               >
-                Post
+                Report
               </Button>
             </View>
           </View>
