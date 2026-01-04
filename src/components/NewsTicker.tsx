@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
-import { View, StyleSheet, Animated, LayoutChangeEvent } from 'react-native';
+import { View, StyleSheet, Animated, LayoutChangeEvent, Text as RNText } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import { Newsflash } from '../types';
 
@@ -104,12 +104,15 @@ export default function NewsTicker({ newsflashes }: NewsTickerProps) {
             { transform: [{ translateX: scrollAnim }] },
           ]}
         >
-          <Text
+          {/* Use native RNText to avoid react-native-paper styling issues */}
+          <RNText
             style={[styles.tickerText, { color: textColor }]}
             onLayout={handleTextLayout}
+            numberOfLines={1}
+            ellipsizeMode="clip"
           >
             {tickerText}
-          </Text>
+          </RNText>
         </Animated.View>
       </View>
     </View>
@@ -143,10 +146,13 @@ const styles = StyleSheet.create({
   textContainer: {
     position: 'absolute',
     flexDirection: 'row',
+    // Ensure text doesn't get constrained
+    width: 10000,
   },
   tickerText: {
     fontSize: 14,
     fontWeight: '500',
     lineHeight: 36,
+    flexShrink: 0,
   },
 });
