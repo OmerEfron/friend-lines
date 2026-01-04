@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, KeyboardAvoidingView, Platform, Image, Alert } from 'react-native';
+import { View, StyleSheet, ScrollView, KeyboardAvoidingView, Platform, Alert } from 'react-native';
 import { Surface, TextInput, Button, useTheme, Text, IconButton, Card } from 'react-native-paper';
 import * as ImagePicker from 'expo-image-picker';
 import { useData } from '../context/DataContext';
 import { useNavigation } from '@react-navigation/native';
 import { uploadImage, getFileInfo } from '../services/upload';
+import { NewsCategory, NewsSeverity } from '../types';
+import NewsOptions from '../components/NewsOptions';
 
 export default function CreateNewsflashScreen() {
   const theme = useTheme();
@@ -14,6 +16,8 @@ export default function CreateNewsflashScreen() {
   const [headline, setHeadline] = useState('');
   const [subHeadline, setSubHeadline] = useState('');
   const [image, setImage] = useState<string | null>(null);
+  const [category, setCategory] = useState<NewsCategory>('GENERAL');
+  const [severity, setSeverity] = useState<NewsSeverity>('STANDARD');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [uploadProgress, setUploadProgress] = useState('');
 
@@ -51,12 +55,14 @@ export default function CreateNewsflashScreen() {
         mediaUrl = await uploadImage(image, fileName, fileType);
       }
 
-      setUploadProgress('Creating newsflash...');
+      setUploadProgress('Filing report...');
       await addNewsflash({
         userId: currentUser.id,
         headline: headline.trim(),
         subHeadline: subHeadline.trim() || undefined,
         media: mediaUrl,
+        category,
+        severity,
       });
 
       setUploadProgress('');
@@ -84,8 +90,17 @@ export default function CreateNewsflashScreen() {
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <View style={styles.content}>
             <Text variant="titleLarge" style={styles.title}>
-              Create Newsflash
+              File a Report
             </Text>
+
+            <NewsOptions
+              category={category}
+              severity={severity}
+              onCategoryChange={setCategory}
+              onSeverityChange={setSeverity}
+              onTemplateSelect={(tpl) => setHeadline(tpl)}
+              userName={currentUser.name}
+            />
             
             <TextInput
               label="Headline *"
