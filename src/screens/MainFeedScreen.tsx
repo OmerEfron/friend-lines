@@ -8,8 +8,15 @@ import { useData } from '../context/DataContext';
 
 export default function MainFeedScreen() {
   const navigation = useNavigation();
-  const { newsflashes, loadMoreNewsflashes, loadingMore, hasMore } = useData();
+  const { newsflashes, loadMoreNewsflashes, loadingMore, hasMore, refreshNewsflashes } = useData();
   const [searchQuery, setSearchQuery] = useState('');
+  const [refreshing, setRefreshing] = useState(false);
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await refreshNewsflashes();
+    setRefreshing(false);
+  };
 
   // Backend already returns filtered feed (friends + self), just apply search
   const filteredNewsflashes = useMemo(() => {
@@ -48,6 +55,8 @@ export default function MainFeedScreen() {
         newsflashes={filteredNewsflashes}
         onEndReached={handleEndReached}
         loadingMore={loadingMore}
+        refreshing={refreshing}
+        onRefresh={handleRefresh}
       />
       <FAB
         icon="plus"

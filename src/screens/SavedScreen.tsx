@@ -8,6 +8,7 @@ import { fetchBookmarks } from '../services/api';
 export default function SavedScreen() {
   const [savedNewsflashes, setSavedNewsflashes] = useState<Newsflash[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     loadBookmarks();
@@ -25,6 +26,12 @@ export default function SavedScreen() {
     }
   };
 
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await loadBookmarks();
+    setRefreshing(false);
+  };
+
   if (loading) {
     return (
       <Surface style={[styles.container, styles.center]}>
@@ -35,7 +42,11 @@ export default function SavedScreen() {
 
   return (
     <Surface style={styles.container}>
-      <FeedList newsflashes={savedNewsflashes} />
+      <FeedList 
+        newsflashes={savedNewsflashes}
+        refreshing={refreshing}
+        onRefresh={handleRefresh}
+      />
     </Surface>
   );
 }
