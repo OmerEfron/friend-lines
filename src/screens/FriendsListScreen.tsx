@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, FlatList, View } from 'react-native';
 import {
   Surface,
@@ -7,13 +7,21 @@ import {
   useTheme,
   IconButton,
   Text,
+  ActivityIndicator,
 } from 'react-native-paper';
 import { useData } from '../context/DataContext';
 import { User } from '../types';
 
 export default function FriendsListScreen() {
   const theme = useTheme();
-  const { friends, removeFriend } = useData();
+  const { friends, removeFriend, refreshFriends } = useData();
+  const [refreshing, setRefreshing] = useState(false);
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await refreshFriends();
+    setRefreshing(false);
+  };
 
   const getInitials = (name: string) => {
     return name
@@ -64,6 +72,21 @@ export default function FriendsListScreen() {
 
   return (
     <Surface style={styles.container}>
+      <View style={[styles.refreshHeader, { borderBottomColor: theme.colors.outlineVariant }]}>
+        <Text variant="bodySmall" style={styles.friendCount}>
+          {friends.length} friend{friends.length !== 1 ? 's' : ''}
+        </Text>
+        {refreshing ? (
+          <ActivityIndicator size={20} />
+        ) : (
+          <IconButton
+            icon="refresh"
+            size={20}
+            onPress={handleRefresh}
+            style={styles.refreshButton}
+          />
+        )}
+      </View>
       <FlatList
         data={friends}
         keyExtractor={(item) => item.id}
@@ -74,6 +97,8 @@ export default function FriendsListScreen() {
           friends.length === 0 && styles.emptyList,
         ]}
         style={{ backgroundColor: theme.colors.background }}
+        refreshing={refreshing}
+        onRefresh={handleRefresh}
       />
     </Surface>
   );
@@ -82,6 +107,20 @@ export default function FriendsListScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  refreshHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 4,
+    borderBottomWidth: 1,
+  },
+  friendCount: {
+    opacity: 0.6,
+  },
+  refreshButton: {
+    margin: 0,
   },
   listContainer: {
     paddingVertical: 8,
