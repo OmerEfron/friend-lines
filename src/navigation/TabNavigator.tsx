@@ -11,6 +11,7 @@ import SavedScreen from '../screens/SavedScreen';
 import FriendsListScreen from '../screens/FriendsListScreen';
 import AddFriendScreen from '../screens/AddFriendScreen';
 import FriendRequestsScreen from '../screens/FriendRequestsScreen';
+import UserFeedScreen from '../screens/UserFeedScreen';
 import CreateNewsflashScreen from '../screens/CreateNewsflashScreen';
 import CreateGroupScreen from '../screens/CreateGroupScreen';
 import { Group } from '../types';
@@ -27,6 +28,7 @@ type ProfileStackParamList = {
   FriendsList: undefined;
   AddFriend: undefined;
   FriendRequests: undefined;
+  UserFeed: undefined;
 };
 
 type RootStackParamList = {
@@ -112,6 +114,11 @@ function ProfileStackScreen() {
         name="FriendRequests" 
         component={FriendRequestsScreen}
         options={{ title: 'Friend Requests' }}
+      />
+      <ProfileStack.Screen 
+        name="UserFeed" 
+        component={UserFeedScreen}
+        options={{ title: 'Filed Reports' }}
       />
     </ProfileStack.Navigator>
   );
