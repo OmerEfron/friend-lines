@@ -122,10 +122,19 @@ export async function handler(
 
       await putItem(NEWSFLASHES_TABLE, newsflash);
 
-      // Send push notifications to friends (async, don't block response)
-      notifyFriendsOfNewsflash(userId, headline).catch((err) =>
-        console.error('Failed to notify friends:', err)
-      );
+      // Send push notifications to friends
+      // We must await this - using setImmediate/callbackWaitsForEmptyEventLoop=false
+      // causes Lambda to freeze/terminate before the fetch completes
+      console.log(`[Newsflash] Created newsflash ${newsflash.id}, triggering push notifications`);
+      
+      try {
+        await notifyFriendsOfNewsflash(userId, headline);
+        console.log(`[Newsflash] Push notification completed for newsflash ${newsflash.id}`);
+      } catch (err) {
+        // Don't fail the request if push notification fails
+        console.error('[Newsflash] Failed to notify friends:', err);
+        console.error('[Newsflash] Error stack:', err instanceof Error ? err.stack : 'No stack trace');
+      }
 
       return successResponse({ newsflash }, 201);
     }
@@ -193,32 +202,67 @@ async function notifyFriendsOfNewsflash(
   userId: string,
   headline: string
 ): Promise<void> {
-  // Get user's friends (where user is in friendId position = friends who added this user)
-  const allFriendships = (await scanTable(FRIENDSHIPS_TABLE)) as Friendship[];
-  const friendIds = allFriendships
-    .filter((f) => f.userId === userId && f.status === 'accepted')
-    .map((f) => f.friendId);
+  try {
+    console.log(`[Push] Starting notification for user ${userId}`);
+    
+    // Query friendships by userId (primary key) - much faster than scan
+    const queryStart = Date.now();
+    const friendships = (await queryItems(
+      FRIENDSHIPS_TABLE,
+      undefined, // Use primary key, not GSI
+      'userId = :userId',
+      { ':userId': userId }
+    )) as Friendship[];
+    
+    const friendIds = friendships
+      .filter((f) => f.status === 'accepted')
+      .map((f) => f.friendId);
+    
+    console.log(`[Push] Found ${friendIds.length} friends in ${Date.now() - queryStart}ms`);
+  
+    if (friendIds.length === 0) {
+      return;
+    }
 
-  if (friendIds.length === 0) return;
+    // Get user's name for notification
+    const user = (await getItem(USERS_TABLE, { id: userId })) as User | undefined;
+    const userName = user?.name || 'Someone';
 
-  // Get user's name for notification
-  const user = (await getItem(USERS_TABLE, { id: userId })) as User | undefined;
-  const userName = user?.name || 'Someone';
+    // Query device tokens for each friend in parallel
+    const tokenStart = Date.now();
+    const tokenQueries = friendIds.map((friendId) =>
+      queryItems(
+        DEVICE_TOKENS_TABLE,
+        undefined,
+        'userId = :userId',
+        { ':userId': friendId }
+      )
+    );
+    const tokenResults = await Promise.all(tokenQueries);
+    
+    const friendTokens = tokenResults
+      .flat()
+      .map((t) => (t as DeviceToken).expoPushToken)
+      .filter(Boolean);
+    
+    console.log(`[Push] Found ${friendTokens.length} tokens in ${Date.now() - tokenStart}ms`);
 
-  // Get push tokens for friends
-  const allTokens = (await scanTable(DEVICE_TOKENS_TABLE)) as DeviceToken[];
-  const friendTokens = allTokens
-    .filter((t) => friendIds.includes(t.userId))
-    .map((t) => t.expoPushToken);
+    if (friendTokens.length === 0) {
+      return;
+    }
 
-  if (friendTokens.length === 0) return;
-
-  // Send notification
-  await sendPushToTokens(
-    friendTokens,
-    `${userName} posted`,
-    headline.length > 50 ? headline.substring(0, 47) + '...' : headline,
-    { type: 'newsflash', userId }
-  );
+    // Send notification
+    const sendStart = Date.now();
+    const results = await sendPushToTokens(
+      friendTokens,
+      `Newsflash From ${userName}`,
+      headline,
+      { type: 'newsflash', userId }
+    );
+    console.log(`[Push] Sent in ${Date.now() - sendStart}ms. Results: ${JSON.stringify(results)}`);
+  } catch (error) {
+    console.error(`[Push] Error:`, error);
+    throw error;
+  }
 }
 
