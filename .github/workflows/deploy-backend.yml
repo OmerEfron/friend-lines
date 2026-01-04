@@ -8,8 +8,13 @@ on:
       - 'backend/**'
       - '.github/workflows/deploy-backend.yml'
 
-  # Allow manual trigger
+  # Allow manual trigger (runs regardless of paths)
   workflow_dispatch:
+    inputs:
+      force_deploy:
+        description: 'Force deployment even if no backend changes'
+        required: false
+        default: 'false'
 
 env:
   AWS_REGION: us-east-1

@@ -34,6 +34,13 @@ EntryPoints = ["src/handlers/users.ts"]
 
 
 
+
+
+
+
+
+
+
 [function_build_definitions.35e7c678-724d-4185-b682-2bf5c5573a8e]
 codeuri = "/Users/omer/Desktop/personal/friendlines/backend"
 runtime = "nodejs20.x"
@@ -50,6 +57,13 @@ BuildMethod = "esbuild"
 Minify = false
 Target = "es2022"
 EntryPoints = ["src/handlers/newsflashes.ts"]
+
+
+
+
+
+
+
 
 
 
@@ -101,6 +115,13 @@ EntryPoints = ["src/handlers/auth.ts"]
 
 
 
+
+
+
+
+
+
+
 [function_build_definitions.afa5032d-1d7c-4811-8033-c3963cca58e0]
 codeuri = "/Users/omer/Desktop/personal/friendlines/backend"
 runtime = "nodejs20.x"
@@ -117,6 +138,13 @@ BuildMethod = "esbuild"
 Minify = false
 Target = "es2022"
 EntryPoints = ["src/handlers/friendships.ts"]
+
+
+
+
+
+
+
 
 
 
@@ -164,6 +192,13 @@ EntryPoints = ["src/handlers/groups.ts"]
 
 
 
+
+
+
+
+
+
+
 [function_build_definitions.ae1f27df-c8a0-4bab-89e7-14d5244d4f37]
 codeuri = "/Users/omer/Desktop/personal/friendlines/backend"
 runtime = "nodejs20.x"
@@ -180,6 +215,13 @@ BuildMethod = "esbuild"
 Minify = false
 Target = "es2022"
 EntryPoints = ["src/handlers/feeds.ts"]
+
+
+
+
+
+
+
 
 
 
@@ -223,6 +265,13 @@ EntryPoints = ["src/handlers/uploads.ts"]
 
 
 
+
+
+
+
+
+
+
 [function_build_definitions.7af0da71-58e5-4798-8d91-b9bec6923205]
 codeuri = "/Users/omer/Desktop/personal/friendlines/backend"
 runtime = "nodejs20.x"
@@ -252,6 +301,13 @@ EntryPoints = ["src/handlers/bookmarks.ts"]
 
 
 
+
+
+
+
+
+
+
 [function_build_definitions.d829ce19-218e-414c-92a1-f90d49ce6a1c]
 codeuri = "/Users/omer/Desktop/personal/friendlines/backend"
 runtime = "nodejs20.x"
@@ -268,5 +324,12 @@ BuildMethod = "esbuild"
 Minify = false
 Target = "es2022"
 EntryPoints = ["src/handlers/devices.ts"]
+
+
+
+
+
+
+
 
 [layer_build_definitions]
