@@ -107,7 +107,6 @@ export default function NewsTicker({ newsflashes }: NewsTickerProps) {
           <Text
             style={[styles.tickerText, { color: textColor }]}
             onLayout={handleTextLayout}
-            numberOfLines={1}
           >
             {tickerText}
           </Text>
