@@ -62,7 +62,18 @@ export async function registerForPushNotificationsAsync(): Promise<
     }
 
     const tokenData = await Notifications.getExpoPushTokenAsync({ projectId });
-    return tokenData.data;
+    const pushToken = tokenData.data;
+    
+    // Log push token for testing purposes
+    console.log('═══════════════════════════════════════════════════════');
+    console.log('📱 EXPO PUSH TOKEN (for testing):');
+    console.log(pushToken);
+    console.log('═══════════════════════════════════════════════════════');
+    console.log('💡 Copy this token to test push notifications at:');
+    console.log('   https://expo.dev/notifications');
+    console.log('═══════════════════════════════════════════════════════');
+    
+    return pushToken;
   } catch (error: any) {
     console.error('Failed to get push token:', error);
     
@@ -104,18 +115,23 @@ export async function registerPushTokenWithBackend(
   expoPushToken: string
 ): Promise<boolean> {
   try {
+    const deviceId = getDeviceId();
+    console.log('📤 Registering push token with backend...');
+    console.log(`   Device ID: ${deviceId}`);
+    console.log(`   Platform: ${Platform.OS}`);
+    
     await apiCall('/devices/token', {
       method: 'POST',
       body: JSON.stringify({
-        deviceId: getDeviceId(),
+        deviceId,
         expoPushToken,
         platform: Platform.OS,
       }),
     });
-    console.log('Push token registered with backend');
+    console.log('✅ Push token registered with backend successfully');
     return true;
   } catch (error) {
-    console.error('Failed to register push token:', error);
+    console.error('❌ Failed to register push token:', error);
     return false;
   }
 }

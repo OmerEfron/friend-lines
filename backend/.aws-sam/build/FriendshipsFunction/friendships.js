@@ -34070,6 +34070,8 @@ async function sendPushNotification(message) {
     return [];
   }
   try {
+    console.log(`[Push API] Sending ${validMessages.length} notification(s) to Expo API`);
+    const apiStart = Date.now();
     const response = await fetch(EXPO_PUSH_API, {
       method: "POST",
       headers: {
@@ -34079,14 +34081,26 @@ async function sendPushNotification(message) {
       },
       body: JSON.stringify(validMessages)
     });
+    const fetchDuration = Date.now() - apiStart;
+    console.log(`[Push API] Fetch completed in ${fetchDuration}ms, status: ${response.status}`);
     if (!response.ok) {
-      console.error("Expo Push API error:", response.status);
+      const errorText = await response.text().catch(() => "Unknown error");
+      console.error(`[Push API] Expo Push API error: ${response.status} - ${errorText}`);
       return [];
     }
     const result = await response.json();
+    const totalDuration = Date.now() - apiStart;
+    const successCount = result.data.filter((t4) => t4.status === "ok").length;
+    const errorCount = result.data.filter((t4) => t4.status === "error").length;
+    console.log(`[Push API] Success: ${successCount} sent, ${errorCount} failed (total: ${totalDuration}ms)`);
+    if (errorCount > 0) {
+      console.log(`[Push API] Error details:`, JSON.stringify(result.data.filter((t4) => t4.status === "error")));
+    }
     return result.data;
   } catch (error2) {
-    console.error("Failed to send push notification:", error2);
+    console.error("[Push API] Failed to send push notification:", error2);
+    console.error("[Push API] Error details:", error2 instanceof Error ? error2.message : String(error2));
+    console.error("[Push API] Error stack:", error2 instanceof Error ? error2.stack : "No stack trace");
     return [];
   }
 }

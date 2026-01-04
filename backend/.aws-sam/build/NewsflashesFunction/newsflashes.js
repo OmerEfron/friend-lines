@@ -45769,6 +45769,8 @@ async function sendPushNotification(message) {
     return [];
   }
   try {
+    console.log(`[Push API] Sending ${validMessages.length} notification(s) to Expo API`);
+    const apiStart = Date.now();
     const response = await fetch(EXPO_PUSH_API, {
       method: "POST",
       headers: {
@@ -45778,14 +45780,26 @@ async function sendPushNotification(message) {
       },
       body: JSON.stringify(validMessages)
     });
+    const fetchDuration = Date.now() - apiStart;
+    console.log(`[Push API] Fetch completed in ${fetchDuration}ms, status: ${response.status}`);
     if (!response.ok) {
-      console.error("Expo Push API error:", response.status);
+      const errorText = await response.text().catch(() => "Unknown error");
+      console.error(`[Push API] Expo Push API error: ${response.status} - ${errorText}`);
       return [];
     }
     const result = await response.json();
+    const totalDuration = Date.now() - apiStart;
+    const successCount = result.data.filter((t4) => t4.status === "ok").length;
+    const errorCount = result.data.filter((t4) => t4.status === "error").length;
+    console.log(`[Push API] Success: ${successCount} sent, ${errorCount} failed (total: ${totalDuration}ms)`);
+    if (errorCount > 0) {
+      console.log(`[Push API] Error details:`, JSON.stringify(result.data.filter((t4) => t4.status === "error")));
+    }
     return result.data;
   } catch (error2) {
-    console.error("Failed to send push notification:", error2);
+    console.error("[Push API] Failed to send push notification:", error2);
+    console.error("[Push API] Error details:", error2 instanceof Error ? error2.message : String(error2));
+    console.error("[Push API] Error stack:", error2 instanceof Error ? error2.stack : "No stack trace");
     return [];
   }
 }
@@ -45864,9 +45878,14 @@ async function handler(event) {
         timestamp: (/* @__PURE__ */ new Date()).toISOString()
       };
       await putItem(NEWSFLASHES_TABLE, newsflash);
-      notifyFriendsOfNewsflash(userId, headline).catch(
-        (err2) => console.error("Failed to notify friends:", err2)
-      );
+      console.log(`[Newsflash] Created newsflash ${newsflash.id}, triggering push notifications`);
+      try {
+        await notifyFriendsOfNewsflash(userId, headline);
+        console.log(`[Newsflash] Push notification completed for newsflash ${newsflash.id}`);
+      } catch (err2) {
+        console.error("[Newsflash] Failed to notify friends:", err2);
+        console.error("[Newsflash] Error stack:", err2 instanceof Error ? err2.stack : "No stack trace");
+      }
       return successResponse({ newsflash }, 201);
     }
     if (method === "DELETE" && path.startsWith("/newsflashes/") && event.pathParameters?.id) {
@@ -45903,20 +45922,50 @@ async function handleDeleteNewsflash(event) {
   return successResponse({ message: "Newsflash deleted" });
 }
 async function notifyFriendsOfNewsflash(userId, headline) {
-  const allFriendships = await scanTable(FRIENDSHIPS_TABLE);
-  const friendIds = allFriendships.filter((f4) => f4.userId === userId && f4.status === "accepted").map((f4) => f4.friendId);
-  if (friendIds.length === 0) return;
-  const user = await getItem(USERS_TABLE, { id: userId });
-  const userName = user?.name || "Someone";
-  const allTokens = await scanTable(DEVICE_TOKENS_TABLE);
-  const friendTokens = allTokens.filter((t4) => friendIds.includes(t4.userId)).map((t4) => t4.expoPushToken);
-  if (friendTokens.length === 0) return;
-  await sendPushToTokens(
-    friendTokens,
-    `${userName} posted`,
-    headline.length > 50 ? headline.substring(0, 47) + "..." : headline,
-    { type: "newsflash", userId }
-  );
+  try {
+    console.log(`[Push] Starting notification for user ${userId}`);
+    const queryStart = Date.now();
+    const friendships = await queryItems(
+      FRIENDSHIPS_TABLE,
+      void 0,
+      // Use primary key, not GSI
+      "userId = :userId",
+      { ":userId": userId }
+    );
+    const friendIds = friendships.filter((f4) => f4.status === "accepted").map((f4) => f4.friendId);
+    console.log(`[Push] Found ${friendIds.length} friends in ${Date.now() - queryStart}ms`);
+    if (friendIds.length === 0) {
+      return;
+    }
+    const user = await getItem(USERS_TABLE, { id: userId });
+    const userName = user?.name || "Someone";
+    const tokenStart = Date.now();
+    const tokenQueries = friendIds.map(
+      (friendId) => queryItems(
+        DEVICE_TOKENS_TABLE,
+        void 0,
+        "userId = :userId",
+        { ":userId": friendId }
+      )
+    );
+    const tokenResults = await Promise.all(tokenQueries);
+    const friendTokens = tokenResults.flat().map((t4) => t4.expoPushToken).filter(Boolean);
+    console.log(`[Push] Found ${friendTokens.length} tokens in ${Date.now() - tokenStart}ms`);
+    if (friendTokens.length === 0) {
+      return;
+    }
+    const sendStart = Date.now();
+    const results = await sendPushToTokens(
+      friendTokens,
+      `Newsflash From ${userName}`,
+      headline,
+      { type: "newsflash", userId }
+    );
+    console.log(`[Push] Sent in ${Date.now() - sendStart}ms. Results: ${JSON.stringify(results)}`);
+  } catch (error2) {
+    console.error(`[Push] Error:`, error2);
+    throw error2;
+  }
 }
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
