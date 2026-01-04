@@ -34058,10 +34058,57 @@ function withAuth(handler2) {
   };
 }
 
+// src/utils/push.ts
+var EXPO_PUSH_API = "https://exp.host/--/api/v2/push/send";
+async function sendPushNotification(message) {
+  const messages = Array.isArray(message.to) ? message.to.map((token) => ({ ...message, to: token })) : [message];
+  const validMessages = messages.filter(
+    (m4) => typeof m4.to === "string" && m4.to.startsWith("ExponentPushToken[")
+  );
+  if (validMessages.length === 0) {
+    console.log("No valid Expo push tokens to send to");
+    return [];
+  }
+  try {
+    const response = await fetch(EXPO_PUSH_API, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Accept-Encoding": "gzip, deflate",
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(validMessages)
+    });
+    if (!response.ok) {
+      console.error("Expo Push API error:", response.status);
+      return [];
+    }
+    const result = await response.json();
+    return result.data;
+  } catch (error2) {
+    console.error("Failed to send push notification:", error2);
+    return [];
+  }
+}
+async function sendPushToTokens(tokens, title, body, data2) {
+  if (!tokens || tokens.length === 0) {
+    return [];
+  }
+  return sendPushNotification({
+    to: tokens,
+    title,
+    body,
+    data: data2,
+    sound: "default",
+    channelId: "default"
+  });
+}
+
 // src/handlers/friendships.ts
 var FRIENDSHIPS_TABLE = process.env.FRIENDSHIPS_TABLE || "friendlines-friendships";
 var USERS_TABLE = process.env.USERS_TABLE || "friendlines-users";
 var GROUPS_TABLE = process.env.GROUPS_TABLE || "friendlines-groups";
+var DEVICE_TOKENS_TABLE = process.env.DEVICE_TOKENS_TABLE || "friendlines-device-tokens";
 async function handler(event) {
   return withAuth(async (authenticatedEvent) => {
     console.log("Friendships Event:", JSON.stringify(authenticatedEvent, null, 2));
@@ -34176,6 +34223,9 @@ async function handleAcceptRequest(userId, requestId) {
     updatedAt: now
   };
   await putItem(FRIENDSHIPS_TABLE, reverseRequest);
+  notifyFriendAccepted(initiatorId, receiverId).catch(
+    (err2) => console.error("Failed to notify friend accepted:", err2)
+  );
   return successResponse({ message: "Friend request accepted" });
 }
 async function handleRejectRequest(userId, requestId) {
@@ -34269,6 +34319,9 @@ async function handleSendRequest(event, userId) {
     updatedAt: now
   };
   await putItem(FRIENDSHIPS_TABLE, friendship);
+  notifyFriendRequest(friendId, userId).catch(
+    (err2) => console.error("Failed to notify friend request:", err2)
+  );
   return successResponse({ friendship }, 201);
 }
 async function handleRemoveFriend(userId, friendId) {
@@ -34319,6 +34372,32 @@ async function removeFriendFromUserGroups(userId, friendId) {
     }
     throw error2;
   }
+}
+async function notifyFriendRequest(recipientId, senderId) {
+  const sender = await getItem(USERS_TABLE, { id: senderId });
+  const senderName = sender?.name || "Someone";
+  const allTokens = await scanTable(DEVICE_TOKENS_TABLE);
+  const recipientTokens = allTokens.filter((t4) => t4.userId === recipientId).map((t4) => t4.expoPushToken);
+  if (recipientTokens.length === 0) return;
+  await sendPushToTokens(
+    recipientTokens,
+    "New Friend Request",
+    `${senderName} sent you a friend request`,
+    { type: "friend_request", senderId }
+  );
+}
+async function notifyFriendAccepted(initiatorId, accepterId) {
+  const accepter = await getItem(USERS_TABLE, { id: accepterId });
+  const accepterName = accepter?.name || "Someone";
+  const allTokens = await scanTable(DEVICE_TOKENS_TABLE);
+  const initiatorTokens = allTokens.filter((t4) => t4.userId === initiatorId).map((t4) => t4.expoPushToken);
+  if (initiatorTokens.length === 0) return;
+  await sendPushToTokens(
+    initiatorTokens,
+    "Friend Request Accepted",
+    `${accepterName} accepted your friend request`,
+    { type: "friend_accepted", accepterId }
+  );
 }
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {

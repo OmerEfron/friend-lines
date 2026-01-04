@@ -38,6 +38,7 @@ Globals:
         GROUPS_TABLE: !Ref GroupsTable
         FRIENDSHIPS_TABLE: !Ref FriendshipsTable
         BOOKMARKS_TABLE: !Ref BookmarksTable
+        DEVICE_TOKENS_TABLE: !Ref DeviceTokensTable
         MEDIA_BUCKET: !Ref MediaBucket
         ENVIRONMENT: !Ref Environment
         IS_LOCAL: !If [IsProduction, 'false', 'true']
@@ -133,6 +134,22 @@ Resources:
         - AttributeName: userId
           KeyType: HASH
         - AttributeName: newsflashId
+          KeyType: RANGE
+      BillingMode: PAY_PER_REQUEST
+
+  DeviceTokensTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: friendlines-device-tokens
+      AttributeDefinitions:
+        - AttributeName: userId
+          AttributeType: S
+        - AttributeName: deviceId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: userId
+          KeyType: HASH
+        - AttributeName: deviceId
           KeyType: RANGE
       BillingMode: PAY_PER_REQUEST
 
@@ -258,6 +275,12 @@ Resources:
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref NewsflashesTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref FriendshipsTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UsersTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref DeviceTokensTable
         - S3CrudPolicy:
             BucketName: !Ref MediaBucket
       Events:
@@ -291,6 +314,8 @@ Resources:
             TableName: !Ref FriendshipsTable
         - DynamoDBCrudPolicy:
             TableName: !Ref UsersTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref DeviceTokensTable
       Events:
         GetReceivedRequests:
           Type: Api
@@ -485,6 +510,35 @@ Resources:
           Properties:
             RestApiId: !Ref FriendlinesApi
             Path: /bookmarks/{newsflashId}
+            Method: DELETE
+
+  DevicesFunction:
+    Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: false
+        Target: "es2022"
+        EntryPoints:
+          - src/handlers/devices.ts
+    Properties:
+      CodeUri: ./
+      Handler: src/handlers/devices.handler
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref DeviceTokensTable
+      Events:
+        RegisterToken:
+          Type: Api
+          Properties:
+            RestApiId: !Ref FriendlinesApi
+            Path: /devices/token
+            Method: POST
+        RemoveToken:
+          Type: Api
+          Properties:
+            RestApiId: !Ref FriendlinesApi
+            Path: /devices/token
             Method: DELETE
 
 Outputs:

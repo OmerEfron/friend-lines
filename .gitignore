@@ -39,3 +39,6 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# Note: google-services.json should be committed (contains client-side config)
+# The FCM server key is uploaded separately via EAS credentials and should NOT be committed

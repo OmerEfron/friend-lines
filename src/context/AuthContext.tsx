@@ -6,6 +6,11 @@ import React, {
   ReactNode,
 } from 'react';
 import * as authService from '../services/auth';
+import {
+  registerForPushNotificationsAsync,
+  registerPushTokenWithBackend,
+  removePushTokenFromBackend,
+} from '../services/notifications';
 
 interface User {
   id: string;
@@ -43,6 +48,17 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const registerPushNotifications = async () => {
+    try {
+      const pushToken = await registerForPushNotificationsAsync();
+      if (pushToken) {
+        await registerPushTokenWithBackend(pushToken);
+      }
+    } catch (error) {
+      console.error('Failed to register push notifications:', error);
+    }
+  };
+
   // Auto-login from stored token
   useEffect(() => {
     loadStoredAuth();
@@ -59,6 +75,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
           const currentUser = await authService.getCurrentUser(storedToken);
           setToken(storedToken);
           setUser(currentUser);
+          // Re-register push notifications on app restart
+          registerPushNotifications();
         } catch (error) {
           // Token invalid, clear storage
           await authService.logout();
@@ -75,6 +93,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
     const response = await authService.login(email, password);
     setToken(response.token);
     setUser(response.user);
+    // Register for push notifications after login
+    registerPushNotifications();
   };
 
   const register = async (data: {
@@ -86,9 +106,17 @@ export function AuthProvider({ children }: AuthProviderProps) {
     const response = await authService.register(data);
     setToken(response.token);
     setUser(response.user);
+    // Register for push notifications after registration
+    registerPushNotifications();
   };
 
   const logout = async () => {
+    // Remove push token before logout
+    try {
+      await removePushTokenFromBackend();
+    } catch (error) {
+      console.error('Failed to remove push token:', error);
+    }
     await authService.logout();
     setToken(null);
     setUser(null);

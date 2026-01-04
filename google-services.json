@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "729653922658",
+    "project_id": "friend-lines",
+    "storage_bucket": "friend-lines.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:729653922658:android:4d45878f178d746d213a3b",
+        "android_client_info": {
+          "package_name": "com.friendlines.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDvrIoA_sARASMccRtuOIKwjXdyDahtux0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:729653922658:android:d24f62640036526e213a3b",
+        "android_client_info": {
+          "package_name": "com.omerefron.friendlines"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDvrIoA_sARASMccRtuOIKwjXdyDahtux0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
