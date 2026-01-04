@@ -22,15 +22,27 @@ export default function NewsflashCard({ newsflash, user }: NewsflashCardProps) {
     }).start();
   }, [fadeAnim]);
   
-  const formatTime = (date: Date) => {
+  const getTimeInfo = (date: Date) => {
     const now = new Date();
     const diff = now.getTime() - date.getTime();
+    const minutes = Math.floor(diff / (1000 * 60));
     const hours = Math.floor(diff / (1000 * 60 * 60));
     const days = Math.floor(hours / 24);
 
-    if (days > 0) return `${days}d ago`;
-    if (hours > 0) return `${hours}h ago`;
-    return 'Just now';
+    const isJustIn = minutes < 60;
+    let timeText: string;
+
+    if (days > 0) {
+      timeText = `Filed ${days}d ago`;
+    } else if (hours > 0) {
+      timeText = `Filed ${hours}h ago`;
+    } else if (minutes > 0) {
+      timeText = `Filed ${minutes}m ago`;
+    } else {
+      timeText = 'Filed just now';
+    }
+
+    return { isJustIn, timeText };
   };
 
   const getInitials = (name: string) => {
@@ -43,11 +55,17 @@ export default function NewsflashCard({ newsflash, user }: NewsflashCardProps) {
   };
 
   const bookmarked = isBookmarked(newsflash.id);
+  const { isJustIn, timeText } = getTimeInfo(newsflash.timestamp);
 
   return (
     <Animated.View style={{ opacity: fadeAnim }}>
       <Card style={styles.card} mode="contained">
         <Card.Content>
+          {isJustIn && (
+            <View style={[styles.justInBadge, { backgroundColor: theme.colors.error }]}>
+              <Text style={styles.justInText}>JUST IN</Text>
+            </View>
+          )}
           <View style={styles.header}>
             <View style={styles.userInfo}>
               <Avatar.Text 
@@ -55,13 +73,18 @@ export default function NewsflashCard({ newsflash, user }: NewsflashCardProps) {
                 label={getInitials(user.name)}
                 style={{ backgroundColor: theme.colors.primaryContainer }}
               />
-              <Text variant="labelMedium" style={styles.username}>
-                @{user.username}
-              </Text>
+              <View style={styles.userMeta}>
+                <Text variant="labelMedium" style={styles.username}>
+                  @{user.username}
+                </Text>
+                <Text variant="labelSmall" style={styles.correspondent}>
+                  Correspondent
+                </Text>
+              </View>
             </View>
             <View style={styles.headerRight}>
               <Text variant="labelSmall" style={styles.time}>
-                {formatTime(newsflash.timestamp)}
+                {timeText}
               </Text>
               <IconButton
                 icon={bookmarked ? 'bookmark' : 'bookmark-outline'}
@@ -99,6 +122,19 @@ const styles = StyleSheet.create({
   card: {
     marginBottom: 8,
   },
+  justInBadge: {
+    alignSelf: 'flex-start',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 4,
+    marginBottom: 10,
+  },
+  justInText: {
+    color: 'white',
+    fontSize: 11,
+    fontWeight: '800',
+    letterSpacing: 0.5,
+  },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -111,6 +147,9 @@ const styles = StyleSheet.create({
     gap: 8,
     flex: 1,
   },
+  userMeta: {
+    flexDirection: 'column',
+  },
   headerRight: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -118,6 +157,12 @@ const styles = StyleSheet.create({
   },
   username: {
     fontWeight: '600',
+  },
+  correspondent: {
+    opacity: 0.5,
+    fontSize: 10,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
   time: {
     opacity: 0.6,
