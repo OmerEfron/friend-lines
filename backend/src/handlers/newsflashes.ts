@@ -4,7 +4,7 @@ import { putItem, scanTable, queryItems, getItem, deleteItem } from '../utils/dy
 import { uploadFile } from '../utils/s3';
 import { successResponse, errorResponse } from '../utils/response';
 import { withAuth, AuthenticatedEvent } from '../utils/middleware';
-import { sendPushToTokens } from '../utils/push';
+import { notifyFriendsOfNewsflash } from '../utils/newsflash-notify';
 
 const NEWSFLASHES_TABLE =
   process.env.NEWSFLASHES_TABLE || 'friendlines-newsflashes';
@@ -16,34 +16,39 @@ const DEVICE_TOKENS_TABLE =
   process.env.DEVICE_TOKENS_TABLE || 'friendlines-device-tokens';
 const MEDIA_BUCKET = process.env.MEDIA_BUCKET || 'friendlines-media-local';
 
+// Valid categories for newsflashes
+const VALID_CATEGORIES = [
+  'GENERAL',
+  'LIFESTYLE',
+  'ENTERTAINMENT',
+  'SPORTS',
+  'FOOD',
+  'TRAVEL',
+  'OPINION',
+] as const;
+type NewsCategory = (typeof VALID_CATEGORIES)[number];
+
+// Severity levels
+const VALID_SEVERITIES = ['STANDARD', 'BREAKING', 'DEVELOPING'] as const;
+type NewsSeverity = (typeof VALID_SEVERITIES)[number];
+
+// Rate limit: 1 BREAKING per 24 hours
+const BREAKING_COOLDOWN_MS = 24 * 60 * 60 * 1000;
+
 interface Newsflash {
   id: string;
   userId: string;
   headline: string;
   subHeadline?: string;
   media?: string;
+  category?: NewsCategory;
+  severity?: NewsSeverity;
   timestamp: string;
 }
 
 interface Bookmark {
   userId: string;
   newsflashId: string;
-}
-
-interface Friendship {
-  userId: string;
-  friendId: string;
-  status: string;
-}
-
-interface User {
-  id: string;
-  name: string;
-}
-
-interface DeviceToken {
-  userId: string;
-  expoPushToken: string;
 }
 
 export async function handler(
@@ -87,20 +92,39 @@ export async function handler(
       }
 
       const body = JSON.parse(event.body);
-      const { userId, headline, subHeadline, mediaBase64, media } = body;
+      const { userId, headline, subHeadline, mediaBase64, media, category, severity } = body;
 
       if (!userId || !headline) {
         return errorResponse('userId and headline are required', 400);
+      }
+
+      // Validate category if provided
+      const validCategory: NewsCategory = category && VALID_CATEGORIES.includes(category)
+        ? category
+        : 'GENERAL';
+
+      // Validate severity if provided
+      const validSeverity: NewsSeverity = severity && VALID_SEVERITIES.includes(severity)
+        ? severity
+        : 'STANDARD';
+
+      // Rate limit BREAKING news: 1 per 24 hours
+      if (validSeverity === 'BREAKING') {
+        const rateLimitResult = await checkBreakingRateLimit(userId);
+        if (!rateLimitResult.allowed) {
+          return errorResponse(
+            `Hold the presses! You've already filed BREAKING news today. Save the drama for tomorrow.`,
+            429
+          );
+        }
       }
 
       let mediaUrl: string | undefined;
 
       // Handle media: use provided URL or upload base64
       if (media) {
-        // Use pre-uploaded media URL (from presigned URL upload)
         mediaUrl = media;
       } else if (mediaBase64) {
-        // Legacy: upload base64 encoded image
         const mediaId = uuidv4();
         const buffer = Buffer.from(mediaBase64, 'base64');
         mediaUrl = await uploadFile(
@@ -117,6 +141,8 @@ export async function handler(
         headline,
         subHeadline: subHeadline || undefined,
         media: mediaUrl,
+        category: validCategory,
+        severity: validSeverity,
         timestamp: new Date().toISOString(),
       };
 
@@ -128,7 +154,7 @@ export async function handler(
       console.log(`[Newsflash] Created newsflash ${newsflash.id}, triggering push notifications`);
       
       try {
-        await notifyFriendsOfNewsflash(userId, headline);
+        await notifyFriendsOfNewsflash(userId, headline, validSeverity);
         console.log(`[Newsflash] Push notification completed for newsflash ${newsflash.id}`);
       } catch (err) {
         // Don't fail the request if push notification fails
@@ -196,73 +222,21 @@ async function handleDeleteNewsflash(
 }
 
 /**
- * Send push notifications to friends when a newsflash is created
+ * Check if user can post BREAKING news (rate limit: 1 per 24 hours)
  */
-async function notifyFriendsOfNewsflash(
-  userId: string,
-  headline: string
-): Promise<void> {
-  try {
-    console.log(`[Push] Starting notification for user ${userId}`);
-    
-    // Query friendships by userId (primary key) - much faster than scan
-    const queryStart = Date.now();
-    const friendships = (await queryItems(
-      FRIENDSHIPS_TABLE,
-      undefined, // Use primary key, not GSI
-      'userId = :userId',
-      { ':userId': userId }
-    )) as Friendship[];
-    
-    const friendIds = friendships
-      .filter((f) => f.status === 'accepted')
-      .map((f) => f.friendId);
-    
-    console.log(`[Push] Found ${friendIds.length} friends in ${Date.now() - queryStart}ms`);
-  
-    if (friendIds.length === 0) {
-      return;
-    }
+async function checkBreakingRateLimit(userId: string): Promise<{ allowed: boolean }> {
+  const userNewsflashes = await queryItems(
+    NEWSFLASHES_TABLE,
+    'userId-timestamp-index',
+    'userId = :userId',
+    { ':userId': userId }
+  ) as Newsflash[];
 
-    // Get user's name for notification
-    const user = (await getItem(USERS_TABLE, { id: userId })) as User | undefined;
-    const userName = user?.name || 'Someone';
+  const cutoff = Date.now() - BREAKING_COOLDOWN_MS;
+  const recentBreaking = userNewsflashes.find(
+    (n) => n.severity === 'BREAKING' && new Date(n.timestamp).getTime() > cutoff
+  );
 
-    // Query device tokens for each friend in parallel
-    const tokenStart = Date.now();
-    const tokenQueries = friendIds.map((friendId) =>
-      queryItems(
-        DEVICE_TOKENS_TABLE,
-        undefined,
-        'userId = :userId',
-        { ':userId': friendId }
-      )
-    );
-    const tokenResults = await Promise.all(tokenQueries);
-    
-    const friendTokens = tokenResults
-      .flat()
-      .map((t) => (t as DeviceToken).expoPushToken)
-      .filter(Boolean);
-    
-    console.log(`[Push] Found ${friendTokens.length} tokens in ${Date.now() - tokenStart}ms`);
-
-    if (friendTokens.length === 0) {
-      return;
-    }
-
-    // Send notification
-    const sendStart = Date.now();
-    const results = await sendPushToTokens(
-      friendTokens,
-      `Newsflash From ${userName}`,
-      headline,
-      { type: 'newsflash', userId }
-    );
-    console.log(`[Push] Sent in ${Date.now() - sendStart}ms. Results: ${JSON.stringify(results)}`);
-  } catch (error) {
-    console.error(`[Push] Error:`, error);
-    throw error;
-  }
+  return { allowed: !recentBreaking };
 }
 
