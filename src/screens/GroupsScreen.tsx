@@ -1,5 +1,5 @@
-import React from 'react';
-import { StyleSheet, FlatList } from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet, FlatList, RefreshControl } from 'react-native';
 import { Surface, List, useTheme, FAB } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -16,7 +16,14 @@ type NavigationProp = NativeStackNavigationProp<GroupStackParamList, 'GroupsList
 export default function GroupsScreen() {
   const navigation = useNavigation<NavigationProp>();
   const theme = useTheme();
-  const { groups } = useData();
+  const { groups, refreshGroups } = useData();
+  const [refreshing, setRefreshing] = useState(false);
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await refreshGroups();
+    setRefreshing(false);
+  };
 
   const handleGroupPress = (group: Group) => {
     navigation.navigate('GroupFeed', { group });
@@ -45,6 +52,14 @@ export default function GroupsScreen() {
         data={groups}
         keyExtractor={(item) => item.id}
         renderItem={renderGroup}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={handleRefresh}
+            tintColor={theme.colors.primary}
+            colors={[theme.colors.primary]}
+          />
+        }
         contentContainerStyle={styles.listContainer}
       />
       <FAB

@@ -17,25 +17,32 @@ export default function GroupFeedScreen({ route }: GroupFeedScreenProps) {
   const { group } = route.params;
   const [newsflashes, setNewsflashes] = useState<Newsflash[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const loadGroupFeed = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const { newsflashes: feedData } = await fetchGroupFeed(group.id);
-        setNewsflashes(feedData);
-      } catch (err) {
-        console.error('Failed to load group feed:', err);
-        setError(err instanceof Error ? err.message : 'Failed to load feed');
-      } finally {
-        setLoading(false);
-      }
-    };
+  const loadGroupFeed = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const { newsflashes: feedData } = await fetchGroupFeed(group.id);
+      setNewsflashes(feedData);
+    } catch (err) {
+      console.error('Failed to load group feed:', err);
+      setError(err instanceof Error ? err.message : 'Failed to load feed');
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     loadGroupFeed();
   }, [group.id]);
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await loadGroupFeed();
+    setRefreshing(false);
+  };
 
   if (loading) {
     return (
@@ -55,7 +62,11 @@ export default function GroupFeedScreen({ route }: GroupFeedScreenProps) {
 
   return (
     <Surface style={styles.container}>
-      <FeedList newsflashes={newsflashes} />
+      <FeedList 
+        newsflashes={newsflashes}
+        refreshing={refreshing}
+        onRefresh={handleRefresh}
+      />
     </Surface>
   );
 }

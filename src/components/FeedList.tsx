@@ -1,5 +1,5 @@
 import React from 'react';
-import { FlatList, StyleSheet, View } from 'react-native';
+import { FlatList, StyleSheet, View, RefreshControl } from 'react-native';
 import { Text, useTheme, ActivityIndicator, Button } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import { Newsflash } from '../types';
@@ -10,6 +10,8 @@ interface FeedListProps {
   onEndReached?: () => void;
   loadingMore?: boolean;
   showActions?: boolean;
+  refreshing?: boolean;
+  onRefresh?: () => void;
 }
 
 export default function FeedList({
@@ -17,6 +19,8 @@ export default function FeedList({
   onEndReached,
   loadingMore,
   showActions = true,
+  refreshing = false,
+  onRefresh,
 }: FeedListProps) {
   const theme = useTheme();
   const navigation = useNavigation();
@@ -77,6 +81,16 @@ export default function FeedList({
       ListFooterComponent={renderFooter}
       onEndReached={onEndReached}
       onEndReachedThreshold={0.5}
+      refreshControl={
+        onRefresh ? (
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={theme.colors.primary}
+            colors={[theme.colors.primary]}
+          />
+        ) : undefined
+      }
       contentContainerStyle={[
         styles.contentContainer,
         newsflashes.length === 0 && styles.emptyList,
