@@ -42,3 +42,7 @@ yarn-error.*
 
 # Note: google-services.json should be committed (contains client-side config)
 # The FCM server key is uploaded separately via EAS credentials and should NOT be committed
+
+# Firebase service account keys (contain secrets - DO NOT COMMIT)
+*-firebase-adminsdk-*.json
+firebase-adminsdk-*.json
