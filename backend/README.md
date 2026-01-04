@@ -1,6 +1,6 @@
 # Friendlines Backend
 
-Local serverless backend using AWS SAM.
+Serverless backend using AWS SAM with Lambda, DynamoDB, and S3.
 
 ## Prerequisites
 
@@ -11,43 +11,65 @@ Local serverless backend using AWS SAM.
 
 ## Quick Start
 
-1. Install dependencies:
 ```bash
-cd backend
+# Install dependencies
 npm install
-```
 
-2. Start local backend (one command):
-```bash
+# From project root, start local backend
 cd ..
 ./scripts/setup-local-backend.sh
 ```
 
 This will:
-- Start DynamoDB Local
-- Start LocalStack (S3)
-- Create tables and buckets
+- Start DynamoDB Local on port 8000
+- Start LocalStack (S3) on port 4566
+- Create all DynamoDB tables and S3 bucket
 - Build the SAM application
 
-3. Start the API (in a new terminal):
+Then start the API:
+
 ```bash
-cd backend
-sam local start-api --docker-network friendlines-net
+./scripts/start-api.sh
 ```
 
-4. Test the API (in another terminal):
+API available at `http://localhost:3000`
+
+## Development
+
 ```bash
-./scripts/test-api.sh
+# Build after code changes
+sam build
+
+# Start API with env vars
+sam local start-api --docker-network friendlines-net --env-vars env.json
+
+# Run tests
+../scripts/test-full-api.sh
 ```
 
 ## API Endpoints
 
-- `GET /users` - List all users
-- `POST /users` - Create a user
-- `GET /users/{id}` - Get user by ID
-- `GET /newsflashes` - List all newsflashes
-- `GET /newsflashes?userId={id}` - List newsflashes by user
-- `POST /newsflashes` - Create a newsflash
+See [API Documentation](../docs/API_DOCUMENTATION.md) for complete reference.
+
+### Authentication
+- `POST /auth/register` - Register new user
+- `POST /auth/login` - Login
+- `GET /auth/me` - Get current user
+
+### Resources
+- `/users` - User management
+- `/newsflashes` - Newsflash CRUD
+- `/friendships` - Friendship management
+- `/friend-requests` - Friend request flow
+- `/groups` - Group management
+- `/feeds` - Main and group feeds
+- `/bookmarks` - Bookmark management
+- `/devices` - Push notification tokens
+- `/uploads` - S3 presigned URLs
+
+## Deployment
+
+See [AWS Deployment Guide](../docs/AWS_DEPLOYMENT.md) for production deployment.
 
 ## Cleanup
 
