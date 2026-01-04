@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView, KeyboardAvoidingView, Platform, Alert } from 'react-native';
 import { Surface, TextInput, Button, useTheme, Text, IconButton, Card, Chip } from 'react-native-paper';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
 import { useData } from '../context/DataContext';
 import { useNavigation } from '@react-navigation/native';
@@ -23,6 +24,7 @@ const HEADLINE_STARTERS = [
 export default function CreateNewsflashScreen() {
   const theme = useTheme();
   const navigation = useNavigation();
+  const insets = useSafeAreaInsets();
   const { addNewsflash, currentUser } = useData();
   
   const [headline, setHeadline] = useState('');
@@ -201,7 +203,13 @@ export default function CreateNewsflashScreen() {
         </ScrollView>
 
         {/* Bottom Actions - Fixed */}
-        <View style={[styles.bottomBar, { borderTopColor: theme.colors.outlineVariant }]}>
+        <View style={[
+          styles.bottomBar, 
+          { 
+            borderTopColor: theme.colors.outlineVariant,
+            paddingBottom: Math.max(16, insets.bottom),
+          }
+        ]}>
           <Button mode="text" onPress={() => navigation.goBack()} disabled={isSubmitting}>
             Cancel
           </Button>
