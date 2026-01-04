@@ -1,9 +1,10 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
-import { View, StyleSheet, Animated, LayoutChangeEvent, Platform } from 'react-native';
+import { View, StyleSheet, Animated, LayoutChangeEvent, Platform, Dimensions } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import { Newsflash } from '../types';
 
-const TICKER_SPEED = 50; // pixels per second
+const TICKER_SPEED = 60; // pixels per second
+const SCREEN_WIDTH = Dimensions.get('window').width;
 
 interface NewsTickerProps {
   newsflashes: Newsflash[];
@@ -11,8 +12,8 @@ interface NewsTickerProps {
 
 export default function NewsTicker({ newsflashes }: NewsTickerProps) {
   const theme = useTheme();
-  const scrollAnim = useRef(new Animated.Value(0)).current;
-  const [contentWidth, setContentWidth] = useState(0);
+  const scrollAnim = useRef(new Animated.Value(SCREEN_WIDTH)).current;
+  const [textWidth, setTextWidth] = useState(0);
   const [isReady, setIsReady] = useState(false);
   const animationRef = useRef<Animated.CompositeAnimation | null>(null);
 
@@ -26,39 +27,39 @@ export default function NewsTicker({ newsflashes }: NewsTickerProps) {
       return `${prefix}${userName}: ${n.headline}`;
     });
 
-  const tickerText = headlines.length > 0 ? headlines.join('   •   ') + '   •   ' : '';
+  const tickerText = headlines.length > 0 ? headlines.join('   •   ') : '';
 
   const handleLayout = useCallback((e: LayoutChangeEvent) => {
     const width = e.nativeEvent.layout.width;
-    if (width > 0 && width !== contentWidth) {
-      setContentWidth(width);
-      // Small delay to ensure layout is fully settled
+    if (width > 0 && width !== textWidth) {
+      setTextWidth(width);
       setTimeout(() => setIsReady(true), 100);
     }
-  }, [contentWidth]);
+  }, [textWidth]);
 
   useEffect(() => {
-    // Stop any existing animation
     if (animationRef.current) {
       animationRef.current.stop();
       animationRef.current = null;
     }
 
-    if (!isReady || contentWidth === 0 || headlines.length === 0) {
+    if (!isReady || textWidth === 0 || headlines.length === 0) {
       return;
     }
 
-    // Animation: scroll from 0 to -contentWidth (the width of one copy)
-    const duration = (contentWidth / TICKER_SPEED) * 1000;
+    // Classic marquee: start from right edge, scroll left until text exits left
+    // Total distance = screen width + text width (to fully exit)
+    const totalDistance = SCREEN_WIDTH + textWidth;
+    const duration = (totalDistance / TICKER_SPEED) * 1000;
 
-    scrollAnim.setValue(0);
-    
-    // Use native driver on iOS simulator, JS driver on Android/dev builds for compatibility
     const useNative = Platform.OS === 'ios';
+
+    // Start off-screen right, end off-screen left
+    scrollAnim.setValue(SCREEN_WIDTH);
     
     animationRef.current = Animated.loop(
       Animated.timing(scrollAnim, {
-        toValue: -contentWidth,
+        toValue: -textWidth, // Fully exit on left
         duration,
         useNativeDriver: useNative,
       })
@@ -71,12 +72,13 @@ export default function NewsTicker({ newsflashes }: NewsTickerProps) {
         animationRef.current.stop();
       }
     };
-  }, [contentWidth, isReady, headlines.length, scrollAnim]);
+  }, [textWidth, isReady, headlines.length, scrollAnim]);
 
-  // Reset ready state when headlines change
+  // Reset when headlines change
   useEffect(() => {
     setIsReady(false);
-  }, [tickerText]);
+    scrollAnim.setValue(SCREEN_WIDTH);
+  }, [tickerText, scrollAnim]);
 
   if (headlines.length === 0) {
     return null;
@@ -98,15 +100,10 @@ export default function NewsTicker({ newsflashes }: NewsTickerProps) {
             { transform: [{ translateX: scrollAnim }] },
           ]}
         >
-          {/* First copy - measure this one */}
           <Text
             style={[styles.tickerText, { color: textColor }]}
             onLayout={handleLayout}
           >
-            {tickerText}
-          </Text>
-          {/* Second copy for seamless loop */}
-          <Text style={[styles.tickerText, { color: textColor }]}>
             {tickerText}
           </Text>
         </Animated.View>
@@ -139,6 +136,7 @@ const styles = StyleSheet.create({
   },
   tickerContent: {
     flexDirection: 'row',
+    position: 'absolute',
   },
   tickerText: {
     fontSize: 14,
