@@ -3,6 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import { Surface, Searchbar, FAB } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import FeedList from '../components/FeedList';
+import NewsTicker from '../components/NewsTicker';
 import { useData } from '../context/DataContext';
 
 export default function MainFeedScreen() {
@@ -34,6 +35,7 @@ export default function MainFeedScreen() {
 
   return (
     <Surface style={styles.container}>
+      <NewsTicker newsflashes={filteredNewsflashes} />
       <View style={styles.searchContainer}>
         <Searchbar
           placeholder="Search newsflashes..."
