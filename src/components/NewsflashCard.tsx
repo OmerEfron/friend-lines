@@ -1,8 +1,14 @@
 import React, { useEffect, useRef } from 'react';
 import { View, StyleSheet, Animated } from 'react-native';
 import { Card, Text, Avatar, useTheme, IconButton } from 'react-native-paper';
-import { Newsflash, User } from '../types';
+import { Newsflash, User, NewsCategory } from '../types';
 import { useBookmarks } from '../context/BookmarksContext';
+
+// Category icons for display
+const CATEGORY_ICONS: Record<NewsCategory, string> = {
+  GENERAL: '📰', LIFESTYLE: '🏠', ENTERTAINMENT: '🎬',
+  SPORTS: '🏃', FOOD: '🍽️', TRAVEL: '✈️', OPINION: '💬',
+};
 
 interface NewsflashCardProps {
   newsflash: Newsflash;
@@ -13,6 +19,9 @@ export default function NewsflashCard({ newsflash, user }: NewsflashCardProps) {
   const theme = useTheme();
   const { isBookmarked, toggleBookmark } = useBookmarks();
   const fadeAnim = useRef(new Animated.Value(0)).current;
+
+  const isBreaking = newsflash.severity === 'BREAKING';
+  const isDeveloping = newsflash.severity === 'DEVELOPING';
   
   useEffect(() => {
     Animated.timing(fadeAnim, {
@@ -22,50 +31,48 @@ export default function NewsflashCard({ newsflash, user }: NewsflashCardProps) {
     }).start();
   }, [fadeAnim]);
   
-  const getTimeInfo = (date: Date) => {
-    const now = new Date();
-    const diff = now.getTime() - date.getTime();
+  const getTimeText = (date: Date) => {
+    const diff = Date.now() - date.getTime();
     const minutes = Math.floor(diff / (1000 * 60));
     const hours = Math.floor(diff / (1000 * 60 * 60));
     const days = Math.floor(hours / 24);
 
-    const isJustIn = minutes < 60;
-    let timeText: string;
-
-    if (days > 0) {
-      timeText = `Filed ${days}d ago`;
-    } else if (hours > 0) {
-      timeText = `Filed ${hours}h ago`;
-    } else if (minutes > 0) {
-      timeText = `Filed ${minutes}m ago`;
-    } else {
-      timeText = 'Filed just now';
-    }
-
-    return { isJustIn, timeText };
+    if (days > 0) return `Filed ${days}d ago`;
+    if (hours > 0) return `Filed ${hours}h ago`;
+    if (minutes > 0) return `Filed ${minutes}m ago`;
+    return 'Filed just now';
   };
 
   const getInitials = (name: string) => {
-    return name
-      .split(' ')
-      .map(n => n[0])
-      .join('')
-      .toUpperCase()
-      .slice(0, 2);
+    return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
   };
 
   const bookmarked = isBookmarked(newsflash.id);
-  const { isJustIn, timeText } = getTimeInfo(newsflash.timestamp);
+  const timeText = getTimeText(newsflash.timestamp);
+  const categoryIcon = newsflash.category ? CATEGORY_ICONS[newsflash.category] : null;
+
+  const cardStyle = [
+    styles.card,
+    isBreaking && { borderLeftWidth: 4, borderLeftColor: theme.colors.error },
+    isDeveloping && { borderLeftWidth: 4, borderLeftColor: '#FFA000' },
+  ];
 
   return (
     <Animated.View style={{ opacity: fadeAnim }}>
-      <Card style={styles.card} mode="contained">
+      <Card style={cardStyle} mode="contained">
         <Card.Content>
-          {isJustIn && (
-            <View style={[styles.justInBadge, { backgroundColor: theme.colors.error }]}>
-              <Text style={styles.justInText}>JUST IN</Text>
+          {/* Severity Badge */}
+          {isBreaking && (
+            <View style={[styles.severityBadge, { backgroundColor: theme.colors.error }]}>
+              <Text style={styles.severityText}>🔴 BREAKING</Text>
             </View>
           )}
+          {isDeveloping && (
+            <View style={[styles.severityBadge, { backgroundColor: '#FFA000' }]}>
+              <Text style={styles.severityText}>📡 DEVELOPING</Text>
+            </View>
+          )}
+
           <View style={styles.header}>
             <View style={styles.userInfo}>
               <Avatar.Text 
@@ -83,9 +90,8 @@ export default function NewsflashCard({ newsflash, user }: NewsflashCardProps) {
               </View>
             </View>
             <View style={styles.headerRight}>
-              <Text variant="labelSmall" style={styles.time}>
-                {timeText}
-              </Text>
+              {categoryIcon && <Text style={styles.categoryIcon}>{categoryIcon}</Text>}
+              <Text variant="labelSmall" style={styles.time}>{timeText}</Text>
               <IconButton
                 icon={bookmarked ? 'bookmark' : 'bookmark-outline'}
                 size={20}
@@ -107,11 +113,7 @@ export default function NewsflashCard({ newsflash, user }: NewsflashCardProps) {
         </Card.Content>
         
         {newsflash.media && (
-          <Card.Cover 
-            source={{ uri: newsflash.media }} 
-            style={styles.media}
-            resizeMode="cover"
-          />
+          <Card.Cover source={{ uri: newsflash.media }} style={styles.media} resizeMode="cover" />
         )}
       </Card>
     </Animated.View>
@@ -122,14 +124,14 @@ const styles = StyleSheet.create({
   card: {
     marginBottom: 8,
   },
-  justInBadge: {
+  severityBadge: {
     alignSelf: 'flex-start',
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 4,
     marginBottom: 10,
   },
-  justInText: {
+  severityText: {
     color: 'white',
     fontSize: 11,
     fontWeight: '800',
@@ -163,6 +165,9 @@ const styles = StyleSheet.create({
     fontSize: 10,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
+  },
+  categoryIcon: {
+    fontSize: 14,
   },
   time: {
     opacity: 0.6,
