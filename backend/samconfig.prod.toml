@@ -17,7 +17,8 @@ confirm_changeset = true
 resolve_s3 = true
 s3_prefix = "friendlines-backend-prod"
 # Update JwtSecretArn with your actual Secrets Manager secret ARN before deploying
-parameter_overrides = "Environment=prod S3BucketName=friendlines-media-prod JwtSecretArn=arn:aws:secretsmanager:us-east-1:327756948560:secret:friendlines/jwt-secret-q5fjTU"
+# EnableMorningBriefing: set to 'true' only after adding EventBridge permissions (see docs/MORNING_BRIEFING_SETUP.md)
+parameter_overrides = "Environment=prod S3BucketName=friendlines-media-prod JwtSecretArn=arn:aws:secretsmanager:us-east-1:327756948560:secret:friendlines/jwt-secret-q5fjTU EnableMorningBriefing=false"
 
 [default.validate.parameters]
 lint = true

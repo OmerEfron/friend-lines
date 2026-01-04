@@ -10,7 +10,7 @@ Deploy without EventBridge permissions:
 
 ```bash
 cd backend
-sam deploy --config-env prod
+sam deploy --config-file samconfig.prod.toml
 ```
 
 The function will not be created, and deployment will succeed without EventBridge permissions.
@@ -41,18 +41,27 @@ Add the following IAM policy to your deployment user (see `docs/IAM_EVENTBRIDGE_
 }
 ```
 
-**Step 2: Deploy with Parameter**
+**Step 2: Update Config and Deploy**
 
-```bash
-cd backend
-sam deploy --config-env prod --parameter-overrides EnableMorningBriefing=true
+Edit `backend/samconfig.prod.toml` and change:
+```toml
+EnableMorningBriefing=false
+```
+to:
+```toml
+EnableMorningBriefing=true
 ```
 
-Or add to your `samconfig.prod.toml`:
+Then deploy:
+```bash
+cd backend
+sam deploy --config-file samconfig.prod.toml
+```
 
-```toml
-[default.deploy.parameters]
-parameter_overrides = "EnableMorningBriefing=true"
+Or override inline:
+```bash
+cd backend
+sam deploy --config-file samconfig.prod.toml --parameter-overrides "Environment=prod S3BucketName=friendlines-media-prod JwtSecretArn=arn:aws:secretsmanager:us-east-1:327756948560:secret:friendlines/jwt-secret-q5fjTU EnableMorningBriefing=true"
 ```
 
 ## Schedule
