@@ -19,11 +19,14 @@ export default function FeedList({
 
   const renderEmpty = () => (
     <View style={styles.emptyContainer}>
-      <Text variant="bodyLarge" style={styles.emptyText}>
-        No newsflashes yet
+      <Text variant="headlineSmall" style={styles.emptyHeadline}>
+        Slow News Day
+      </Text>
+      <Text variant="bodyMedium" style={styles.emptyText}>
+        Nothing to report from your network.
       </Text>
       <Text variant="bodySmall" style={styles.emptySubtext}>
-        Check back later for updates
+        Check back later or file a report yourself!
       </Text>
     </View>
   );
@@ -72,6 +75,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     paddingTop: 100,
+  },
+  emptyHeadline: {
+    fontWeight: 'bold',
+    marginBottom: 8,
   },
   emptyText: {
     opacity: 0.6,
