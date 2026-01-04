@@ -1,6 +1,7 @@
 import React from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
-import { Text, useTheme, ActivityIndicator } from 'react-native-paper';
+import { Text, useTheme, ActivityIndicator, Button } from 'react-native-paper';
+import { useNavigation } from '@react-navigation/native';
 import { Newsflash } from '../types';
 import NewsflashCard from './NewsflashCard';
 
@@ -8,14 +9,17 @@ interface FeedListProps {
   newsflashes: Newsflash[];
   onEndReached?: () => void;
   loadingMore?: boolean;
+  showActions?: boolean;
 }
 
 export default function FeedList({
   newsflashes,
   onEndReached,
   loadingMore,
+  showActions = true,
 }: FeedListProps) {
   const theme = useTheme();
+  const navigation = useNavigation();
 
   const renderEmpty = () => (
     <View style={styles.emptyContainer}>
@@ -28,6 +32,26 @@ export default function FeedList({
       <Text variant="bodySmall" style={styles.emptySubtext}>
         Check back later or file a report yourself!
       </Text>
+      {showActions && (
+        <View style={styles.emptyActions}>
+          <Button
+            mode="contained"
+            icon="pencil"
+            onPress={() => navigation.navigate('CreateNewsflash' as never)}
+            style={styles.actionButton}
+          >
+            File a Report
+          </Button>
+          <Button
+            mode="outlined"
+            icon="account-plus"
+            onPress={() => navigation.navigate('AddFriend' as never)}
+            style={styles.actionButton}
+          >
+            Find Correspondents
+          </Button>
+        </View>
+      )}
     </View>
   );
 
@@ -86,6 +110,13 @@ const styles = StyleSheet.create({
   },
   emptySubtext: {
     opacity: 0.4,
+  },
+  emptyActions: {
+    marginTop: 24,
+    gap: 12,
+  },
+  actionButton: {
+    minWidth: 180,
   },
   footerLoader: {
     paddingVertical: 20,
