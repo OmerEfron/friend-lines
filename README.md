@@ -1,100 +1,111 @@
 # Friendlines
 
-A minimal social network app with a news aesthetic. Share newsflashes with friends in a clean, headline-focused interface with a modern Material Design 3 red theme.
+A minimal social network mobile app with a news aesthetic. Share newsflashes with friends in a clean, headline-focused interface.
 
 ## Features
 
-- **Main Feed**: View newsflashes from all your friends, sorted by time
-- **Groups**: Organize friends into custom groups and view group-specific feeds
-- **My Profile**: See all your own newsflashes with statistics
-- **News-Style Design**: Bold typography emphasizing headlines and subheadlines
-- **Material Design 3**: Modern UI with red accent colors and smooth interactions
-
-## Design Highlights
-
-- **Primary Color**: Deep Red (#D32F2F) for branding and key actions
-- **Material You**: Implements Material Design 3 with custom theming
-- **Cards**: Elevated newsflash cards with avatars and timestamps
-- **Icons**: Material Community Icons throughout the interface
-- **Typography**: Strong hierarchy with headline variants for news-style presentation
-
-## Entities
-
-- **Users**: People in the network
-- **Friendships**: Connections between users
-- **Newsflash**: A post containing headline, optional subheadline, optional media, and timestamp
-- **Groups**: Custom user-defined collections of friends
+- **Authentication**: Register/login with JWT tokens
+- **Main Feed**: View newsflashes from your friends, sorted by time
+- **Groups**: Create personal groups to organize friends and view group-specific feeds
+- **Friend Requests**: Send, accept, and reject friend requests
+- **Profile**: Edit your profile, upload avatar, view your newsflashes
+- **Bookmarks**: Save newsflashes for later (cloud-synced)
+- **Push Notifications**: Get notified about new newsflashes and friend requests
+- **Media Uploads**: Attach images to newsflashes via S3
 
 ## Tech Stack
 
+### Frontend
 - **React Native (Expo)**: Cross-platform mobile framework
 - **TypeScript**: Type-safe development
-- **React Navigation**: Bottom Tabs + Stack navigation
+- **React Navigation**: Tab + Stack navigation
 - **React Native Paper**: Material Design 3 components
-- **Material Community Icons**: Comprehensive icon library
-- **Mock data**: UI-only, no backend yet
 
-## Project Structure
+### Backend
+- **AWS Lambda**: Serverless compute
+- **AWS API Gateway**: REST API
+- **AWS DynamoDB**: NoSQL database
+- **AWS S3**: Media storage
+- **AWS SAM**: Infrastructure as Code
 
-```
-src/
-├── components/       # Reusable UI components
-│   ├── FeedList.tsx
-│   └── NewsflashCard.tsx
-├── data/            # Mock data
-│   └── mock.ts
-├── navigation/      # Navigation configuration
-│   └── TabNavigator.tsx
-├── screens/         # Screen components
-│   ├── MainFeedScreen.tsx
-│   ├── ProfileScreen.tsx
-│   ├── GroupsScreen.tsx
-│   └── GroupFeedScreen.tsx
-├── theme/           # Material Design 3 theme
-│   └── index.ts
-└── types/           # TypeScript type definitions
-    └── index.ts
-```
-
-## Getting Started
+## Quick Start
 
 ### Prerequisites
+- Node.js >= 20
+- Docker Desktop
+- AWS SAM CLI
+- Expo Go app (for physical device testing)
 
-- Node.js >= 20.19.4
-- npm or yarn
-- Expo Go app (for testing on physical device)
-
-### Installation
+### Backend Setup
 
 ```bash
+# Install backend dependencies
+cd backend && npm install && cd ..
+
+# Start local infrastructure (DynamoDB, S3, SAM)
+./scripts/setup-local-backend.sh
+```
+
+### Frontend Setup
+
+```bash
+# Install dependencies
 npm install
+
+# Start Expo development server
+npm start
 ```
 
 ### Running the App
 
-```bash
-# Start the development server
-npm start
+- Press `a` for Android emulator
+- Press `i` for iOS simulator
+- Scan QR code with Expo Go for physical device
 
-# For specific platforms
-npm run android
-npm run ios
-npm run web
+## Documentation
+
+| Document | Description |
+|----------|-------------|
+| [API Documentation](docs/API_DOCUMENTATION.md) | Complete API reference |
+| [Architecture](docs/ARCHITECTURE.md) | System architecture overview |
+| [Local Development](docs/LOCAL_DEV.md) | Local setup guide |
+| [AWS Deployment](docs/AWS_DEPLOYMENT.md) | Production deployment |
+| [CI/CD](docs/CI_CD.md) | GitHub Actions pipeline |
+| [Commands](docs/COMMANDS.md) | Quick command reference |
+| [Push Notifications](docs/PUSH_NOTIFICATIONS.md) | Push notification setup |
+| [Firebase Setup](docs/FIREBASE_SETUP.md) | Android FCM configuration |
+
+## Project Structure
+
+```
+friendlines/
+├── src/                    # React Native frontend
+│   ├── components/         # Reusable UI components
+│   ├── config/             # API configuration
+│   ├── context/            # React contexts (Auth, Data, etc.)
+│   ├── navigation/         # Navigation configuration
+│   ├── screens/            # Screen components
+│   ├── services/           # API service functions
+│   ├── theme/              # Material Design theme
+│   └── types/              # TypeScript definitions
+├── backend/                # AWS SAM backend
+│   ├── src/handlers/       # Lambda handlers
+│   ├── src/utils/          # Shared utilities
+│   └── template.yaml       # SAM template
+├── scripts/                # Development scripts
+└── docs/                   # Documentation
 ```
 
-## Design Philosophy
+## Scripts
 
-- **Minimal**: No likes, comments, or shares - just newsflashes
-- **Simple**: Clean interface focused on content delivery
-- **News-style**: Bold typography and layout inspired by news apps (CNN, BBC, etc.)
-- **Material Design**: Following Google's Material Design 3 guidelines
-- **Accessibility**: High contrast red theme with proper text hierarchy
+| Script | Description |
+|--------|-------------|
+| `npm start` | Start Expo development server |
+| `./scripts/setup-local-backend.sh` | Setup local backend infrastructure |
+| `./scripts/start-api.sh` | Start SAM local API |
+| `./scripts/test-full-api.sh` | Run API integration tests |
+| `node scripts/seed-database.js` | Seed test data |
 
-## Future Enhancements
+## License
 
-- Backend integration
-- Real-time updates
-- User authentication
-- Media upload support
-- Push notifications
-
+Private project - All rights reserved
