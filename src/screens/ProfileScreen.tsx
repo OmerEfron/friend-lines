@@ -1,21 +1,27 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
 import { Surface, Text, Avatar, useTheme, Switch, List, Card } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
 import { useData } from '../context/DataContext';
 import { useAppTheme } from '../context/ThemeContext';
 import { useBookmarks } from '../context/BookmarksContext';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
+import LanguageSelector from '../components/LanguageSelector';
 
 export default function ProfileScreen() {
   const theme = useTheme();
   const navigation = useNavigation();
+  const { t } = useTranslation();
   const { isDark, toggleTheme } = useAppTheme();
   const { newsflashes, currentUser, friends } = useData();
   const { bookmarkedIds } = useBookmarks();
   const { logout } = useAuth();
-  const [pendingRequestsCount, setPendingRequestsCount] = React.useState(0);
+  const { currentLanguage, supportedLanguages } = useLanguage();
+  const [pendingRequestsCount, setPendingRequestsCount] = useState(0);
+  const [showLanguageSelector, setShowLanguageSelector] = useState(false);
 
   const userNewsflashCount = useMemo(() => {
     return newsflashes.filter((n) => n.userId === currentUser.id).length;
@@ -69,10 +75,10 @@ export default function ProfileScreen() {
         <Card style={[styles.pressPass, { borderColor: theme.colors.primary }]} mode="outlined">
           <View style={styles.pressPassHeader}>
             <Text style={[styles.pressPassLabel, { color: theme.colors.primary }]}>
-              PRESS CREDENTIALS
+              {t('profile.pressCredentials')}
             </Text>
             <View style={[styles.activeBadge, { backgroundColor: theme.colors.tertiary }]}>
-              <Text style={styles.activeBadgeText}>ACTIVE</Text>
+              <Text style={styles.activeBadgeText}>{t('profile.active')}</Text>
             </View>
           </View>
 
@@ -99,7 +105,7 @@ export default function ProfileScreen() {
                   variant="labelSmall"
                   style={{ color: theme.colors.onSecondaryContainer, fontWeight: '600' }}
                 >
-                  Correspondent
+                  {t('profile.correspondent')}
                 </Text>
               </View>
             </View>
@@ -112,7 +118,7 @@ export default function ProfileScreen() {
                 {userNewsflashCount}
               </Text>
               <Text variant="labelSmall" style={{ color: theme.colors.onSurfaceVariant }}>
-                Reports Filed
+                {t('profile.reportsFiled')}
               </Text>
             </View>
             <View style={[styles.statDivider, { backgroundColor: theme.colors.outlineVariant }]} />
@@ -121,7 +127,7 @@ export default function ProfileScreen() {
                 {friendsCount}
               </Text>
               <Text variant="labelSmall" style={{ color: theme.colors.onSurfaceVariant }}>
-                Network
+                {t('profile.network')}
               </Text>
             </View>
             <View style={[styles.statDivider, { backgroundColor: theme.colors.outlineVariant }]} />
@@ -136,7 +142,7 @@ export default function ProfileScreen() {
                 {pendingRequestsCount}
               </Text>
               <Text variant="labelSmall" style={{ color: theme.colors.onSurfaceVariant }}>
-                Pending
+                {t('profile.pending')}
               </Text>
             </View>
           </View>
@@ -145,12 +151,12 @@ export default function ProfileScreen() {
         {/* Assignment Desk Section */}
         <View style={styles.section}>
           <Text variant="labelLarge" style={[styles.sectionTitle, { color: theme.colors.primary }]}>
-            ASSIGNMENT DESK
+            {t('profile.assignmentDesk')}
           </Text>
           <Card mode="contained" style={styles.menuCard}>
             <List.Item
-              title="Filed Reports"
-              description={`${userNewsflashCount} newsflashes`}
+              title={t('profile.filedReports')}
+              description={t('profile.newsflashCount', { count: userNewsflashCount })}
               left={() => (
                 <MaterialCommunityIcons
                   name="newspaper-variant-multiple"
@@ -165,8 +171,8 @@ export default function ProfileScreen() {
               onPress={() => navigation.navigate('UserFeed' as never)}
             />
             <List.Item
-              title="Archives"
-              description={`${bookmarkedIds.length} bookmarked`}
+              title={t('profile.archives')}
+              description={t('profile.bookmarkedCount', { count: bookmarkedIds.length })}
               left={() => (
                 <MaterialCommunityIcons
                   name="archive"
@@ -186,15 +192,15 @@ export default function ProfileScreen() {
         {/* Network Section */}
         <View style={styles.section}>
           <Text variant="labelLarge" style={[styles.sectionTitle, { color: theme.colors.primary }]}>
-            CORRESPONDENT NETWORK
+            {t('profile.correspondentNetwork')}
           </Text>
           <Card mode="contained" style={styles.menuCard}>
             <List.Item
-              title="Network Requests"
+              title={t('profile.networkRequests')}
               description={
                 pendingRequestsCount > 0
-                  ? `${pendingRequestsCount} pending`
-                  : 'No pending requests'
+                  ? t('profile.pendingCount', { count: pendingRequestsCount })
+                  : t('profile.noPendingRequests')
               }
               left={() => (
                 <MaterialCommunityIcons
@@ -217,8 +223,8 @@ export default function ProfileScreen() {
               onPress={() => navigation.navigate('FriendRequests' as never)}
             />
             <List.Item
-              title="My Correspondents"
-              description={`${friendsCount} in network`}
+              title={t('profile.myCorrespondents')}
+              description={t('profile.inNetwork', { count: friendsCount })}
               left={() => (
                 <MaterialCommunityIcons
                   name="account-group"
@@ -233,8 +239,8 @@ export default function ProfileScreen() {
               onPress={() => navigation.navigate('FriendsList' as never)}
             />
             <List.Item
-              title="Recruit Correspondents"
-              description="Expand your network"
+              title={t('profile.recruitCorrespondents')}
+              description={t('profile.expandNetwork')}
               left={() => (
                 <MaterialCommunityIcons
                   name="account-plus"
@@ -254,12 +260,12 @@ export default function ProfileScreen() {
         {/* Settings Section */}
         <View style={styles.section}>
           <Text variant="labelLarge" style={[styles.sectionTitle, { color: theme.colors.primary }]}>
-            SYSTEM
+            {t('profile.system')}
           </Text>
           <Card mode="contained" style={styles.menuCard}>
             <List.Item
-              title="Update Press Pass"
-              description="Edit your credentials"
+              title={t('profile.updatePressPass')}
+              description={t('profile.editCredentials')}
               left={() => (
                 <MaterialCommunityIcons
                   name="card-account-details-outline"
@@ -274,8 +280,8 @@ export default function ProfileScreen() {
               onPress={() => navigation.navigate('EditProfile' as never)}
             />
             <List.Item
-              title="Night Edition"
-              description={isDark ? 'Enabled' : 'Disabled'}
+              title={t('profile.nightEdition')}
+              description={isDark ? t('profile.enabled') : t('profile.disabled')}
               left={() => (
                 <MaterialCommunityIcons
                   name={isDark ? 'weather-night' : 'white-balance-sunny'}
@@ -287,8 +293,24 @@ export default function ProfileScreen() {
               right={() => <Switch value={isDark} onValueChange={toggleTheme} color={theme.colors.primary} />}
             />
             <List.Item
-              title="Resign Commission"
-              description="Sign out of your account"
+              title={t('profile.language')}
+              description={supportedLanguages[currentLanguage]?.nativeName || currentLanguage}
+              left={() => (
+                <MaterialCommunityIcons
+                  name="translate"
+                  size={24}
+                  color={theme.colors.primary}
+                  style={styles.listIcon}
+                />
+              )}
+              right={() => (
+                <MaterialCommunityIcons name="chevron-right" size={24} color={theme.colors.onSurfaceVariant} />
+              )}
+              onPress={() => setShowLanguageSelector(true)}
+            />
+            <List.Item
+              title={t('profile.resignCommission')}
+              description={t('profile.signOut')}
               left={() => (
                 <MaterialCommunityIcons
                   name="exit-run"
@@ -306,6 +328,11 @@ export default function ProfileScreen() {
         {/* Bottom spacer for floating tab bar */}
         <View style={{ height: 100 }} />
       </ScrollView>
+
+      <LanguageSelector
+        visible={showLanguageSelector}
+        onDismiss={() => setShowLanguageSelector(false)}
+      />
     </Surface>
   );
 }

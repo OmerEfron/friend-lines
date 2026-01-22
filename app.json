@@ -40,9 +40,11 @@
           "icon": "./assets/icon.png",
           "color": "#ffffff"
         }
-      ]
+      ],
+      "expo-localization"
     ],
     "extra": {
+      "supportsRTL": true,
       "eas": {
         "projectId": "e6050802-af07-44f2-b6ab-2e1bf3f789d2"
       }

@@ -2,6 +2,7 @@ import React from 'react';
 import { FlatList, StyleSheet, View, RefreshControl } from 'react-native';
 import { Text, useTheme, ActivityIndicator, Button } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
 import { Newsflash } from '../types';
 import NewsflashCard from './NewsflashCard';
 
@@ -24,17 +25,15 @@ export default function FeedList({
 }: FeedListProps) {
   const theme = useTheme();
   const navigation = useNavigation();
+  const { t } = useTranslation();
 
   const renderEmpty = () => (
     <View style={styles.emptyContainer}>
       <Text variant="headlineSmall" style={styles.emptyHeadline}>
-        Slow News Day
+        {t('feed.empty')}
       </Text>
       <Text variant="bodyMedium" style={styles.emptyText}>
-        Nothing to report from your network.
-      </Text>
-      <Text variant="bodySmall" style={styles.emptySubtext}>
-        Check back later or file a report yourself!
+        {t('feed.emptySubtitle')}
       </Text>
       {showActions && (
         <View style={styles.emptyActions}>
@@ -44,7 +43,7 @@ export default function FeedList({
             onPress={() => navigation.navigate('CreateNewsflash' as never)}
             style={styles.actionButton}
           >
-            File a Report
+            {t('newsflash.create')}
           </Button>
           <Button
             mode="outlined"
@@ -52,7 +51,7 @@ export default function FeedList({
             onPress={() => navigation.navigate('AddFriend' as never)}
             style={styles.actionButton}
           >
-            Find Correspondents
+            {t('friends.add')}
           </Button>
         </View>
       )}

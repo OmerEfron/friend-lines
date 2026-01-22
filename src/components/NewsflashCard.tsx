@@ -1,8 +1,15 @@
 import React, { useEffect, useRef } from 'react';
-import { View, StyleSheet, Animated } from 'react-native';
+import { View, StyleSheet, Animated, I18nManager } from 'react-native';
 import { Card, Text, Avatar, useTheme, IconButton } from 'react-native-paper';
+import { useTranslation } from 'react-i18next';
 import { Newsflash, User, NewsCategory } from '../types';
 import { useBookmarks } from '../context/BookmarksContext';
+
+// Detect if text contains RTL characters (Hebrew, Arabic, etc.)
+const isRTLText = (text: string): boolean => {
+  const rtlRegex = /[\u0590-\u05FF\u0600-\u06FF\u0750-\u077F]/;
+  return rtlRegex.test(text);
+};
 
 // Category icons for display
 const CATEGORY_ICONS: Record<NewsCategory, string> = {
@@ -17,6 +24,7 @@ interface NewsflashCardProps {
 
 export default function NewsflashCard({ newsflash, user }: NewsflashCardProps) {
   const theme = useTheme();
+  const { t } = useTranslation();
   const { isBookmarked, toggleBookmark } = useBookmarks();
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
@@ -37,10 +45,10 @@ export default function NewsflashCard({ newsflash, user }: NewsflashCardProps) {
     const hours = Math.floor(diff / (1000 * 60 * 60));
     const days = Math.floor(hours / 24);
 
-    if (days > 0) return `Filed ${days}d ago`;
-    if (hours > 0) return `Filed ${hours}h ago`;
-    if (minutes > 0) return `Filed ${minutes}m ago`;
-    return 'Filed just now';
+    if (days > 0) return t('newsflash.daysAgo', { count: days });
+    if (hours > 0) return t('newsflash.hoursAgo', { count: hours });
+    if (minutes > 0) return t('newsflash.minutesAgo', { count: minutes });
+    return t('newsflash.justNow');
   };
 
   const getInitials = (name: string) => {
@@ -85,7 +93,7 @@ export default function NewsflashCard({ newsflash, user }: NewsflashCardProps) {
                   @{user.username}
                 </Text>
                 <Text variant="labelSmall" style={styles.correspondent}>
-                  Correspondent
+                  {t('profile.correspondent')}
                 </Text>
               </View>
             </View>
@@ -101,12 +109,24 @@ export default function NewsflashCard({ newsflash, user }: NewsflashCardProps) {
             </View>
           </View>
           
-          <Text variant="headlineSmall" style={styles.headline}>
+          <Text 
+            variant="headlineSmall" 
+            style={[
+              styles.headline,
+              isRTLText(newsflash.headline) && styles.rtlText
+            ]}
+          >
             {newsflash.headline}
           </Text>
           
           {newsflash.subHeadline && (
-            <Text variant="bodyMedium" style={styles.subHeadline}>
+            <Text 
+              variant="bodyMedium" 
+              style={[
+                styles.subHeadline,
+                isRTLText(newsflash.subHeadline) && styles.rtlText
+              ]}
+            >
               {newsflash.subHeadline}
             </Text>
           )}
@@ -183,6 +203,10 @@ const styles = StyleSheet.create({
   subHeadline: {
     marginTop: 4,
     opacity: 0.8,
+  },
+  rtlText: {
+    textAlign: 'right',
+    writingDirection: 'rtl',
   },
   media: {
     marginTop: 12,

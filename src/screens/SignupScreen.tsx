@@ -14,6 +14,7 @@ import {
   useTheme,
   HelperText,
 } from 'react-native-paper';
+import { useTranslation } from 'react-i18next';
 
 interface SignupScreenProps {
   onSignup: (data: {
@@ -30,6 +31,7 @@ export default function SignupScreen({
   onNavigateToLogin,
 }: SignupScreenProps) {
   const theme = useTheme();
+  const { t } = useTranslation();
   const [name, setName] = useState('');
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
@@ -44,17 +46,17 @@ export default function SignupScreen({
 
     // Validation
     if (!name.trim() || !username.trim() || !email.trim() || !password) {
-      setError('All fields are required');
+      setError(t('auth.signup.fillAllFields'));
       return;
     }
 
     if (password.length < 6) {
-      setError('Password must be at least 6 characters');
+      setError(t('auth.signup.fillAllFields'));
       return;
     }
 
     if (password !== confirmPassword) {
-      setError('Passwords do not match');
+      setError(t('auth.signup.passwordMismatch'));
       return;
     }
 
@@ -67,7 +69,7 @@ export default function SignupScreen({
         password,
       });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Signup failed');
+      setError(err instanceof Error ? err.message : t('auth.signup.failed'));
     } finally {
       setLoading(false);
     }
@@ -82,18 +84,18 @@ export default function SignupScreen({
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <View style={styles.content}>
             <Text variant="displaySmall" style={styles.title}>
-              Create Account
+              {t('auth.signup.title')}
             </Text>
             <Text
               variant="bodyLarge"
               style={[styles.subtitle, { color: theme.colors.onSurfaceVariant }]}
             >
-              Join Friendlines today
+              {t('auth.signup.subtitle')}
             </Text>
 
             <View style={styles.form}>
               <TextInput
-                label="Full Name"
+                label={t('auth.signup.displayName')}
                 value={name}
                 onChangeText={setName}
                 mode="outlined"
@@ -113,7 +115,7 @@ export default function SignupScreen({
               />
 
               <TextInput
-                label="Email"
+                label={t('auth.signup.email')}
                 value={email}
                 onChangeText={setEmail}
                 mode="outlined"
@@ -125,7 +127,7 @@ export default function SignupScreen({
               />
 
               <TextInput
-                label="Password"
+                label={t('auth.signup.password')}
                 value={password}
                 onChangeText={setPassword}
                 mode="outlined"
@@ -142,7 +144,7 @@ export default function SignupScreen({
               />
 
               <TextInput
-                label="Confirm Password"
+                label={t('auth.signup.confirmPassword')}
                 value={confirmPassword}
                 onChangeText={setConfirmPassword}
                 mode="outlined"
@@ -165,7 +167,7 @@ export default function SignupScreen({
                 loading={loading}
                 disabled={loading}
               >
-                Sign Up
+                {t('auth.signup.signUp')}
               </Button>
 
               <Button
@@ -174,7 +176,7 @@ export default function SignupScreen({
                 style={styles.linkButton}
                 disabled={loading}
               >
-                Already have an account? Sign In
+                {t('auth.signup.hasAccount')}
               </Button>
             </View>
           </View>
