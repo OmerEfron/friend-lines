@@ -180,6 +180,43 @@ Get the authenticated user's profile.
 }
 ```
 
+### Search Users
+
+**Endpoint:** `GET /users/search?q=query`
+
+**Headers:** `Authorization: Bearer <token>`
+
+**Query Parameters:**
+- `q`: Search query (matches name or username)
+
+**Response (200):**
+```json
+{
+  "users": [
+    {
+      "id": "uuid",
+      "name": "John Doe",
+      "username": "johndoe",
+      "email": "john@example.com",
+      "avatar": null
+    }
+  ]
+}
+```
+
+### Delete User
+
+**Endpoint:** `DELETE /users/:id`
+
+**Headers:** `Authorization: Bearer <token>`
+
+**Response (200):**
+```json
+{
+  "message": "Account deleted"
+}
+```
+
 ## Newsflashes
 
 ### List All Newsflashes
@@ -514,6 +551,82 @@ Get newsflashes from group members, filtered and enriched.
       }
     }
   ]
+}
+```
+
+## Uploads
+
+### Get Presigned URL
+
+Generate a presigned URL for uploading media to S3.
+
+**Endpoint:** `POST /uploads/presigned-url`
+
+**Headers:** `Authorization: Bearer <token>`
+
+**Request Body:**
+```json
+{
+  "fileName": "image.jpg",
+  "fileType": "image/jpeg"
+}
+```
+
+**Response (200):**
+```json
+{
+  "presignedUrl": "https://friendlines-media.s3.amazonaws.com/uploads/...",
+  "publicUrl": "https://friendlines-media.s3.amazonaws.com/uploads/user-id/timestamp_image.jpg",
+  "key": "uploads/user-id/timestamp_image.jpg",
+  "expiresIn": 300
+}
+```
+
+## Devices
+
+### Register Device Token
+
+Register a device for push notifications.
+
+**Endpoint:** `POST /devices/token`
+
+**Headers:** `Authorization: Bearer <token>`
+
+**Request Body:**
+```json
+{
+  "deviceId": "unique-device-id",
+  "expoPushToken": "ExponentPushToken[xxxxxxxx]",
+  "platform": "ios"
+}
+```
+
+**Response (201):**
+```json
+{
+  "message": "Token registered"
+}
+```
+
+### Remove Device Token
+
+Unregister a device from push notifications.
+
+**Endpoint:** `DELETE /devices/token`
+
+**Headers:** `Authorization: Bearer <token>`
+
+**Request Body:**
+```json
+{
+  "deviceId": "unique-device-id"
+}
+```
+
+**Response (200):**
+```json
+{
+  "message": "Token removed"
 }
 ```
 

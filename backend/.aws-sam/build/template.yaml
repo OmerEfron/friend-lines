@@ -286,6 +286,27 @@ Resources:
               Ref: FriendlinesApi
             Path: /users/{id}
             Method: GET
+        UpdateUser:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: FriendlinesApi
+            Path: /users/{id}
+            Method: PUT
+        DeleteUser:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: FriendlinesApi
+            Path: /users/{id}
+            Method: DELETE
+        SearchUsers:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: FriendlinesApi
+            Path: /users/search
+            Method: GET
   NewsflashesFunction:
     Type: AWS::Serverless::Function
     Metadata:
