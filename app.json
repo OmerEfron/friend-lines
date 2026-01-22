@@ -15,14 +15,21 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.friendlines.app",
+      "buildNumber": "1",
       "infoPlist": {
         "UIBackgroundModes": [
+          "remote-notification",
           "remote-notification"
-        ]
+        ],
+        "NSPhotoLibraryUsageDescription": "Friendlines needs access to your photos to let you upload newsflash images and profile avatars.",
+        "NSCameraUsageDescription": "Friendlines needs access to your camera to let you take photos for newsflashes and profile avatars.",
+        "ExpoLocalization_supportsRTL": true,
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
       "package": "com.friendlines.app",
+      "versionCode": 1,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
@@ -37,7 +44,7 @@
       [
         "expo-notifications",
         {
-          "icon": "./assets/icon.png",
+          "icon": "./assets/notification-icon.png",
           "color": "#ffffff"
         }
       ],
