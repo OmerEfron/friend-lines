@@ -222,10 +222,4 @@ docker network rm friendlines-net
 
 **Note**: `env.json` contains local dev secrets only. Never commit production secrets.
 
-## Questions/Unknowns
-
-1. No `.env` file for frontend - uses hardcoded/platform detection
-2. No hot-reload for backend - must restart SAM for handler changes
-3. S3 presigned URLs may not work fully with LocalStack
-
 

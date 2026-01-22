@@ -120,6 +120,7 @@ Friendlines is a minimal social network mobile app with a news aesthetic. The sy
 | GET | /users | users.ts | List users |
 | GET | /users/{id} | users.ts | Get user |
 | GET | /users/search | users.ts | Search users |
+| DELETE | /users/{id} | users.ts | Delete account |
 | POST | /newsflashes | newsflashes.ts | Create post |
 | GET | /newsflashes | newsflashes.ts | List posts |
 | GET | /feeds/main | feeds.ts | Friends feed |
@@ -133,6 +134,9 @@ Friendlines is a minimal social network mobile app with a news aesthetic. The sy
 | DELETE | /groups/{id} | groups.ts | Delete group |
 | POST | /bookmarks | bookmarks.ts | Save post |
 | DELETE | /bookmarks/{id} | bookmarks.ts | Unsave post |
+| POST | /uploads/presigned-url | uploads.ts | Get upload URL |
+| POST | /devices/token | devices.ts | Register push token |
+| DELETE | /devices/token | devices.ts | Remove push token |
 
 **Source of Truth**: `backend/template.yaml`
 
@@ -191,9 +195,7 @@ RootStack
 ## Questions/Unknowns
 
 1. **Production deployment**: No CI/CD pipeline or prod environment configured
-2. **Media uploads**: Upload flow exists but no image display in feed
-3. **Pagination**: Feed endpoints don't implement pagination
-4. **Push notifications**: Not implemented
-5. **Rate limiting**: No API rate limiting configured
+2. **Pagination**: Feed endpoints don't implement pagination
+3. **Rate limiting**: No API rate limiting configured
 
 
