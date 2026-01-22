@@ -3,6 +3,7 @@ import { StyleSheet, FlatList, RefreshControl } from 'react-native';
 import { Surface, List, useTheme, FAB } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useTranslation } from 'react-i18next';
 import { useData } from '../context/DataContext';
 import { Group } from '../types';
 
@@ -16,6 +17,7 @@ type NavigationProp = NativeStackNavigationProp<GroupStackParamList, 'GroupsList
 export default function GroupsScreen() {
   const navigation = useNavigation<NavigationProp>();
   const theme = useTheme();
+  const { t } = useTranslation();
   const { groups, refreshGroups } = useData();
   const [refreshing, setRefreshing] = useState(false);
 
@@ -32,7 +34,7 @@ export default function GroupsScreen() {
   const renderGroup = ({ item }: { item: Group }) => (
     <List.Item
       title={item.name}
-      description={`${item.userIds.length} members`}
+      description={t('groups.members', { count: item.userIds.length })}
       left={(props) => (
         <List.Icon 
           {...props} 

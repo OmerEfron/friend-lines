@@ -35,8 +35,7 @@ export default function UserFeedScreen() {
         newsflashes={userNewsflashes}
         refreshing={refreshing}
         onRefresh={handleRefresh}
-        emptyMessage="No reports filed yet"
-        emptySubMessage="Your newsflashes will appear here"
+        showActions={false}
       />
     </Surface>
   );

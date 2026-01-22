@@ -2,20 +2,24 @@ import React, { useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { PaperProvider, ActivityIndicator, Surface } from 'react-native-paper';
 import { View, StyleSheet } from 'react-native';
+import { I18nextProvider } from 'react-i18next';
+import i18n from './src/i18n';
 import TabNavigator from './src/navigation/TabNavigator';
 import { ThemeProvider, useAppTheme } from './src/context/ThemeContext';
 import { DataProvider } from './src/context/DataContext';
 import { BookmarksProvider } from './src/context/BookmarksContext';
 import { AuthProvider, useAuth } from './src/context/AuthContext';
+import { LanguageProvider, useLanguage } from './src/context/LanguageContext';
 import LoginScreen from './src/screens/LoginScreen';
 import SignupScreen from './src/screens/SignupScreen';
 
 function AuthenticatedApp() {
   const { paperTheme, navigationTheme } = useAppTheme();
   const { isAuthenticated, loading, login, register } = useAuth();
+  const { isInitialized: languageInitialized } = useLanguage();
   const [showSignup, setShowSignup] = useState(false);
 
-  if (loading) {
+  if (loading || !languageInitialized) {
     return (
       <Surface style={styles.loadingContainer}>
         <ActivityIndicator size="large" />
@@ -57,11 +61,15 @@ function AuthenticatedApp() {
 
 export default function App() {
   return (
-    <ThemeProvider>
-      <AuthProvider>
-        <AuthenticatedApp />
-      </AuthProvider>
-    </ThemeProvider>
+    <I18nextProvider i18n={i18n}>
+      <ThemeProvider>
+        <LanguageProvider>
+          <AuthProvider>
+            <AuthenticatedApp />
+          </AuthProvider>
+        </LanguageProvider>
+      </ThemeProvider>
+    </I18nextProvider>
   );
 }
 

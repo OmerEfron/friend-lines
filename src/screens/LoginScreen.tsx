@@ -14,6 +14,7 @@ import {
   useTheme,
   HelperText,
 } from 'react-native-paper';
+import { useTranslation } from 'react-i18next';
 
 interface LoginScreenProps {
   onLogin: (email: string, password: string) => Promise<void>;
@@ -25,6 +26,7 @@ export default function LoginScreen({
   onNavigateToSignup,
 }: LoginScreenProps) {
   const theme = useTheme();
+  const { t } = useTranslation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -35,7 +37,7 @@ export default function LoginScreen({
     setError('');
 
     if (!email.trim() || !password) {
-      setError('Please enter email and password');
+      setError(t('auth.login.error'));
       return;
     }
 
@@ -43,7 +45,7 @@ export default function LoginScreen({
     try {
       await onLogin(email.trim().toLowerCase(), password);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Login failed');
+      setError(err instanceof Error ? err.message : t('auth.login.failed'));
     } finally {
       setLoading(false);
     }
@@ -58,18 +60,18 @@ export default function LoginScreen({
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <View style={styles.content}>
             <Text variant="displaySmall" style={styles.title}>
-              Welcome Back
+              {t('auth.login.title')}
             </Text>
             <Text
               variant="bodyLarge"
               style={[styles.subtitle, { color: theme.colors.onSurfaceVariant }]}
             >
-              Sign in to continue
+              {t('auth.login.subtitle')}
             </Text>
 
             <View style={styles.form}>
               <TextInput
-                label="Email"
+                label={t('auth.login.email')}
                 value={email}
                 onChangeText={setEmail}
                 mode="outlined"
@@ -81,7 +83,7 @@ export default function LoginScreen({
               />
 
               <TextInput
-                label="Password"
+                label={t('auth.login.password')}
                 value={password}
                 onChangeText={setPassword}
                 mode="outlined"
@@ -111,7 +113,7 @@ export default function LoginScreen({
                 loading={loading}
                 disabled={loading}
               >
-                Sign In
+                {t('auth.login.signIn')}
               </Button>
 
               <Button
@@ -120,7 +122,7 @@ export default function LoginScreen({
                 style={styles.linkButton}
                 disabled={loading}
               >
-                Don't have an account? Sign Up
+                {t('auth.login.noAccount')}
               </Button>
             </View>
           </View>
