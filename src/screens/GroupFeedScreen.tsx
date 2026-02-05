@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet } from 'react-native';
-import { Surface, ActivityIndicator, Text } from 'react-native-paper';
+import { Surface, Text } from 'react-native-paper';
 import FeedList from '../components/FeedList';
+import FeedSkeleton from '../components/FeedSkeleton';
 import { Group, Newsflash } from '../types';
 import { fetchGroupFeed } from '../services/api';
 
@@ -46,8 +47,8 @@ export default function GroupFeedScreen({ route }: GroupFeedScreenProps) {
 
   if (loading) {
     return (
-      <Surface style={[styles.container, styles.center]}>
-        <ActivityIndicator size="large" />
+      <Surface style={styles.container}>
+        <FeedSkeleton itemCount={4} />
       </Surface>
     );
   }

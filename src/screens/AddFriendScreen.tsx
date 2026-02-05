@@ -7,6 +7,7 @@ import { User } from '../types';
 import { searchUsers } from '../services/api';
 import { apiCall } from '../config/api';
 import { useNavigation } from '@react-navigation/native';
+import ListSkeleton from '../components/ListSkeleton';
 
 // Estimated height of a user search result item (avatar + name + button)
 const ESTIMATED_ITEM_SIZE = 70;
@@ -182,11 +183,7 @@ export default function AddFriendScreen() {
 
   const renderEmpty = () => {
     if (loading) {
-      return (
-        <View style={styles.emptyContainer}>
-          <ActivityIndicator size="large" />
-        </View>
-      );
+      return <ListSkeleton itemCount={4} hasActions />;
     }
 
     return (
