@@ -1,0 +1,9 @@
+{
+  "generic": "Algo salió mal",
+  "network": "No se puede conectar. Verifica tu conexión.",
+  "notFound": "No encontrado",
+  "unauthorized": "Inicia sesión para continuar",
+  "createNewsflash": "Error al crear la noticia",
+  "uploadImage": "Error al subir la imagen",
+  "loadFailed": "Error al cargar los datos"
+}

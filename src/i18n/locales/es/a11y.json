@@ -1,0 +1,35 @@
+{
+  "tabs": {
+    "home": "Feed principal",
+    "groups": "Grupos",
+    "profile": "Perfil"
+  },
+  "actions": {
+    "bookmarkAdd": "Agregar a guardados",
+    "bookmarkRemove": "Quitar de guardados",
+    "refresh": "Actualizar",
+    "close": "Cerrar",
+    "remove": "Eliminar",
+    "back": "Volver"
+  },
+  "auth": {
+    "showPassword": "Mostrar contraseña",
+    "hidePassword": "Ocultar contraseña"
+  },
+  "content": {
+    "addPhoto": "Agregar foto",
+    "removePhoto": "Eliminar foto",
+    "publish": "Publicar noticia",
+    "cancel": "Cancelar",
+    "createNewsflash": "Crear nueva noticia",
+    "createGroup": "Crear nuevo grupo"
+  },
+  "hints": {
+    "bookmarkAdd": "Toca dos veces para guardar esta noticia",
+    "bookmarkRemove": "Toca dos veces para quitar de guardados",
+    "refresh": "Toca dos veces para actualizar la lista",
+    "tabNavigate": "Toca dos veces para navegar",
+    "togglePassword": "Toca dos veces para mostrar u ocultar contraseña",
+    "removeFriend": "Toca dos veces para eliminar este amigo"
+  }
+}

@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Chip, Text, useTheme } from 'react-native-paper';
+import { useTranslation } from 'react-i18next';
 import { Group, NewsflashAudience } from '../types';
 
 type Props = {
@@ -19,6 +20,7 @@ export default function NewsflashAudiencePicker({
   setSelectedGroupIds,
 }: Props) {
   const theme = useTheme();
+  const { t } = useTranslation('creation');
 
   const toggleGroup = (groupId: string) => {
     setSelectedGroupIds((prev) =>
@@ -28,7 +30,7 @@ export default function NewsflashAudiencePicker({
 
   return (
     <View style={styles.container}>
-      <Text variant="titleSmall" style={styles.title}>Send to</Text>
+      <Text variant="titleSmall" style={styles.title}>{t('audience.title')}</Text>
       <View style={styles.row}>
         <Chip
           selected={audience === 'ALL_FRIENDS'}
@@ -36,7 +38,7 @@ export default function NewsflashAudiencePicker({
           mode="outlined"
           compact
         >
-          All friends
+          {t('audience.allFriends')}
         </Chip>
         <Chip
           selected={audience === 'GROUPS'}
@@ -44,14 +46,14 @@ export default function NewsflashAudiencePicker({
           mode="outlined"
           compact
         >
-          Groups
+          {t('audience.groups')}
         </Chip>
       </View>
 
       {audience === 'GROUPS' && (
         groups.length === 0 ? (
           <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
-            No groups yet — create one first.
+            {t('audience.noGroups')}
           </Text>
         ) : (
           <View style={styles.groupRow}>

@@ -1,0 +1,51 @@
+{
+  "newsflash": {
+    "title": "¿Cuál es la historia?",
+    "subtitle": "Comparte lo que está pasando en tu mundo",
+    "headlinePlaceholder": "Escribe tu titular...",
+    "subheadlinePlaceholder": "Agrega más contexto...",
+    "addDetails": "Agregar detalles",
+    "addPhoto": "Agregar foto",
+    "cancel": "Cancelar",
+    "publish": "Publicar",
+    "uploadingImage": "Subiendo imagen...",
+    "filingReport": "Enviando reporte...",
+    "starters": {
+      "discovered": "Acabo de descubrir...",
+      "confirm": "Puedo confirmar:",
+      "breaking": "Noticia de última hora de mi vida:",
+      "update": "Actualización:",
+      "plotTwist": "Giro inesperado:"
+    }
+  },
+  "group": {
+    "title": "Crear Grupo",
+    "nameLabel": "Nombre del Grupo *",
+    "namePlaceholder": "Ingresa el nombre del grupo...",
+    "selectFriends": "Seleccionar Amigos ({{count}})",
+    "cancel": "Cancelar",
+    "create": "Crear"
+  },
+  "audience": {
+    "title": "Enviar a",
+    "allFriends": "Todos los amigos",
+    "groups": "Grupos",
+    "noGroups": "Aún no hay grupos — crea uno primero."
+  },
+  "options": {
+    "severity": "Severidad",
+    "category": "Categoría",
+    "standard": "Estándar",
+    "breaking": "🔴 Urgente",
+    "developing": "📡 En Desarrollo",
+    "categories": {
+      "general": "General",
+      "lifestyle": "Estilo de Vida",
+      "entertainment": "Entretenimiento",
+      "sports": "Deportes",
+      "food": "Comida",
+      "travel": "Viajes",
+      "opinion": "Opinión"
+    }
+  }
+}

@@ -21,11 +21,11 @@ import {
   Card,
 } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
 import * as ImagePicker from 'expo-image-picker';
 import { useAuth } from '../context/AuthContext';
 import { apiCall } from '../config/api';
 import { uploadImage, getFileInfo } from '../services/upload';
-import { A11Y_LABELS } from '../utils/a11y';
 
 interface User {
   id: string;
@@ -38,6 +38,7 @@ interface User {
 export default function EditProfileScreen() {
   const theme = useTheme();
   const navigation = useNavigation();
+  const { t } = useTranslation('profile');
   const { user, refreshUser } = useAuth();
   
   if (!user) {
@@ -75,7 +76,7 @@ export default function EditProfileScreen() {
     setSuccess(false);
 
     if (!name.trim() || !username.trim()) {
-      setError('Name and username are required');
+      setError(t('edit.nameRequired'));
       return;
     }
 
@@ -107,7 +108,7 @@ export default function EditProfileScreen() {
         navigation.goBack();
       }, 1500);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Update failed');
+      setError(err instanceof Error ? err.message : t('edit.updateFailed'));
     } finally {
       setLoading(false);
     }
@@ -139,7 +140,7 @@ export default function EditProfileScreen() {
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <View style={styles.content}>
             <Text variant="headlineMedium" style={styles.title}>
-              Edit Profile
+              {t('edit.title')}
             </Text>
 
             <View style={styles.form}>
@@ -156,7 +157,7 @@ export default function EditProfileScreen() {
                       onPress={removeAvatar}
                       style={styles.removeAvatarButton}
                       iconColor={theme.colors.error}
-                      accessibilityLabel="Remove avatar"
+                      accessibilityLabel={t('edit.removeAvatar')}
                     />
                   </View>
                 ) : (
@@ -173,12 +174,12 @@ export default function EditProfileScreen() {
                   style={styles.changeAvatarButton}
                   disabled={loading}
                 >
-                  Change Avatar
+                  {t('edit.changeAvatar')}
                 </Button>
               </View>
 
               <TextInput
-                label="Full Name"
+                label={t('edit.fullName')}
                 value={name}
                 onChangeText={setName}
                 mode="outlined"
@@ -188,7 +189,7 @@ export default function EditProfileScreen() {
               />
 
               <TextInput
-                label="Username"
+                label={t('edit.username')}
                 value={username}
                 onChangeText={setUsername}
                 mode="outlined"
@@ -201,7 +202,7 @@ export default function EditProfileScreen() {
 
               <View style={styles.infoSection}>
                 <Text variant="labelLarge" style={styles.infoLabel}>
-                  Email
+                  {t('edit.email')}
                 </Text>
                 <Text
                   variant="bodyMedium"
@@ -210,7 +211,7 @@ export default function EditProfileScreen() {
                   {user.email}
                 </Text>
                 <HelperText type="info" visible={true}>
-                  Email cannot be changed
+                  {t('edit.emailCannotChange')}
                 </HelperText>
               </View>
 
@@ -222,7 +223,7 @@ export default function EditProfileScreen() {
 
               {success ? (
                 <HelperText type="info" visible={true} style={styles.success}>
-                  Profile updated successfully!
+                  {t('edit.updateSuccess')}
                 </HelperText>
               ) : null}
 
@@ -233,7 +234,7 @@ export default function EditProfileScreen() {
                 loading={loading}
                 disabled={loading || !hasChanges}
               >
-                Save Changes
+                {t('edit.saveChanges')}
               </Button>
 
               <Button
@@ -242,7 +243,7 @@ export default function EditProfileScreen() {
                 style={styles.button}
                 disabled={loading}
               >
-                Cancel
+                {t('common:cancel', { defaultValue: 'Cancel' })}
               </Button>
             </View>
           </View>

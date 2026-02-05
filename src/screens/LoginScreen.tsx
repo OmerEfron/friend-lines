@@ -15,7 +15,9 @@ import {
   HelperText,
 } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import { A11Y_LABELS, A11Y_HINTS } from '../utils/a11y';
+import { useA11y } from '../utils/a11y';
+
+// Uses 'auth' namespace for translation keys
 
 interface LoginScreenProps {
   onLogin: (email: string, password: string) => Promise<void>;
@@ -27,7 +29,8 @@ export default function LoginScreen({
   onNavigateToSignup,
 }: LoginScreenProps) {
   const theme = useTheme();
-  const { t } = useTranslation();
+  const { t } = useTranslation('auth');
+  const { labels: a11yLabels, hints: a11yHints } = useA11y();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -38,7 +41,7 @@ export default function LoginScreen({
     setError('');
 
     if (!email.trim() || !password) {
-      setError(t('auth.login.error'));
+      setError(t('login.error'));
       return;
     }
 
@@ -46,7 +49,7 @@ export default function LoginScreen({
     try {
       await onLogin(email.trim().toLowerCase(), password);
     } catch (err) {
-      setError(err instanceof Error ? err.message : t('auth.login.failed'));
+      setError(err instanceof Error ? err.message : t('login.failed'));
     } finally {
       setLoading(false);
     }
@@ -61,18 +64,18 @@ export default function LoginScreen({
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <View style={styles.content}>
             <Text variant="displaySmall" style={styles.title}>
-              {t('auth.login.title')}
+              {t('login.title')}
             </Text>
             <Text
               variant="bodyLarge"
               style={[styles.subtitle, { color: theme.colors.onSurfaceVariant }]}
             >
-              {t('auth.login.subtitle')}
+              {t('login.subtitle')}
             </Text>
 
             <View style={styles.form}>
               <TextInput
-                label={t('auth.login.email')}
+                label={t('login.email')}
                 value={email}
                 onChangeText={setEmail}
                 mode="outlined"
@@ -84,7 +87,7 @@ export default function LoginScreen({
               />
 
               <TextInput
-                label={t('auth.login.password')}
+                label={t('login.password')}
                 value={password}
                 onChangeText={setPassword}
                 mode="outlined"
@@ -97,8 +100,8 @@ export default function LoginScreen({
                   <TextInput.Icon
                     icon={showPassword ? 'eye-off' : 'eye'}
                     onPress={() => setShowPassword(!showPassword)}
-                    accessibilityLabel={showPassword ? A11Y_LABELS.HIDE_PASSWORD : A11Y_LABELS.SHOW_PASSWORD}
-                    accessibilityHint={A11Y_HINTS.TOGGLE_PASSWORD}
+                    accessibilityLabel={showPassword ? a11yLabels.HIDE_PASSWORD : a11yLabels.SHOW_PASSWORD}
+                    accessibilityHint={a11yHints.TOGGLE_PASSWORD}
                   />
                 }
               />
@@ -116,7 +119,7 @@ export default function LoginScreen({
                 loading={loading}
                 disabled={loading}
               >
-                {t('auth.login.signIn')}
+                {t('login.signIn')}
               </Button>
 
               <Button
@@ -125,7 +128,7 @@ export default function LoginScreen({
                 style={styles.linkButton}
                 disabled={loading}
               >
-                {t('auth.login.noAccount')}
+                {t('login.noAccount')}
               </Button>
             </View>
           </View>

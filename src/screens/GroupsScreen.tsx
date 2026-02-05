@@ -20,7 +20,7 @@ type NavigationProp = NativeStackNavigationProp<GroupStackParamList, 'GroupsList
 export default function GroupsScreen() {
   const navigation = useNavigation<NavigationProp>();
   const theme = useTheme();
-  const { t } = useTranslation();
+  const { t } = useTranslation('groups');
   const { groups, refreshGroups } = useData();
   const [refreshing, setRefreshing] = useState(false);
 
@@ -39,7 +39,7 @@ export default function GroupsScreen() {
   const renderGroup = ({ item }: { item: Group }) => (
     <List.Item
       title={item.name}
-      description={t('groups.members', { count: item.userIds.length })}
+      description={t('members', { count: item.userIds.length })}
       left={(props) => (
         <List.Icon 
           {...props} 

@@ -13,7 +13,7 @@ interface LanguageSelectorProps {
 
 export default function LanguageSelector({ visible, onDismiss }: LanguageSelectorProps) {
   const theme = useTheme();
-  const { t } = useTranslation();
+  const { t } = useTranslation('profile');
   const { currentLanguage, changeLanguage, supportedLanguages } = useLanguage();
   const [selectedLang, setSelectedLang] = useState<SupportedLanguage>(currentLanguage || 'en');
 
@@ -46,7 +46,7 @@ export default function LanguageSelector({ visible, onDismiss }: LanguageSelecto
         ]}
       >
         <Text variant="titleLarge" style={styles.title}>
-          {t('profile.changeLanguage')}
+          {t('changeLanguage')}
         </Text>
 
         <RadioButton.Group

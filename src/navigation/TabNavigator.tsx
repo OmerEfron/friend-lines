@@ -3,6 +3,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTheme } from 'react-native-paper';
+import { useTranslation } from 'react-i18next';
 import MainFeedScreen from '../screens/MainFeedScreen';
 import GroupsScreen from '../screens/GroupsScreen';
 import GroupFeedScreen from '../screens/GroupFeedScreen';
@@ -16,7 +17,7 @@ import EditProfileScreen from '../screens/EditProfileScreen';
 import CreateNewsflashScreen from '../screens/CreateNewsflashScreen';
 import CreateGroupScreen from '../screens/CreateGroupScreen';
 import { Group } from '../types';
-import { A11Y_LABELS, A11Y_HINTS } from '../utils/a11y';
+import { useA11y } from '../utils/a11y';
 import { TAB_BAR, SPACING } from '../theme/spacing';
 
 // Type definitions for navigation
@@ -54,6 +55,7 @@ const RootStack = createNativeStackNavigator<RootStackParamList>();
 
 function GroupsStackScreen() {
   const theme = useTheme();
+  const { t } = useTranslation('nav');
   
   return (
     <GroupStack.Navigator
@@ -68,13 +70,13 @@ function GroupsStackScreen() {
       <GroupStack.Screen 
         name="GroupsList" 
         component={GroupsScreen}
-        options={{ title: 'Groups' }}
+        options={{ title: t('screens.groups') }}
       />
       <GroupStack.Screen 
         name="GroupFeed" 
         component={GroupFeedScreen}
         options={({ route }) => ({ 
-          title: route.params?.group?.name || 'Group Feed' 
+          title: route.params?.group?.name || t('screens.groupFeed') 
         })}
       />
     </GroupStack.Navigator>
@@ -83,6 +85,7 @@ function GroupsStackScreen() {
 
 function ProfileStackScreen() {
   const theme = useTheme();
+  const { t } = useTranslation('nav');
   
   return (
     <ProfileStack.Navigator
@@ -97,37 +100,37 @@ function ProfileStackScreen() {
       <ProfileStack.Screen 
         name="ProfileMain" 
         component={ProfileScreen}
-        options={{ title: 'My Profile' }}
+        options={{ title: t('screens.myProfile') }}
       />
       <ProfileStack.Screen 
         name="Saved" 
         component={SavedScreen}
-        options={{ title: 'Saved Items' }}
+        options={{ title: t('screens.savedItems') }}
       />
       <ProfileStack.Screen 
         name="FriendsList" 
         component={FriendsListScreen}
-        options={{ title: 'My Friends' }}
+        options={{ title: t('screens.myFriends') }}
       />
       <ProfileStack.Screen 
         name="AddFriend" 
         component={AddFriendScreen}
-        options={{ title: 'Add Friend' }}
+        options={{ title: t('screens.addFriend') }}
       />
       <ProfileStack.Screen 
         name="FriendRequests" 
         component={FriendRequestsScreen}
-        options={{ title: 'Friend Requests' }}
+        options={{ title: t('screens.friendRequests') }}
       />
       <ProfileStack.Screen 
         name="UserFeed" 
         component={UserFeedScreen}
-        options={{ title: 'Filed Reports' }}
+        options={{ title: t('screens.filedReports') }}
       />
       <ProfileStack.Screen 
         name="EditProfile" 
         component={EditProfileScreen}
-        options={{ title: 'Update Press Pass' }}
+        options={{ title: t('screens.updatePressPass') }}
       />
     </ProfileStack.Navigator>
   );
@@ -135,6 +138,8 @@ function ProfileStackScreen() {
 
 function MainTabNavigator() {
   const theme = useTheme();
+  const { t } = useTranslation('nav');
+  const { labels: a11yLabels } = useA11y();
   
   return (
     <Tab.Navigator
@@ -188,22 +193,22 @@ function MainTabNavigator() {
         component={MainFeedScreen}
         options={{ 
           headerShown: true,
-          title: 'Friendlines',
-          tabBarAccessibilityLabel: A11Y_LABELS.TAB_HOME,
+          title: t('screens.friendlines'),
+          tabBarAccessibilityLabel: a11yLabels.TAB_HOME,
         }}
       />
       <Tab.Screen 
         name="Groups" 
         component={GroupsStackScreen}
         options={{
-          tabBarAccessibilityLabel: A11Y_LABELS.TAB_GROUPS,
+          tabBarAccessibilityLabel: a11yLabels.TAB_GROUPS,
         }}
       />
       <Tab.Screen 
         name="Profile" 
         component={ProfileStackScreen}
         options={{
-          tabBarAccessibilityLabel: A11Y_LABELS.TAB_PROFILE,
+          tabBarAccessibilityLabel: a11yLabels.TAB_PROFILE,
         }}
       />
     </Tab.Navigator>
@@ -212,6 +217,7 @@ function MainTabNavigator() {
 
 export default function TabNavigator() {
   const theme = useTheme();
+  const { t } = useTranslation('nav');
   
   return (
     <RootStack.Navigator
@@ -233,7 +239,7 @@ export default function TabNavigator() {
         component={CreateNewsflashScreen}
         options={{
           presentation: 'modal',
-          title: 'New Newsflash',
+          title: t('screens.newNewsflash'),
         }}
       />
       <RootStack.Screen
@@ -241,7 +247,7 @@ export default function TabNavigator() {
         component={CreateGroupScreen}
         options={{
           presentation: 'modal',
-          title: 'New Group',
+          title: t('screens.newGroup'),
         }}
       />
     </RootStack.Navigator>

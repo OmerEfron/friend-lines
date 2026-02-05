@@ -1,0 +1,24 @@
+{
+  "title": "Friends",
+  "add": "Add Friend",
+  "requests": "Friend Requests",
+  "pending": "Pending",
+  "accept": "Accept",
+  "decline": "Decline",
+  "remove": "Remove Friend",
+  "noFriends": "No friends yet",
+  "findFriends": "Find friends to connect with",
+  "search": {
+    "placeholder": "Search by name or username...",
+    "noResults": "No users found",
+    "startTyping": "Start typing to search for users",
+    "tryDifferent": "Try a different search term",
+    "searchHint": "Search by name or username"
+  },
+  "status": {
+    "friends": "Friends ✓",
+    "requestSent": "Request Sent",
+    "respond": "Respond",
+    "sendRequest": "Send Request"
+  }
+}

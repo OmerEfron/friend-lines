@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { FlashList } from '@shopify/flash-list';
 import { Surface, Searchbar, List, Avatar, useTheme, Button, Text, ActivityIndicator } from 'react-native-paper';
+import { useTranslation } from 'react-i18next';
 import { useData } from '../context/DataContext';
 import { User } from '../types';
 import { searchUsers } from '../services/api';
@@ -19,6 +20,7 @@ interface FriendRequest {
 export default function AddFriendScreen() {
   const theme = useTheme();
   const navigation = useNavigation();
+  const { t } = useTranslation('friends');
   const { friends, currentUser, addFriend } = useData();
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<User[]>([]);
@@ -141,13 +143,13 @@ export default function AddFriendScreen() {
             case 'friends':
               return (
                 <Text variant="labelSmall" style={styles.statusText}>
-                  Friends ✓
+                  {t('status.friends')}
                 </Text>
               );
             case 'request-sent':
               return (
                 <Text variant="labelSmall" style={styles.statusText}>
-                  Request Sent
+                  {t('status.requestSent')}
                 </Text>
               );
             case 'request-received':
@@ -157,7 +159,7 @@ export default function AddFriendScreen() {
                   onPress={() => navigation.navigate('FriendRequests' as never)}
                   compact
                 >
-                  Respond
+                  {t('status.respond')}
                 </Button>
               );
             default:
@@ -168,7 +170,7 @@ export default function AddFriendScreen() {
                   icon="account-plus"
                   compact
                 >
-                  Send Request
+                  {t('status.sendRequest')}
                 </Button>
               );
           }
@@ -186,10 +188,10 @@ export default function AddFriendScreen() {
     return (
       <View style={styles.emptyContainer}>
         <Text variant="bodyLarge" style={styles.emptyText}>
-          {searchQuery ? 'No users found' : 'Start typing to search for users'}
+          {searchQuery ? t('search.noResults') : t('search.startTyping')}
         </Text>
         <Text variant="bodySmall" style={styles.emptySubtext}>
-          {searchQuery ? 'Try a different search term' : 'Search by name or username'}
+          {searchQuery ? t('search.tryDifferent') : t('search.searchHint')}
         </Text>
       </View>
     );
@@ -199,7 +201,7 @@ export default function AddFriendScreen() {
     <Surface style={styles.container}>
       <View style={styles.searchContainer}>
         <Searchbar
-          placeholder="Search by name or username..."
+          placeholder={t('search.placeholder')}
           onChangeText={setSearchQuery}
           value={searchQuery}
           style={styles.searchbar}

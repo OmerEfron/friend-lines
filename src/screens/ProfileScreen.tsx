@@ -14,7 +14,7 @@ import LanguageSelector from '../components/LanguageSelector';
 export default function ProfileScreen() {
   const theme = useTheme();
   const navigation = useNavigation();
-  const { t } = useTranslation();
+  const { t } = useTranslation('profile');
   const { isDark, toggleTheme } = useAppTheme();
   const { newsflashes, currentUser, friends } = useData();
   const { bookmarkedIds } = useBookmarks();
@@ -75,10 +75,10 @@ export default function ProfileScreen() {
         <Card style={[styles.pressPass, { borderColor: theme.colors.primary }]} mode="outlined">
           <View style={styles.pressPassHeader}>
             <Text style={[styles.pressPassLabel, { color: theme.colors.primary }]}>
-              {t('profile.pressCredentials')}
+              {t('pressCredentials')}
             </Text>
             <View style={[styles.activeBadge, { backgroundColor: theme.colors.tertiary }]}>
-              <Text style={styles.activeBadgeText}>{t('profile.active')}</Text>
+              <Text style={styles.activeBadgeText}>{t('active')}</Text>
             </View>
           </View>
 
@@ -105,7 +105,7 @@ export default function ProfileScreen() {
                   variant="labelSmall"
                   style={{ color: theme.colors.onSecondaryContainer, fontWeight: '600' }}
                 >
-                  {t('profile.correspondent')}
+                  {t('correspondent')}
                 </Text>
               </View>
             </View>
@@ -118,7 +118,7 @@ export default function ProfileScreen() {
                 {userNewsflashCount}
               </Text>
               <Text variant="labelSmall" style={{ color: theme.colors.onSurfaceVariant }}>
-                {t('profile.reportsFiled')}
+                {t('reportsFiled')}
               </Text>
             </View>
             <View style={[styles.statDivider, { backgroundColor: theme.colors.outlineVariant }]} />
@@ -127,7 +127,7 @@ export default function ProfileScreen() {
                 {friendsCount}
               </Text>
               <Text variant="labelSmall" style={{ color: theme.colors.onSurfaceVariant }}>
-                {t('profile.network')}
+                {t('network')}
               </Text>
             </View>
             <View style={[styles.statDivider, { backgroundColor: theme.colors.outlineVariant }]} />
@@ -142,7 +142,7 @@ export default function ProfileScreen() {
                 {pendingRequestsCount}
               </Text>
               <Text variant="labelSmall" style={{ color: theme.colors.onSurfaceVariant }}>
-                {t('profile.pending')}
+                {t('pending')}
               </Text>
             </View>
           </View>
@@ -151,12 +151,12 @@ export default function ProfileScreen() {
         {/* Assignment Desk Section */}
         <View style={styles.section}>
           <Text variant="labelLarge" style={[styles.sectionTitle, { color: theme.colors.primary }]}>
-            {t('profile.assignmentDesk')}
+            {t('assignmentDesk')}
           </Text>
           <Card mode="contained" style={styles.menuCard}>
             <List.Item
-              title={t('profile.filedReports')}
-              description={t('profile.newsflashCount', { count: userNewsflashCount })}
+              title={t('filedReports')}
+              description={t('newsflashCount', { count: userNewsflashCount })}
               left={() => (
                 <MaterialCommunityIcons
                   name="newspaper-variant-multiple"
@@ -171,8 +171,8 @@ export default function ProfileScreen() {
               onPress={() => navigation.navigate('UserFeed' as never)}
             />
             <List.Item
-              title={t('profile.archives')}
-              description={t('profile.bookmarkedCount', { count: bookmarkedIds.length })}
+              title={t('archives')}
+              description={t('bookmarkedCount', { count: bookmarkedIds.length })}
               left={() => (
                 <MaterialCommunityIcons
                   name="archive"
@@ -192,15 +192,15 @@ export default function ProfileScreen() {
         {/* Network Section */}
         <View style={styles.section}>
           <Text variant="labelLarge" style={[styles.sectionTitle, { color: theme.colors.primary }]}>
-            {t('profile.correspondentNetwork')}
+            {t('correspondentNetwork')}
           </Text>
           <Card mode="contained" style={styles.menuCard}>
             <List.Item
-              title={t('profile.networkRequests')}
+              title={t('networkRequests')}
               description={
                 pendingRequestsCount > 0
-                  ? t('profile.pendingCount', { count: pendingRequestsCount })
-                  : t('profile.noPendingRequests')
+                  ? t('pendingCount', { count: pendingRequestsCount })
+                  : t('noPendingRequests')
               }
               left={() => (
                 <MaterialCommunityIcons
@@ -223,8 +223,8 @@ export default function ProfileScreen() {
               onPress={() => navigation.navigate('FriendRequests' as never)}
             />
             <List.Item
-              title={t('profile.myCorrespondents')}
-              description={t('profile.inNetwork', { count: friendsCount })}
+              title={t('myCorrespondents')}
+              description={t('inNetwork', { count: friendsCount })}
               left={() => (
                 <MaterialCommunityIcons
                   name="account-group"
@@ -239,8 +239,8 @@ export default function ProfileScreen() {
               onPress={() => navigation.navigate('FriendsList' as never)}
             />
             <List.Item
-              title={t('profile.recruitCorrespondents')}
-              description={t('profile.expandNetwork')}
+              title={t('recruitCorrespondents')}
+              description={t('expandNetwork')}
               left={() => (
                 <MaterialCommunityIcons
                   name="account-plus"
@@ -260,12 +260,12 @@ export default function ProfileScreen() {
         {/* Settings Section */}
         <View style={styles.section}>
           <Text variant="labelLarge" style={[styles.sectionTitle, { color: theme.colors.primary }]}>
-            {t('profile.system')}
+            {t('system')}
           </Text>
           <Card mode="contained" style={styles.menuCard}>
             <List.Item
-              title={t('profile.updatePressPass')}
-              description={t('profile.editCredentials')}
+              title={t('updatePressPass')}
+              description={t('editCredentials')}
               left={() => (
                 <MaterialCommunityIcons
                   name="card-account-details-outline"
@@ -280,8 +280,8 @@ export default function ProfileScreen() {
               onPress={() => navigation.navigate('EditProfile' as never)}
             />
             <List.Item
-              title={t('profile.nightEdition')}
-              description={isDark ? t('profile.enabled') : t('profile.disabled')}
+              title={t('nightEdition')}
+              description={isDark ? t('enabled') : t('disabled')}
               left={() => (
                 <MaterialCommunityIcons
                   name={isDark ? 'weather-night' : 'white-balance-sunny'}
@@ -293,7 +293,7 @@ export default function ProfileScreen() {
               right={() => <Switch value={isDark} onValueChange={toggleTheme} color={theme.colors.primary} />}
             />
             <List.Item
-              title={t('profile.language')}
+              title={t('language')}
               description={supportedLanguages[currentLanguage]?.nativeName || currentLanguage}
               left={() => (
                 <MaterialCommunityIcons
@@ -309,8 +309,8 @@ export default function ProfileScreen() {
               onPress={() => setShowLanguageSelector(true)}
             />
             <List.Item
-              title={t('profile.resignCommission')}
-              description={t('profile.signOut')}
+              title={t('resignCommission')}
+              description={t('signOut')}
               left={() => (
                 <MaterialCommunityIcons
                   name="exit-run"

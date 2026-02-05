@@ -1,33 +1,36 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { View, StyleSheet, ScrollView, KeyboardAvoidingView, Platform, Alert } from 'react-native';
 import { Surface, TextInput, Button, useTheme, Text, IconButton, Card, Chip } from 'react-native-paper';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
+import { useTranslation } from 'react-i18next';
 import { useData } from '../context/DataContext';
 import { useNavigation } from '@react-navigation/native';
 import { uploadImage, getFileInfo } from '../services/upload';
 import { NewsCategory, NewsSeverity, NewsflashAudience } from '../types';
 import NewsOptions from '../components/NewsOptions';
 import NewsflashAudiencePicker from '../components/NewsflashAudiencePicker';
-import { A11Y_LABELS, HIT_SLOP_48 } from '../utils/a11y';
+import { useA11y, HIT_SLOP_48 } from '../utils/a11y';
 
 const HEADLINE_MAX = 150;
 const SUBHEADLINE_MAX = 200;
-
-// Quick headline starters
-const HEADLINE_STARTERS = [
-  'Just discovered...',
-  'Can confirm:',
-  'Breaking news from my life:',
-  'Update:',
-  'Plot twist:',
-];
 
 export default function CreateNewsflashScreen() {
   const theme = useTheme();
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
+  const { t } = useTranslation('creation');
   const { addNewsflash, currentUser, groups } = useData();
+  const { labels: a11yLabels } = useA11y();
+
+  // Quick headline starters - localized
+  const headlineStarters = useMemo(() => [
+    t('newsflash.starters.discovered'),
+    t('newsflash.starters.confirm'),
+    t('newsflash.starters.breaking'),
+    t('newsflash.starters.update'),
+    t('newsflash.starters.plotTwist'),
+  ], [t]);
   
   const [headline, setHeadline] = useState('');
   const [subHeadline, setSubHeadline] = useState('');
@@ -57,12 +60,12 @@ export default function CreateNewsflashScreen() {
     try {
       let mediaUrl: string | undefined;
       if (image) {
-        setUploadProgress('Uploading image...');
+        setUploadProgress(t('newsflash.uploadingImage'));
         const { fileName, fileType } = getFileInfo(image);
         mediaUrl = await uploadImage(image, fileName, fileType);
       }
 
-      setUploadProgress('Filing report...');
+      setUploadProgress(t('newsflash.filingReport'));
       await addNewsflash({
         userId: currentUser.id,
         headline: headline.trim(),
@@ -97,16 +100,16 @@ export default function CreateNewsflashScreen() {
           <View style={styles.content}>
             {/* Header */}
             <Text variant="headlineSmall" style={styles.title}>
-              What's the story?
+              {t('newsflash.title')}
             </Text>
             <Text variant="bodySmall" style={styles.subtitle}>
-              Share what's happening in your world
+              {t('newsflash.subtitle')}
             </Text>
 
             {/* Quick Starters */}
             {!headline && (
               <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.startersRow}>
-                {HEADLINE_STARTERS.map((starter, idx) => (
+                {headlineStarters.map((starter, idx) => (
                   <Chip
                     key={idx}
                     onPress={() => setHeadline(starter + ' ')}
@@ -128,7 +131,7 @@ export default function CreateNewsflashScreen() {
                 mode="flat"
                 style={[styles.headlineInput, { backgroundColor: 'transparent' }]}
                 maxLength={HEADLINE_MAX}
-                placeholder="Write your headline..."
+                placeholder={t('newsflash.headlinePlaceholder')}
                 placeholderTextColor={theme.colors.onSurfaceVariant}
                 multiline
                 autoFocus
@@ -153,7 +156,7 @@ export default function CreateNewsflashScreen() {
                 compact
                 style={styles.addSubheadline}
               >
-                Add details
+                {t('newsflash.addDetails')}
               </Button>
             ) : (
               <View style={styles.inputWrapper}>
@@ -163,7 +166,7 @@ export default function CreateNewsflashScreen() {
                   mode="flat"
                   style={[styles.subheadlineInput, { backgroundColor: 'transparent' }]}
                   maxLength={SUBHEADLINE_MAX}
-                  placeholder="Add more context..."
+                  placeholder={t('newsflash.subheadlinePlaceholder')}
                   placeholderTextColor={theme.colors.onSurfaceVariant}
                   multiline
                 />
@@ -186,12 +189,12 @@ export default function CreateNewsflashScreen() {
                     onPress={() => setImage(null)}
                     style={styles.removeImageBtn}
                     iconColor="white"
-                    accessibilityLabel={A11Y_LABELS.REMOVE_PHOTO}
+                    accessibilityLabel={a11yLabels.REMOVE_PHOTO}
                   />
                 </View>
               ) : (
                 <Button mode="outlined" icon="camera" onPress={pickImage} style={styles.addImageBtn}>
-                  Add photo
+                  {t('newsflash.addPhoto')}
                 </Button>
               )}
             </View>
@@ -228,7 +231,7 @@ export default function CreateNewsflashScreen() {
           }
         ]}>
           <Button mode="text" onPress={() => navigation.goBack()} disabled={isSubmitting}>
-            Cancel
+            {t('newsflash.cancel')}
           </Button>
           <Button
             mode="contained"
@@ -237,7 +240,7 @@ export default function CreateNewsflashScreen() {
             loading={isSubmitting}
             icon="send"
           >
-            Publish
+            {t('newsflash.publish')}
           </Button>
         </View>
       </KeyboardAvoidingView>

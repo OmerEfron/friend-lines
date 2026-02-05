@@ -27,15 +27,15 @@ export default function FeedList({
 }: FeedListProps) {
   const theme = useTheme();
   const navigation = useNavigation();
-  const { t } = useTranslation();
+  const { t } = useTranslation('feed');
 
   const renderEmpty = () => (
     <View style={styles.emptyContainer}>
       <Text variant="headlineSmall" style={styles.emptyHeadline}>
-        {t('feed.empty')}
+        {t('empty')}
       </Text>
       <Text variant="bodyMedium" style={styles.emptyText}>
-        {t('feed.emptySubtitle')}
+        {t('emptySubtitle')}
       </Text>
       {showActions && (
         <View style={styles.emptyActions}>
@@ -45,7 +45,7 @@ export default function FeedList({
             onPress={() => navigation.navigate('CreateNewsflash' as never)}
             style={styles.actionButton}
           >
-            {t('newsflash.create')}
+            {t('create', { ns: 'newsflash' })}
           </Button>
           <Button
             mode="outlined"
@@ -53,7 +53,7 @@ export default function FeedList({
             onPress={() => navigation.navigate('AddFriend' as never)}
             style={styles.actionButton}
           >
-            {t('friends.add')}
+            {t('add', { ns: 'friends' })}
           </Button>
         </View>
       )}

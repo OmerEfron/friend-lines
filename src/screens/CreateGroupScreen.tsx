@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { Surface, TextInput, Button, useTheme, Text, Checkbox, List } from 'react-native-paper';
+import { useTranslation } from 'react-i18next';
 import { useData } from '../context/DataContext';
 import { useNavigation } from '@react-navigation/native';
 
 export default function CreateGroupScreen() {
   const theme = useTheme();
   const navigation = useNavigation();
+  const { t } = useTranslation('creation');
   const { addGroup, friends } = useData();
   
   const [groupName, setGroupName] = useState('');
@@ -48,21 +50,21 @@ export default function CreateGroupScreen() {
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <View style={styles.content}>
             <Text variant="titleLarge" style={styles.title}>
-              Create Group
+              {t('group.title')}
             </Text>
             
             <TextInput
-              label="Group Name *"
+              label={t('group.nameLabel')}
               value={groupName}
               onChangeText={setGroupName}
               mode="outlined"
               style={styles.input}
               maxLength={50}
-              placeholder="Enter group name..."
+              placeholder={t('group.namePlaceholder')}
             />
 
             <Text variant="titleMedium" style={styles.sectionTitle}>
-              Select Friends ({selectedUserIds.length})
+              {t('group.selectFriends', { count: selectedUserIds.length })}
             </Text>
 
             {friends.map(friend => (
@@ -88,7 +90,7 @@ export default function CreateGroupScreen() {
                 style={styles.button}
                 disabled={isSubmitting}
               >
-                Cancel
+                {t('group.cancel')}
               </Button>
               
               <Button
@@ -98,7 +100,7 @@ export default function CreateGroupScreen() {
                 disabled={!isValid || isSubmitting}
                 loading={isSubmitting}
               >
-                Create
+                {t('group.create')}
               </Button>
             </View>
           </View>

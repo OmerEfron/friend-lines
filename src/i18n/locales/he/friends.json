@@ -1,0 +1,24 @@
+{
+  "title": "חברים",
+  "add": "הוסף חבר",
+  "requests": "בקשות חברות",
+  "pending": "ממתין",
+  "accept": "קבל",
+  "decline": "דחה",
+  "remove": "הסר חבר",
+  "noFriends": "אין לך חברים עדיין",
+  "findFriends": "מצא חברים להתחבר איתם",
+  "search": {
+    "placeholder": "חפש לפי שם או שם משתמש...",
+    "noResults": "לא נמצאו משתמשים",
+    "startTyping": "התחל להקליד כדי לחפש משתמשים",
+    "tryDifferent": "נסה מונח חיפוש אחר",
+    "searchHint": "חפש לפי שם או שם משתמש"
+  },
+  "status": {
+    "friends": "חברים ✓",
+    "requestSent": "בקשה נשלחה",
+    "respond": "הגב",
+    "sendRequest": "שלח בקשה"
+  }
+}

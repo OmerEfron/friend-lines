@@ -1,0 +1,20 @@
+{
+  "create": "Crear Noticia",
+  "placeholder": "¿Qué tienes en mente?",
+  "post": "Publicar",
+  "addImage": "Agregar imagen",
+  "removeImage": "Eliminar imagen",
+  "postedBy": "Publicado por {{name}}",
+  "justNow": "Ahora mismo",
+  "minutesAgo": "Hace {{count}} minuto",
+  "minutesAgo_plural": "Hace {{count}} minutos",
+  "hoursAgo": "Hace {{count}} hora",
+  "hoursAgo_plural": "Hace {{count}} horas",
+  "daysAgo": "Hace {{count}} día",
+  "daysAgo_plural": "Hace {{count}} días",
+  "severity": {
+    "standard": "Estándar",
+    "breaking": "URGENTE",
+    "developing": "EN DESARROLLO"
+  }
+}

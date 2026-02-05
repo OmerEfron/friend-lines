@@ -12,12 +12,13 @@ import {
 } from 'react-native-paper';
 import { useData } from '../context/DataContext';
 import { User } from '../types';
-import { A11Y_LABELS, A11Y_HINTS, HIT_SLOP_48 } from '../utils/a11y';
+import { useA11y, HIT_SLOP_48 } from '../utils/a11y';
 import { lightImpact, warningNotification } from '../utils/haptics';
 
 export default function FriendsListScreen() {
   const theme = useTheme();
   const { friends, removeFriend, refreshFriends } = useData();
+  const { labels: a11yLabels, hints: a11yHints } = useA11y();
   const [refreshing, setRefreshing] = useState(false);
 
   const handleRefresh = async () => {
@@ -59,7 +60,7 @@ export default function FriendsListScreen() {
           onPress={() => handleRemoveFriend(item.id)}
           iconColor={theme.colors.error}
           accessibilityLabel={`Remove ${item.name} from friends`}
-          accessibilityHint={A11Y_HINTS.REMOVE_FRIEND}
+          accessibilityHint={a11yHints.REMOVE_FRIEND}
         />
       )}
       style={styles.listItem}
@@ -91,8 +92,8 @@ export default function FriendsListScreen() {
             size={20}
             onPress={handleRefresh}
             style={styles.refreshButton}
-            accessibilityLabel={A11Y_LABELS.REFRESH}
-            accessibilityHint={A11Y_HINTS.REFRESH}
+            accessibilityLabel={a11yLabels.REFRESH}
+            accessibilityHint={a11yHints.REFRESH}
           />
         )}
       </View>

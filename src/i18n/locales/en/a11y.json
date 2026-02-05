@@ -1,0 +1,35 @@
+{
+  "tabs": {
+    "home": "Home feed",
+    "groups": "Groups",
+    "profile": "Profile"
+  },
+  "actions": {
+    "bookmarkAdd": "Add to bookmarks",
+    "bookmarkRemove": "Remove from bookmarks",
+    "refresh": "Refresh",
+    "close": "Close",
+    "remove": "Remove",
+    "back": "Go back"
+  },
+  "auth": {
+    "showPassword": "Show password",
+    "hidePassword": "Hide password"
+  },
+  "content": {
+    "addPhoto": "Add photo",
+    "removePhoto": "Remove photo",
+    "publish": "Publish newsflash",
+    "cancel": "Cancel",
+    "createNewsflash": "Create new newsflash",
+    "createGroup": "Create new group"
+  },
+  "hints": {
+    "bookmarkAdd": "Double tap to save this newsflash",
+    "bookmarkRemove": "Double tap to remove from saved items",
+    "refresh": "Double tap to refresh the list",
+    "tabNavigate": "Double tap to navigate",
+    "togglePassword": "Double tap to toggle password visibility",
+    "removeFriend": "Double tap to remove this friend"
+  }
+}

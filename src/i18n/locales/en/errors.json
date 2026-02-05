@@ -1,0 +1,9 @@
+{
+  "generic": "Something went wrong",
+  "network": "Unable to connect. Please check your connection.",
+  "notFound": "Not found",
+  "unauthorized": "Please log in to continue",
+  "createNewsflash": "Failed to create newsflash",
+  "uploadImage": "Failed to upload image",
+  "loadFailed": "Failed to load data"
+}

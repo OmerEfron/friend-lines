@@ -1,0 +1,11 @@
+{
+  "title": "קבוצות",
+  "create": "צור קבוצה",
+  "join": "הצטרף",
+  "leave": "עזוב",
+  "members": "חברים {{count}}",
+  "members_plural": "{{count}} חברים",
+  "noGroups": "אין קבוצות עדיין",
+  "createFirst": "צור או הצטרף לקבוצה כדי להתחיל",
+  "feedFallback": "פיד הקבוצה"
+}

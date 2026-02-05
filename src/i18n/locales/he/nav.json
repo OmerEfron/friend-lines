@@ -1,0 +1,22 @@
+{
+  "tabs": {
+    "home": "בית",
+    "groups": "קבוצות",
+    "saved": "שמורים",
+    "profile": "פרופיל"
+  },
+  "screens": {
+    "groups": "קבוצות",
+    "groupFeed": "עדכוני קבוצה",
+    "myProfile": "הפרופיל שלי",
+    "savedItems": "פריטים שמורים",
+    "myFriends": "החברים שלי",
+    "addFriend": "הוסף חבר",
+    "friendRequests": "בקשות חברות",
+    "filedReports": "דיווחים שנשלחו",
+    "updatePressPass": "עדכן תעודת עיתונאי",
+    "newNewsflash": "עדכון חדש",
+    "newGroup": "קבוצה חדשה",
+    "friendlines": "Friendlines"
+  }
+}

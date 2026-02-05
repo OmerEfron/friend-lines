@@ -2,14 +2,18 @@ import React, { useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Surface, Searchbar, FAB } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
 import FeedList from '../components/FeedList';
 import NewsTicker from '../components/NewsTicker';
 import { useData } from '../context/DataContext';
+import { useA11y } from '../utils/a11y';
 import { mediumImpact } from '../utils/haptics';
 import { FAB as FAB_SPACING, SPACING } from '../theme/spacing';
 
 export default function MainFeedScreen() {
   const navigation = useNavigation();
+  const { t } = useTranslation('feed');
+  const { labels: a11yLabels } = useA11y();
   const { newsflashes, loadMoreNewsflashes, loadingMore, hasMore, refreshNewsflashes } = useData();
   const [searchQuery, setSearchQuery] = useState('');
   const [refreshing, setRefreshing] = useState(false);
@@ -47,7 +51,7 @@ export default function MainFeedScreen() {
       <NewsTicker newsflashes={filteredNewsflashes} />
       <View style={styles.searchContainer}>
         <Searchbar
-          placeholder="Search newsflashes..."
+          placeholder={t('searchPlaceholder')}
           onChangeText={setSearchQuery}
           value={searchQuery}
           style={styles.searchbar}
@@ -67,7 +71,7 @@ export default function MainFeedScreen() {
           mediumImpact();
           navigation.navigate('CreateNewsflash' as never);
         }}
-        accessibilityLabel="Create new newsflash"
+        accessibilityLabel={a11yLabels.CREATE_NEWSFLASH}
       />
     </Surface>
   );

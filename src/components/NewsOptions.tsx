@@ -1,20 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { View, StyleSheet, Pressable, Platform } from 'react-native';
 import { Chip, Text, useTheme, SegmentedButtons } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import { NewsCategory, NewsSeverity, NEWS_CATEGORIES } from '../types';
 import { selection, lightImpact } from '../utils/haptics';
 import { HIT_SLOP_48 } from '../utils/a11y';
 
-// Category display info with emojis for compact display
-const CATEGORY_INFO: Record<NewsCategory, { emoji: string; label: string }> = {
-  GENERAL: { emoji: '📰', label: 'General' },
-  LIFESTYLE: { emoji: '🏠', label: 'Lifestyle' },
-  ENTERTAINMENT: { emoji: '🎬', label: 'Entertainment' },
-  SPORTS: { emoji: '🏃', label: 'Sports' },
-  FOOD: { emoji: '🍽️', label: 'Food' },
-  TRAVEL: { emoji: '✈️', label: 'Travel' },
-  OPINION: { emoji: '💬', label: 'Opinion' },
+// Category emojis
+const CATEGORY_EMOJI: Record<NewsCategory, string> = {
+  GENERAL: '📰',
+  LIFESTYLE: '🏠',
+  ENTERTAINMENT: '🎬',
+  SPORTS: '🏃',
+  FOOD: '🍽️',
+  TRAVEL: '✈️',
+  OPINION: '💬',
 };
 
 interface NewsOptionsProps {
@@ -31,11 +32,26 @@ export default function NewsOptions({
   onSeverityChange,
 }: NewsOptionsProps) {
   const theme = useTheme();
+  const { t } = useTranslation('creation');
   const [expanded, setExpanded] = useState(false);
 
-  const currentCategory = CATEGORY_INFO[category];
-  const severityLabel = severity === 'BREAKING' ? '🔴 Breaking' : 
-                        severity === 'DEVELOPING' ? '📡 Developing' : 'Standard';
+  // Get localized category labels
+  const getCategoryLabel = (cat: NewsCategory) => {
+    const keyMap: Record<NewsCategory, string> = {
+      GENERAL: 'general',
+      LIFESTYLE: 'lifestyle',
+      ENTERTAINMENT: 'entertainment',
+      SPORTS: 'sports',
+      FOOD: 'food',
+      TRAVEL: 'travel',
+      OPINION: 'opinion',
+    };
+    return t(`options.categories.${keyMap[cat]}`);
+  };
+
+  const currentCategoryLabel = getCategoryLabel(category);
+  const severityLabel = severity === 'BREAKING' ? t('options.breaking') : 
+                        severity === 'DEVELOPING' ? t('options.developing') : t('options.standard');
 
   return (
     <View style={styles.container}>
@@ -52,13 +68,13 @@ export default function NewsOptions({
         ]}
         android_ripple={{ color: theme.colors.primary, borderless: false }}
         accessibilityRole="button"
-        accessibilityLabel={`News options: ${currentCategory.label}, ${severityLabel}`}
+        accessibilityLabel={`News options: ${currentCategoryLabel}, ${severityLabel}`}
         accessibilityHint={expanded ? 'Double tap to collapse options' : 'Double tap to expand options'}
         accessibilityState={{ expanded }}
       >
         <View style={styles.summaryContent}>
           <Text style={styles.summaryItem}>
-            {currentCategory.emoji} {currentCategory.label}
+            {CATEGORY_EMOJI[category]} {currentCategoryLabel}
           </Text>
           <Text style={styles.summaryDot}>•</Text>
           <Text style={styles.summaryItem}>{severityLabel}</Text>
@@ -74,7 +90,7 @@ export default function NewsOptions({
       {expanded && (
         <View style={[styles.expandedContent, { borderColor: theme.colors.outlineVariant }]}>
           {/* Severity */}
-          <Text variant="labelMedium" style={styles.optionLabel}>Severity</Text>
+          <Text variant="labelMedium" style={styles.optionLabel}>{t('options.severity')}</Text>
           <SegmentedButtons
             value={severity}
             onValueChange={(val) => {
@@ -82,16 +98,16 @@ export default function NewsOptions({
               onSeverityChange(val as NewsSeverity);
             }}
             buttons={[
-              { value: 'STANDARD', label: 'Standard' },
-              { value: 'BREAKING', label: '🔴 Breaking' },
-              { value: 'DEVELOPING', label: '📡 Developing' },
+              { value: 'STANDARD', label: t('options.standard') },
+              { value: 'BREAKING', label: t('options.breaking') },
+              { value: 'DEVELOPING', label: t('options.developing') },
             ]}
             style={styles.segmented}
             density="small"
           />
 
           {/* Category */}
-          <Text variant="labelMedium" style={styles.optionLabel}>Category</Text>
+          <Text variant="labelMedium" style={styles.optionLabel}>{t('options.category')}</Text>
           <View style={styles.categoryGrid}>
             {NEWS_CATEGORIES.map((cat) => (
               <Chip
@@ -105,7 +121,7 @@ export default function NewsOptions({
                 compact
                 style={styles.categoryChip}
               >
-                {CATEGORY_INFO[cat].emoji} {CATEGORY_INFO[cat].label}
+                {CATEGORY_EMOJI[cat]} {getCategoryLabel(cat)}
               </Chip>
             ))}
           </View>

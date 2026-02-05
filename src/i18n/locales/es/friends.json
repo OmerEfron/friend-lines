@@ -1,0 +1,24 @@
+{
+  "title": "Amigos",
+  "add": "Agregar Amigo",
+  "requests": "Solicitudes de Amistad",
+  "pending": "Pendiente",
+  "accept": "Aceptar",
+  "decline": "Rechazar",
+  "remove": "Eliminar Amigo",
+  "noFriends": "Aún no tienes amigos",
+  "findFriends": "Encuentra amigos para conectar",
+  "search": {
+    "placeholder": "Buscar por nombre o usuario...",
+    "noResults": "No se encontraron usuarios",
+    "startTyping": "Escribe para buscar usuarios",
+    "tryDifferent": "Intenta con otro término",
+    "searchHint": "Buscar por nombre o usuario"
+  },
+  "status": {
+    "friends": "Amigos ✓",
+    "requestSent": "Solicitud Enviada",
+    "respond": "Responder",
+    "sendRequest": "Enviar Solicitud"
+  }
+}

@@ -15,7 +15,7 @@ import {
   HelperText,
 } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import { A11Y_LABELS, A11Y_HINTS } from '../utils/a11y';
+import { useA11y } from '../utils/a11y';
 
 interface SignupScreenProps {
   onSignup: (data: {
@@ -32,7 +32,8 @@ export default function SignupScreen({
   onNavigateToLogin,
 }: SignupScreenProps) {
   const theme = useTheme();
-  const { t } = useTranslation();
+  const { t } = useTranslation('auth');
+  const { labels: a11yLabels, hints: a11yHints } = useA11y();
   const [name, setName] = useState('');
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
@@ -47,17 +48,17 @@ export default function SignupScreen({
 
     // Validation
     if (!name.trim() || !username.trim() || !email.trim() || !password) {
-      setError(t('auth.signup.fillAllFields'));
+      setError(t('signup.fillAllFields'));
       return;
     }
 
     if (password.length < 6) {
-      setError(t('auth.signup.fillAllFields'));
+      setError(t('signup.passwordTooShort'));
       return;
     }
 
     if (password !== confirmPassword) {
-      setError(t('auth.signup.passwordMismatch'));
+      setError(t('signup.passwordMismatch'));
       return;
     }
 
@@ -70,7 +71,7 @@ export default function SignupScreen({
         password,
       });
     } catch (err) {
-      setError(err instanceof Error ? err.message : t('auth.signup.failed'));
+      setError(err instanceof Error ? err.message : t('signup.failed'));
     } finally {
       setLoading(false);
     }
@@ -85,18 +86,18 @@ export default function SignupScreen({
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <View style={styles.content}>
             <Text variant="displaySmall" style={styles.title}>
-              {t('auth.signup.title')}
+              {t('signup.title')}
             </Text>
             <Text
               variant="bodyLarge"
               style={[styles.subtitle, { color: theme.colors.onSurfaceVariant }]}
             >
-              {t('auth.signup.subtitle')}
+              {t('signup.subtitle')}
             </Text>
 
             <View style={styles.form}>
               <TextInput
-                label={t('auth.signup.displayName')}
+                label={t('signup.displayName')}
                 value={name}
                 onChangeText={setName}
                 mode="outlined"
@@ -106,7 +107,7 @@ export default function SignupScreen({
               />
 
               <TextInput
-                label="Username"
+                label={t('signup.username')}
                 value={username}
                 onChangeText={setUsername}
                 mode="outlined"
@@ -116,7 +117,7 @@ export default function SignupScreen({
               />
 
               <TextInput
-                label={t('auth.signup.email')}
+                label={t('signup.email')}
                 value={email}
                 onChangeText={setEmail}
                 mode="outlined"
@@ -128,7 +129,7 @@ export default function SignupScreen({
               />
 
               <TextInput
-                label={t('auth.signup.password')}
+                label={t('signup.password')}
                 value={password}
                 onChangeText={setPassword}
                 mode="outlined"
@@ -140,14 +141,14 @@ export default function SignupScreen({
                   <TextInput.Icon
                     icon={showPassword ? 'eye-off' : 'eye'}
                     onPress={() => setShowPassword(!showPassword)}
-                    accessibilityLabel={showPassword ? A11Y_LABELS.HIDE_PASSWORD : A11Y_LABELS.SHOW_PASSWORD}
-                    accessibilityHint={A11Y_HINTS.TOGGLE_PASSWORD}
+                    accessibilityLabel={showPassword ? a11yLabels.HIDE_PASSWORD : a11yLabels.SHOW_PASSWORD}
+                    accessibilityHint={a11yHints.TOGGLE_PASSWORD}
                   />
                 }
               />
 
               <TextInput
-                label={t('auth.signup.confirmPassword')}
+                label={t('signup.confirmPassword')}
                 value={confirmPassword}
                 onChangeText={setConfirmPassword}
                 mode="outlined"
@@ -170,7 +171,7 @@ export default function SignupScreen({
                 loading={loading}
                 disabled={loading}
               >
-                {t('auth.signup.signUp')}
+                {t('signup.signUp')}
               </Button>
 
               <Button
@@ -179,7 +180,7 @@ export default function SignupScreen({
                 style={styles.linkButton}
                 disabled={loading}
               >
-                {t('auth.signup.hasAccount')}
+                {t('signup.hasAccount')}
               </Button>
             </View>
           </View>

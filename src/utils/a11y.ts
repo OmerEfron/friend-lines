@@ -3,6 +3,8 @@
  * Following WCAG 2.1 guidelines and platform-specific recommendations.
  */
 
+import { useTranslation } from 'react-i18next';
+
 /**
  * Minimum touch target size following Material Design (48dp) and iOS HIG (44pt).
  * Using 48 as it satisfies both platforms.
@@ -33,7 +35,7 @@ export const HIT_SLOP_LARGE = {
 
 /**
  * Common accessibility labels for reusable components.
- * Use translation keys in production; these are fallback English labels.
+ * @deprecated Use useA11y() hook for translated labels
  */
 export const A11Y_LABELS = {
   // Navigation
@@ -62,6 +64,7 @@ export const A11Y_LABELS = {
 
 /**
  * Common accessibility hints for screen reader users.
+ * @deprecated Use useA11y() hook for translated hints
  */
 export const A11Y_HINTS = {
   BOOKMARK_ADD: 'Double tap to save this newsflash',
@@ -71,6 +74,51 @@ export const A11Y_HINTS = {
   TOGGLE_PASSWORD: 'Double tap to toggle password visibility',
   REMOVE_FRIEND: 'Double tap to remove this friend',
 } as const;
+
+/**
+ * Hook for getting translated accessibility labels and hints.
+ * Use this instead of the static A11Y_LABELS and A11Y_HINTS constants.
+ */
+export function useA11y() {
+  const { t } = useTranslation('a11y');
+
+  return {
+    labels: {
+      // Navigation
+      TAB_HOME: t('tabs.home'),
+      TAB_GROUPS: t('tabs.groups'),
+      TAB_PROFILE: t('tabs.profile'),
+
+      // Actions
+      BOOKMARK_ADD: t('actions.bookmarkAdd'),
+      BOOKMARK_REMOVE: t('actions.bookmarkRemove'),
+      REFRESH: t('actions.refresh'),
+      CLOSE: t('actions.close'),
+      REMOVE: t('actions.remove'),
+      BACK: t('actions.back'),
+
+      // Auth
+      SHOW_PASSWORD: t('auth.showPassword'),
+      HIDE_PASSWORD: t('auth.hidePassword'),
+
+      // Content creation
+      ADD_PHOTO: t('content.addPhoto'),
+      REMOVE_PHOTO: t('content.removePhoto'),
+      PUBLISH: t('content.publish'),
+      CANCEL: t('content.cancel'),
+      CREATE_NEWSFLASH: t('content.createNewsflash'),
+      CREATE_GROUP: t('content.createGroup'),
+    },
+    hints: {
+      BOOKMARK_ADD: t('hints.bookmarkAdd'),
+      BOOKMARK_REMOVE: t('hints.bookmarkRemove'),
+      REFRESH: t('hints.refresh'),
+      TAB_NAVIGATE: t('hints.tabNavigate'),
+      TOGGLE_PASSWORD: t('hints.togglePassword'),
+      REMOVE_FRIEND: t('hints.removeFriend'),
+    },
+  };
+}
 
 /**
  * Accessibility roles for common UI patterns.

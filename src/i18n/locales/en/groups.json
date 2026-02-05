@@ -1,0 +1,11 @@
+{
+  "title": "Groups",
+  "create": "Create Group",
+  "join": "Join",
+  "leave": "Leave",
+  "members": "{{count}} member",
+  "members_plural": "{{count}} members",
+  "noGroups": "No groups yet",
+  "createFirst": "Create or join a group to get started",
+  "feedFallback": "Group Feed"
+}

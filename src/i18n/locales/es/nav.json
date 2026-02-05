@@ -1,0 +1,22 @@
+{
+  "tabs": {
+    "home": "Inicio",
+    "groups": "Grupos",
+    "saved": "Guardados",
+    "profile": "Perfil"
+  },
+  "screens": {
+    "groups": "Grupos",
+    "groupFeed": "Feed del Grupo",
+    "myProfile": "Mi Perfil",
+    "savedItems": "Elementos Guardados",
+    "myFriends": "Mis Amigos",
+    "addFriend": "Agregar Amigo",
+    "friendRequests": "Solicitudes de Amistad",
+    "filedReports": "Reportes Enviados",
+    "updatePressPass": "Actualizar Credencial",
+    "newNewsflash": "Nueva Noticia",
+    "newGroup": "Nuevo Grupo",
+    "friendlines": "Friendlines"
+  }
+}

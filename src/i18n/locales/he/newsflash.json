@@ -1,0 +1,20 @@
+{
+  "create": "צור עדכון",
+  "placeholder": "מה עובר לך בראש?",
+  "post": "פרסם",
+  "addImage": "הוסף תמונה",
+  "removeImage": "הסר תמונה",
+  "postedBy": "פורסם על ידי {{name}}",
+  "justNow": "עכשיו",
+  "minutesAgo": "לפני דקה {{count}}",
+  "minutesAgo_plural": "לפני {{count}} דקות",
+  "hoursAgo": "לפני שעה {{count}}",
+  "hoursAgo_plural": "לפני {{count}} שעות",
+  "daysAgo": "לפני יום {{count}}",
+  "daysAgo_plural": "לפני {{count}} ימים",
+  "severity": {
+    "standard": "רגיל",
+    "breaking": "מבזק",
+    "developing": "בהתפתחות"
+  }
+}

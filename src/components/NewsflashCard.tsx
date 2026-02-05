@@ -4,7 +4,7 @@ import { Card, Text, Avatar, useTheme, IconButton } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { Newsflash, User, NewsCategory } from '../types';
 import { useBookmarks } from '../context/BookmarksContext';
-import { A11Y_LABELS, A11Y_HINTS, HIT_SLOP_48 } from '../utils/a11y';
+import { useA11y, HIT_SLOP_48 } from '../utils/a11y';
 import { lightImpact } from '../utils/haptics';
 
 // Detect if text contains RTL characters (Hebrew, Arabic, etc.)
@@ -26,8 +26,9 @@ interface NewsflashCardProps {
 
 export default function NewsflashCard({ newsflash, user }: NewsflashCardProps) {
   const theme = useTheme();
-  const { t } = useTranslation();
+  const { t } = useTranslation('newsflash');
   const { isBookmarked, toggleBookmark } = useBookmarks();
+  const { labels: a11yLabels, hints: a11yHints } = useA11y();
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
   const isBreaking = newsflash.severity === 'BREAKING';
@@ -47,10 +48,10 @@ export default function NewsflashCard({ newsflash, user }: NewsflashCardProps) {
     const hours = Math.floor(diff / (1000 * 60 * 60));
     const days = Math.floor(hours / 24);
 
-    if (days > 0) return t('newsflash.daysAgo', { count: days });
-    if (hours > 0) return t('newsflash.hoursAgo', { count: hours });
-    if (minutes > 0) return t('newsflash.minutesAgo', { count: minutes });
-    return t('newsflash.justNow');
+    if (days > 0) return t('daysAgo', { count: days });
+    if (hours > 0) return t('hoursAgo', { count: hours });
+    if (minutes > 0) return t('minutesAgo', { count: minutes });
+    return t('justNow');
   };
 
   const getInitials = (name: string) => {
@@ -95,7 +96,7 @@ export default function NewsflashCard({ newsflash, user }: NewsflashCardProps) {
                   @{user.username}
                 </Text>
                 <Text variant="labelSmall" style={styles.correspondent}>
-                  {t('profile.correspondent')}
+                  {t('correspondent', { ns: 'profile' })}
                 </Text>
               </View>
             </View>
@@ -110,8 +111,8 @@ export default function NewsflashCard({ newsflash, user }: NewsflashCardProps) {
                   toggleBookmark(newsflash.id);
                 }}
                 style={styles.bookmarkButton}
-                accessibilityLabel={bookmarked ? A11Y_LABELS.BOOKMARK_REMOVE : A11Y_LABELS.BOOKMARK_ADD}
-                accessibilityHint={bookmarked ? A11Y_HINTS.BOOKMARK_REMOVE : A11Y_HINTS.BOOKMARK_ADD}
+                accessibilityLabel={bookmarked ? a11yLabels.BOOKMARK_REMOVE : a11yLabels.BOOKMARK_ADD}
+                accessibilityHint={bookmarked ? a11yHints.BOOKMARK_REMOVE : a11yHints.BOOKMARK_ADD}
                 accessibilityState={{ selected: bookmarked }}
               />
             </View>

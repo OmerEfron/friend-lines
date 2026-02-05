@@ -1,0 +1,51 @@
+{
+  "newsflash": {
+    "title": "What's the story?",
+    "subtitle": "Share what's happening in your world",
+    "headlinePlaceholder": "Write your headline...",
+    "subheadlinePlaceholder": "Add more context...",
+    "addDetails": "Add details",
+    "addPhoto": "Add photo",
+    "cancel": "Cancel",
+    "publish": "Publish",
+    "uploadingImage": "Uploading image...",
+    "filingReport": "Filing report...",
+    "starters": {
+      "discovered": "Just discovered...",
+      "confirm": "Can confirm:",
+      "breaking": "Breaking news from my life:",
+      "update": "Update:",
+      "plotTwist": "Plot twist:"
+    }
+  },
+  "group": {
+    "title": "Create Group",
+    "nameLabel": "Group Name *",
+    "namePlaceholder": "Enter group name...",
+    "selectFriends": "Select Friends ({{count}})",
+    "cancel": "Cancel",
+    "create": "Create"
+  },
+  "audience": {
+    "title": "Send to",
+    "allFriends": "All friends",
+    "groups": "Groups",
+    "noGroups": "No groups yet — create one first."
+  },
+  "options": {
+    "severity": "Severity",
+    "category": "Category",
+    "standard": "Standard",
+    "breaking": "🔴 Breaking",
+    "developing": "📡 Developing",
+    "categories": {
+      "general": "General",
+      "lifestyle": "Lifestyle",
+      "entertainment": "Entertainment",
+      "sports": "Sports",
+      "food": "Food",
+      "travel": "Travel",
+      "opinion": "Opinion"
+    }
+  }
+}

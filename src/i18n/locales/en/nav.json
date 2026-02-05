@@ -1,0 +1,22 @@
+{
+  "tabs": {
+    "home": "Home",
+    "groups": "Groups",
+    "saved": "Saved",
+    "profile": "Profile"
+  },
+  "screens": {
+    "groups": "Groups",
+    "groupFeed": "Group Feed",
+    "myProfile": "My Profile",
+    "savedItems": "Saved Items",
+    "myFriends": "My Friends",
+    "addFriend": "Add Friend",
+    "friendRequests": "Friend Requests",
+    "filedReports": "Filed Reports",
+    "updatePressPass": "Update Press Pass",
+    "newNewsflash": "New Newsflash",
+    "newGroup": "New Group",
+    "friendlines": "Friendlines"
+  }
+}

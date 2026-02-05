@@ -1,0 +1,35 @@
+{
+  "tabs": {
+    "home": "פיד ראשי",
+    "groups": "קבוצות",
+    "profile": "פרופיל"
+  },
+  "actions": {
+    "bookmarkAdd": "הוסף לשמורים",
+    "bookmarkRemove": "הסר מהשמורים",
+    "refresh": "רענן",
+    "close": "סגור",
+    "remove": "הסר",
+    "back": "חזור"
+  },
+  "auth": {
+    "showPassword": "הצג סיסמה",
+    "hidePassword": "הסתר סיסמה"
+  },
+  "content": {
+    "addPhoto": "הוסף תמונה",
+    "removePhoto": "הסר תמונה",
+    "publish": "פרסם עדכון",
+    "cancel": "ביטול",
+    "createNewsflash": "צור עדכון חדש",
+    "createGroup": "צור קבוצה חדשה"
+  },
+  "hints": {
+    "bookmarkAdd": "הקש פעמיים כדי לשמור עדכון זה",
+    "bookmarkRemove": "הקש פעמיים כדי להסיר מהשמורים",
+    "refresh": "הקש פעמיים כדי לרענן את הרשימה",
+    "tabNavigate": "הקש פעמיים כדי לנווט",
+    "togglePassword": "הקש פעמיים להחלפת תצוגת הסיסמה",
+    "removeFriend": "הקש פעמיים כדי להסיר חבר זה"
+  }
+}
