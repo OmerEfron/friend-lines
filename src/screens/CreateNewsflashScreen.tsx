@@ -9,6 +9,7 @@ import { uploadImage, getFileInfo } from '../services/upload';
 import { NewsCategory, NewsSeverity, NewsflashAudience } from '../types';
 import NewsOptions from '../components/NewsOptions';
 import NewsflashAudiencePicker from '../components/NewsflashAudiencePicker';
+import { A11Y_LABELS, HIT_SLOP_48 } from '../utils/a11y';
 
 const HEADLINE_MAX = 150;
 const SUBHEADLINE_MAX = 200;
@@ -185,6 +186,7 @@ export default function CreateNewsflashScreen() {
                     onPress={() => setImage(null)}
                     style={styles.removeImageBtn}
                     iconColor="white"
+                    accessibilityLabel={A11Y_LABELS.REMOVE_PHOTO}
                   />
                 </View>
               ) : (
