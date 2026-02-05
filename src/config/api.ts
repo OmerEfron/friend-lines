@@ -2,7 +2,7 @@ import { Platform } from 'react-native';
 
 // API Configuration
 // Set to true to use production API, false for local development
-const USE_PRODUCTION_API = false;
+const USE_PRODUCTION_API = true;
 
 const PRODUCTION_API_URL = 'https://2o4rel1lxj.execute-api.us-east-1.amazonaws.com/prod';
 
