@@ -1,11 +1,15 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { StyleSheet, FlatList, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { FlashList } from '@shopify/flash-list';
 import { Surface, Searchbar, List, Avatar, useTheme, Button, Text, ActivityIndicator } from 'react-native-paper';
 import { useData } from '../context/DataContext';
 import { User } from '../types';
 import { searchUsers } from '../services/api';
 import { apiCall } from '../config/api';
 import { useNavigation } from '@react-navigation/native';
+
+// Estimated height of a user search result item (avatar + name + button)
+const ESTIMATED_ITEM_SIZE = 70;
 
 interface FriendRequest {
   userId: string;
@@ -207,7 +211,7 @@ export default function AddFriendScreen() {
           style={styles.searchbar}
         />
       </View>
-      <FlatList
+      <FlashList
         data={availableUsers}
         keyExtractor={(item) => item.id}
         renderItem={renderUser}
@@ -216,7 +220,7 @@ export default function AddFriendScreen() {
           styles.listContainer,
           availableUsers.length === 0 && styles.emptyList
         ]}
-        style={{ backgroundColor: theme.colors.background }}
+        estimatedItemSize={ESTIMATED_ITEM_SIZE}
       />
     </Surface>
   );

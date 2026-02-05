@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, FlatList, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { FlashList } from '@shopify/flash-list';
 import {
   Surface,
   List,
@@ -13,6 +14,9 @@ import {
 } from 'react-native-paper';
 import { apiCall } from '../config/api';
 import { useData } from '../context/DataContext';
+
+// Estimated height of a friend request item (avatar + name + buttons)
+const ESTIMATED_ITEM_SIZE = 80;
 
 interface User {
   id: string;
@@ -237,7 +241,7 @@ export default function FriendRequestsScreen() {
         />
       </View>
 
-      <FlatList
+      <FlashList
         data={currentRequests}
         keyExtractor={(item) => `${item.userId}_${item.friendId}`}
         renderItem={tab === 'received' ? renderReceivedRequest : renderSentRequest}
@@ -246,7 +250,7 @@ export default function FriendRequestsScreen() {
           styles.listContainer,
           currentRequests.length === 0 && styles.emptyList,
         ]}
-        style={{ backgroundColor: theme.colors.background }}
+        estimatedItemSize={ESTIMATED_ITEM_SIZE}
       />
     </Surface>
   );
