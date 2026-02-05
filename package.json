@@ -11,7 +11,10 @@
     "format": "prettier --write \"src/**/*.{ts,tsx}\" \"App.js\"",
     "format:check": "prettier --check \"src/**/*.{ts,tsx}\" \"App.js\"",
     "backend:build": "cd backend && sam build",
-    "test:api": "./scripts/test-full-api.sh"
+    "test:api": "./scripts/test-full-api.sh",
+    "i18n:extract": "npx i18next-cli extract",
+    "i18n:extract:ci": "npx i18next-cli extract --ci",
+    "i18n:types": "npx i18next-cli types"
   },
   "dependencies": {
     "@animatereactnative/marquee": "^0.5.2",
@@ -45,6 +48,7 @@
   "private": true,
   "devDependencies": {
     "@types/react": "~19.1.10",
+    "i18next-cli": "^1.5.11",
     "prettier": "^3.7.4",
     "typescript": "~5.9.2"
   }
