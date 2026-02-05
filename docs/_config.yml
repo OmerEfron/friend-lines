@@ -1,0 +1,20 @@
+# GitHub Pages Jekyll configuration for Friendlines docs
+title: Friendlines Documentation
+description: Documentation and legal information for the Friendlines app
+theme: jekyll-theme-minimal
+
+# Build settings
+markdown: kramdown
+
+# Include legal docs in the build
+include:
+  - legal
+
+# Base URL - update this after setting up GitHub Pages
+# baseurl: /friendlines
+
+# Exclude unnecessary files
+exclude:
+  - "*.json"
+  - node_modules
+  - vendor
