@@ -2,9 +2,6 @@ import React, { useState } from 'react';
 import { StyleSheet, RefreshControl } from 'react-native';
 import { FlashList } from '@shopify/flash-list';
 import { Surface, List, useTheme, FAB } from 'react-native-paper';
-
-// Estimated height of a group list item
-const ESTIMATED_ITEM_SIZE = 60;
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTranslation } from 'react-i18next';
@@ -71,7 +68,6 @@ export default function GroupsScreen() {
           />
         }
         contentContainerStyle={styles.listContainer}
-        estimatedItemSize={ESTIMATED_ITEM_SIZE}
       />
       <FAB
         icon="plus"

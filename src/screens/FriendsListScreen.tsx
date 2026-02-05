@@ -15,9 +15,6 @@ import { User } from '../types';
 import { A11Y_LABELS, A11Y_HINTS, HIT_SLOP_48 } from '../utils/a11y';
 import { lightImpact, warningNotification } from '../utils/haptics';
 
-// Estimated height of a friend list item (avatar + name + username)
-const ESTIMATED_ITEM_SIZE = 60;
-
 export default function FriendsListScreen() {
   const theme = useTheme();
   const { friends, removeFriend, refreshFriends } = useData();
@@ -110,7 +107,6 @@ export default function FriendsListScreen() {
         ]}
         refreshing={refreshing}
         onRefresh={handleRefresh}
-        estimatedItemSize={ESTIMATED_ITEM_SIZE}
       />
     </Surface>
   );

@@ -17,9 +17,6 @@ import { useData } from '../context/DataContext';
 import ListSkeleton from '../components/ListSkeleton';
 import { SkeletonIgnore } from '../components/SkeletonWrapper';
 
-// Estimated height of a friend request item (avatar + name + buttons)
-const ESTIMATED_ITEM_SIZE = 80;
-
 interface User {
   id: string;
   name: string;
@@ -263,7 +260,6 @@ export default function FriendRequestsScreen() {
           styles.listContainer,
           currentRequests.length === 0 && styles.emptyList,
         ]}
-        estimatedItemSize={ESTIMATED_ITEM_SIZE}
       />
     </Surface>
   );

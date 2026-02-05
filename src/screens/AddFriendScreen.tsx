@@ -9,9 +9,6 @@ import { apiCall } from '../config/api';
 import { useNavigation } from '@react-navigation/native';
 import ListSkeleton from '../components/ListSkeleton';
 
-// Estimated height of a user search result item (avatar + name + button)
-const ESTIMATED_ITEM_SIZE = 70;
-
 interface FriendRequest {
   userId: string;
   friendId: string;
@@ -217,7 +214,6 @@ export default function AddFriendScreen() {
           styles.listContainer,
           availableUsers.length === 0 && styles.emptyList
         ]}
-        estimatedItemSize={ESTIMATED_ITEM_SIZE}
       />
     </Surface>
   );

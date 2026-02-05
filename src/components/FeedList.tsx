@@ -8,10 +8,6 @@ import { Newsflash } from '../types';
 import NewsflashCard from './NewsflashCard';
 import { SPACING, LIST } from '../theme/spacing';
 
-// Estimated height of a NewsflashCard (header + headline + optional subheadline)
-// Tune based on actual measurements for optimal scrolling performance
-const ESTIMATED_ITEM_SIZE = 180;
-
 interface FeedListProps {
   newsflashes: Newsflash[];
   onEndReached?: () => void;
@@ -100,7 +96,6 @@ export default function FeedList({
         styles.contentContainer,
         newsflashes.length === 0 && styles.emptyList,
       ]}
-      estimatedItemSize={ESTIMATED_ITEM_SIZE}
     />
   );
 }
