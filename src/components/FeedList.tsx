@@ -1,10 +1,15 @@
 import React from 'react';
-import { FlatList, StyleSheet, View, RefreshControl } from 'react-native';
+import { StyleSheet, View, RefreshControl } from 'react-native';
+import { FlashList } from '@shopify/flash-list';
 import { Text, useTheme, ActivityIndicator, Button } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { Newsflash } from '../types';
 import NewsflashCard from './NewsflashCard';
+
+// Estimated height of a NewsflashCard (header + headline + optional subheadline)
+// Tune based on actual measurements for optimal scrolling performance
+const ESTIMATED_ITEM_SIZE = 180;
 
 interface FeedListProps {
   newsflashes: Newsflash[];
@@ -68,7 +73,7 @@ export default function FeedList({
   };
 
   return (
-    <FlatList
+    <FlashList
       data={newsflashes}
       keyExtractor={(item) => item.id}
       renderItem={({ item }) => {
@@ -94,7 +99,7 @@ export default function FeedList({
         styles.contentContainer,
         newsflashes.length === 0 && styles.emptyList,
       ]}
-      style={{ backgroundColor: theme.colors.background }}
+      estimatedItemSize={ESTIMATED_ITEM_SIZE}
     />
   );
 }
