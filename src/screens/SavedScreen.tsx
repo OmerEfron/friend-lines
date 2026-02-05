@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet } from 'react-native';
-import { Surface, ActivityIndicator } from 'react-native-paper';
+import { Surface } from 'react-native-paper';
 import FeedList from '../components/FeedList';
+import FeedSkeleton from '../components/FeedSkeleton';
 import { Newsflash } from '../types';
 import { fetchBookmarks } from '../services/api';
 
@@ -34,8 +35,8 @@ export default function SavedScreen() {
 
   if (loading) {
     return (
-      <Surface style={[styles.container, styles.center]}>
-        <ActivityIndicator size="large" />
+      <Surface style={styles.container}>
+        <FeedSkeleton itemCount={4} />
       </Surface>
     );
   }

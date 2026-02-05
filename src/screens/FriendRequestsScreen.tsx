@@ -14,6 +14,8 @@ import {
 } from 'react-native-paper';
 import { apiCall } from '../config/api';
 import { useData } from '../context/DataContext';
+import ListSkeleton from '../components/ListSkeleton';
+import { SkeletonIgnore } from '../components/SkeletonWrapper';
 
 // Estimated height of a friend request item (avatar + name + buttons)
 const ESTIMATED_ITEM_SIZE = 80;
@@ -213,8 +215,19 @@ export default function FriendRequestsScreen() {
 
   if (loading) {
     return (
-      <Surface style={[styles.container, styles.center]}>
-        <ActivityIndicator size="large" />
+      <Surface style={styles.container}>
+        <View style={styles.tabContainer}>
+          <SegmentedButtons
+            value={tab}
+            onValueChange={setTab}
+            buttons={[
+              { value: 'received', label: 'Received' },
+              { value: 'sent', label: 'Sent' },
+            ]}
+            style={styles.segmentedButtons}
+          />
+        </View>
+        <ListSkeleton itemCount={4} hasActions />
       </Surface>
     );
   }
