@@ -9,14 +9,9 @@ import { notifyFriendsOfNewsflash } from '../utils/newsflash-notify';
 const NEWSFLASHES_TABLE =
   process.env.NEWSFLASHES_TABLE || 'friendlines-newsflashes';
 const BOOKMARKS_TABLE = process.env.BOOKMARKS_TABLE || 'friendlines-bookmarks';
-const FRIENDSHIPS_TABLE =
-  process.env.FRIENDSHIPS_TABLE || 'friendlines-friendships';
-const USERS_TABLE = process.env.USERS_TABLE || 'friendlines-users';
-const DEVICE_TOKENS_TABLE =
-  process.env.DEVICE_TOKENS_TABLE || 'friendlines-device-tokens';
+const GROUPS_TABLE = process.env.GROUPS_TABLE || 'friendlines-groups';
 const MEDIA_BUCKET = process.env.MEDIA_BUCKET || 'friendlines-media-local';
 
-// Valid categories for newsflashes
 const VALID_CATEGORIES = [
   'GENERAL',
   'LIFESTYLE',
@@ -28,11 +23,9 @@ const VALID_CATEGORIES = [
 ] as const;
 type NewsCategory = (typeof VALID_CATEGORIES)[number];
 
-// Severity levels
 const VALID_SEVERITIES = ['STANDARD', 'BREAKING', 'DEVELOPING'] as const;
 type NewsSeverity = (typeof VALID_SEVERITIES)[number];
-
-// Rate limit: 1 BREAKING per 24 hours
+type NewsflashAudience = 'ALL_FRIENDS' | 'GROUPS';
 const BREAKING_COOLDOWN_MS = 24 * 60 * 60 * 1000;
 
 interface Newsflash {
@@ -43,6 +36,9 @@ interface Newsflash {
   media?: string;
   category?: NewsCategory;
   severity?: NewsSeverity;
+  audience?: NewsflashAudience;
+  groupIds?: string[];
+  recipientUserIds?: string[];
   timestamp: string;
 }
 
@@ -51,118 +47,26 @@ interface Bookmark {
   newsflashId: string;
 }
 
+interface Group {
+  id: string;
+  userIds: string[];
+  createdBy: string;
+}
+
 export async function handler(
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> {
-  console.log('Event:', JSON.stringify(event, null, 2));
-
   try {
     const method = event.httpMethod;
     const path = event.path;
 
-    // GET /newsflashes - List all newsflashes (optionally by userId)
     if (method === 'GET' && path === '/newsflashes') {
-      const userId = event.queryStringParameters?.userId;
-
-      let newsflashes;
-      if (userId) {
-        newsflashes = await queryItems(
-          NEWSFLASHES_TABLE,
-          'userId-timestamp-index',
-          'userId = :userId',
-          { ':userId': userId }
-        );
-      } else {
-        newsflashes = await scanTable(NEWSFLASHES_TABLE);
-      }
-
-      // Sort by timestamp descending
-      newsflashes.sort(
-        (a, b) =>
-          new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-      );
-
-      return successResponse({ newsflashes });
+      return await withAuth(handleListMyNewsflashes)(event);
     }
 
     // POST /newsflashes - Create new newsflash
     if (method === 'POST' && path === '/newsflashes') {
-      if (!event.body) {
-        return errorResponse('Request body is required', 400);
-      }
-
-      const body = JSON.parse(event.body);
-      const { userId, headline, subHeadline, mediaBase64, media, category, severity } = body;
-
-      if (!userId || !headline) {
-        return errorResponse('userId and headline are required', 400);
-      }
-
-      // Validate category if provided
-      const validCategory: NewsCategory = category && VALID_CATEGORIES.includes(category)
-        ? category
-        : 'GENERAL';
-
-      // Validate severity if provided
-      const validSeverity: NewsSeverity = severity && VALID_SEVERITIES.includes(severity)
-        ? severity
-        : 'STANDARD';
-
-      // Rate limit BREAKING news: 1 per 24 hours
-      if (validSeverity === 'BREAKING') {
-        const rateLimitResult = await checkBreakingRateLimit(userId);
-        if (!rateLimitResult.allowed) {
-          return errorResponse(
-            `Hold the presses! You've already filed BREAKING news today. Save the drama for tomorrow.`,
-            429
-          );
-        }
-      }
-
-      let mediaUrl: string | undefined;
-
-      // Handle media: use provided URL or upload base64
-      if (media) {
-        mediaUrl = media;
-      } else if (mediaBase64) {
-        const mediaId = uuidv4();
-        const buffer = Buffer.from(mediaBase64, 'base64');
-        mediaUrl = await uploadFile(
-          MEDIA_BUCKET,
-          `media/${mediaId}.jpg`,
-          buffer,
-          'image/jpeg'
-        );
-      }
-
-      const newsflash: Newsflash = {
-        id: uuidv4(),
-        userId,
-        headline,
-        subHeadline: subHeadline || undefined,
-        media: mediaUrl,
-        category: validCategory,
-        severity: validSeverity,
-        timestamp: new Date().toISOString(),
-      };
-
-      await putItem(NEWSFLASHES_TABLE, newsflash);
-
-      // Send push notifications to friends
-      // We must await this - using setImmediate/callbackWaitsForEmptyEventLoop=false
-      // causes Lambda to freeze/terminate before the fetch completes
-      console.log(`[Newsflash] Created newsflash ${newsflash.id}, triggering push notifications`);
-      
-      try {
-        await notifyFriendsOfNewsflash(userId, headline, validSeverity);
-        console.log(`[Newsflash] Push notification completed for newsflash ${newsflash.id}`);
-      } catch (err) {
-        // Don't fail the request if push notification fails
-        console.error('[Newsflash] Failed to notify friends:', err);
-        console.error('[Newsflash] Error stack:', err instanceof Error ? err.stack : 'No stack trace');
-      }
-
-      return successResponse({ newsflash }, 201);
+      return await withAuth(handleCreateNewsflash)(event);
     }
 
     // DELETE /newsflashes/{id} - Delete a newsflash (Protected)
@@ -181,6 +85,165 @@ export async function handler(
       error instanceof Error ? error.message : 'Internal server error'
     );
   }
+}
+
+async function handleListMyNewsflashes(
+  event: AuthenticatedEvent
+): Promise<APIGatewayProxyResult> {
+  const viewerId = event.userId!;
+  const requestedUserId = event.queryStringParameters?.userId;
+  if (requestedUserId && requestedUserId !== viewerId) {
+    return errorResponse('Access denied', 403);
+  }
+
+  const newsflashes = (await queryItems(
+    NEWSFLASHES_TABLE,
+    'userId-timestamp-index',
+    'userId = :userId',
+    { ':userId': viewerId }
+  )) as Newsflash[];
+  newsflashes.sort(
+    (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+  );
+  return successResponse({ newsflashes });
+}
+
+async function handleCreateNewsflash(
+  event: AuthenticatedEvent
+): Promise<APIGatewayProxyResult> {
+  if (!event.body) {
+    return errorResponse('Request body is required', 400);
+  }
+
+  const body = JSON.parse(event.body);
+  const userId = event.userId!;
+  const {
+    headline,
+    subHeadline,
+    mediaBase64,
+    media,
+    category,
+    severity,
+    audience,
+    groupIds,
+  } = body;
+
+  if (!headline) {
+    return errorResponse('headline is required', 400);
+  }
+
+  const validCategory: NewsCategory =
+    category && VALID_CATEGORIES.includes(category) ? category : 'GENERAL';
+
+  const validSeverity: NewsSeverity =
+    severity && VALID_SEVERITIES.includes(severity) ? severity : 'STANDARD';
+
+  const validAudience: NewsflashAudience =
+    audience === 'GROUPS' ? 'GROUPS' : 'ALL_FRIENDS';
+
+  if (validSeverity === 'BREAKING') {
+    const rateLimitResult = await checkBreakingRateLimit(userId);
+    if (!rateLimitResult.allowed) {
+      return errorResponse(
+        `Hold the presses! You've already filed BREAKING news today. Save the drama for tomorrow.`,
+        429
+      );
+    }
+  }
+
+  let resolvedGroupIds: string[] | undefined;
+  let recipientUserIds: string[] | undefined;
+
+  if (validAudience === 'GROUPS') {
+    if (!Array.isArray(groupIds) || groupIds.length === 0) {
+      return errorResponse('groupIds must be a non-empty array when audience=GROUPS', 400);
+    }
+    resolvedGroupIds = Array.from(new Set(groupIds.filter(Boolean)));
+    try {
+      recipientUserIds = await resolveRecipientsForGroups(userId, resolvedGroupIds);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Invalid groups';
+      if (msg.includes('Access denied')) return errorResponse(msg, 403);
+      if (msg.includes('not found')) return errorResponse(msg, 404);
+      return errorResponse(msg, 400);
+    }
+  }
+
+  let mediaUrl: string | undefined;
+  if (media) {
+    mediaUrl = media;
+  } else if (mediaBase64) {
+    const mediaId = uuidv4();
+    const buffer = Buffer.from(mediaBase64, 'base64');
+    mediaUrl = await uploadFile(
+      MEDIA_BUCKET,
+      `media/${mediaId}.jpg`,
+      buffer,
+      'image/jpeg'
+    );
+  }
+
+  const newsflash: Newsflash = {
+    id: uuidv4(),
+    userId,
+    headline: String(headline).trim(),
+    subHeadline: subHeadline ? String(subHeadline).trim() : undefined,
+    media: mediaUrl,
+    category: validCategory,
+    severity: validSeverity,
+    audience: validAudience,
+    groupIds: resolvedGroupIds,
+    recipientUserIds,
+    timestamp: new Date().toISOString(),
+  };
+
+  await putItem(NEWSFLASHES_TABLE, newsflash);
+
+  console.log(`[Newsflash] Created newsflash ${newsflash.id} (audience=${validAudience}), triggering push notifications`);
+
+  try {
+    await notifyFriendsOfNewsflash(
+      userId,
+      newsflash.headline,
+      validSeverity,
+      recipientUserIds
+    );
+    console.log(`[Newsflash] Push notification completed for newsflash ${newsflash.id}`);
+  } catch (err) {
+    console.error('[Newsflash] Failed to notify friends:', err);
+    console.error(
+      '[Newsflash] Error stack:',
+      err instanceof Error ? err.stack : 'No stack trace'
+    );
+  }
+
+  return successResponse({ newsflash }, 201);
+}
+
+async function resolveRecipientsForGroups(
+  creatorId: string,
+  groupIds: string[]
+): Promise<string[]> {
+  const groups = (await Promise.all(
+    groupIds.map((id) => getItem(GROUPS_TABLE, { id }))
+  )) as Array<Group | undefined>;
+
+  const recipients = new Set<string>();
+  for (let i = 0; i < groupIds.length; i++) {
+    const groupId = groupIds[i];
+    const group = groups[i];
+    if (!group) {
+      throw new Error(`Group ${groupId} not found`);
+    }
+    if (group.createdBy !== creatorId) {
+      throw new Error(`Access denied to group ${groupId}`);
+    }
+    for (const uid of group.userIds || []) {
+      if (uid && uid !== creatorId) recipients.add(uid);
+    }
+  }
+
+  return Array.from(recipients);
 }
 
 // Delete a newsflash (only owner can delete)
@@ -221,9 +284,6 @@ async function handleDeleteNewsflash(
   return successResponse({ message: 'Newsflash deleted' });
 }
 
-/**
- * Check if user can post BREAKING news (rate limit: 1 per 24 hours)
- */
 async function checkBreakingRateLimit(userId: string): Promise<{ allowed: boolean }> {
   const userNewsflashes = await queryItems(
     NEWSFLASHES_TABLE,
@@ -239,4 +299,3 @@ async function checkBreakingRateLimit(userId: string): Promise<{ allowed: boolea
 
   return { allowed: !recentBreaking };
 }
-

@@ -29,21 +29,16 @@ type NewsSeverity = 'STANDARD' | 'BREAKING' | 'DEVELOPING';
 export async function notifyFriendsOfNewsflash(
   userId: string,
   headline: string,
-  severity?: NewsSeverity
+  severity?: NewsSeverity,
+  recipientUserIds?: string[]
 ): Promise<void> {
   try {
     console.log(`[Push] Starting notification for user ${userId}`);
     
-    const friendships = (await queryItems(
-      FRIENDSHIPS_TABLE,
-      undefined,
-      'userId = :userId',
-      { ':userId': userId }
-    )) as Friendship[];
-    
-    const friendIds = friendships
-      .filter((f) => f.status === 'accepted')
-      .map((f) => f.friendId);
+    const friendIds =
+      recipientUserIds && recipientUserIds.length > 0
+        ? Array.from(new Set(recipientUserIds.filter((id) => id && id !== userId)))
+        : await getAcceptedFriendIds(userId);
   
     if (friendIds.length === 0) return;
 
@@ -73,5 +68,23 @@ export async function notifyFriendsOfNewsflash(
     console.error(`[Push] Error:`, error);
     throw error;
   }
+}
+
+async function getAcceptedFriendIds(userId: string): Promise<string[]> {
+  const friendships = (await queryItems(
+    FRIENDSHIPS_TABLE,
+    undefined,
+    'userId = :userId',
+    { ':userId': userId }
+  )) as Friendship[];
+
+  return Array.from(
+    new Set(
+      friendships
+        .filter((f) => f.status === 'accepted')
+        .map((f) => f.friendId)
+        .filter(Boolean)
+    )
+  );
 }
 

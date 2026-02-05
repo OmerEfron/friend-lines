@@ -4,6 +4,8 @@
 
 Friendlines is a minimal social network mobile app with a news aesthetic. The system consists of an **Expo/React Native** frontend and an **AWS SAM** serverless backend.
 
+Product constraint: **no comments, likes, shares, or reposts** — Friendlines is intentionally headline-only.
+
 ## High-Level Architecture
 
 ```
@@ -69,6 +71,10 @@ Friendlines is a minimal social network mobile app with a news aesthetic. The sy
 | headline | string | Main content |
 | subHeadline | string? | Secondary text |
 | media | string? | Media URL |
+| category | string? | News category |
+| severity | string? | STANDARD / BREAKING / DEVELOPING |
+| audience | string? | `ALL_FRIENDS` or `GROUPS` |
+| groupIds | string[]? | Only when `audience="GROUPS"` |
 | timestamp | string | ISO timestamp |
 
 ### Group
@@ -148,7 +154,7 @@ src/
 ├── config/api.ts      # API client, base URL, apiCall()
 ├── context/           # React contexts (Auth, Data, Bookmarks, Theme)
 ├── navigation/        # React Navigation (Tab + Stack)
-├── screens/           # Screen components (13 screens)
+├── screens/           # Screen components
 ├── services/          # API wrappers (api.ts, auth.ts, upload.ts)
 ├── theme/             # Material Design 3 theme
 └── types/             # TypeScript interfaces
@@ -168,7 +174,9 @@ RootStack
 │       ├── Saved
 │       ├── FriendsList
 │       ├── AddFriend
-│       └── FriendRequests
+│       ├── FriendRequests
+│       ├── UserFeed
+│       └── EditProfile
 ├── CreateNewsflash (modal)
 └── CreateGroup (modal)
 ```
@@ -183,6 +191,18 @@ RootStack
 
 ## Environment Configuration
 
+### Frontend
+
+| Variable / Storage Key | Usage | Location |
+|------------------------|-------|----------|
+| `API_URL` | Optional API base URL override | `src/config/api.ts` |
+| `USE_PRODUCTION_API` | Toggle prod vs local base URL selection | `src/config/api.ts` |
+| `PRODUCTION_API_URL` | Production API Gateway base URL | `src/config/api.ts` |
+| `@friendlines_auth_token` | Stored JWT token | AsyncStorage (`src/services/auth.ts`, `src/config/api.ts`) |
+| `@friendlines_user` | Stored current user object | AsyncStorage (`src/services/auth.ts`) |
+
+### Backend
+
 | Variable | Backend Usage | Location |
 |----------|--------------|----------|
 | JWT_SECRET | Token signing | env.json, template.yaml |
@@ -194,8 +214,8 @@ RootStack
 
 ## Questions/Unknowns
 
-1. **Production deployment**: No CI/CD pipeline or prod environment configured
-2. **Pagination**: Feed endpoints don't implement pagination
-3. **Rate limiting**: No API rate limiting configured
+1. **Production deployment**: CI/CD is configured via GitHub Actions (`.github/workflows/deploy-backend.yml`) but requires GitHub secrets + correct `backend/samconfig.prod.toml` parameters.
+2. **Pagination**: Feed endpoints implement cursor-based pagination (`limit`, `cursor`), but most list endpoints still use full-table scans (no pagination).
+3. **Rate limiting**: Only BREAKING news is rate-limited (1 per 24 hours). No global API rate limiting is configured.
 
 

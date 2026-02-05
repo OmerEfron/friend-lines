@@ -21,6 +21,8 @@ export type NewsCategory = (typeof NEWS_CATEGORIES)[number];
 export const NEWS_SEVERITIES = ['STANDARD', 'BREAKING', 'DEVELOPING'] as const;
 export type NewsSeverity = (typeof NEWS_SEVERITIES)[number];
 
+export type NewsflashAudience = 'ALL_FRIENDS' | 'GROUPS';
+
 export interface Newsflash {
   id: string;
   userId: string;
@@ -29,6 +31,8 @@ export interface Newsflash {
   media?: string;
   category?: NewsCategory;
   severity?: NewsSeverity;
+  audience?: NewsflashAudience;
+  groupIds?: string[];
   timestamp: Date;
   user?: User; // Enriched user data from API
 }

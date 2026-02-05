@@ -219,11 +219,14 @@ Get the authenticated user's profile.
 
 ## Newsflashes
 
-### List All Newsflashes
+### List My Newsflashes
 
 **Endpoint:** `GET /newsflashes`
 
 **Headers:** `Authorization: Bearer <token>`
+
+**Query Parameters:**
+- `userId` (optional): Must match the authenticated user (useful for explicit self-queries)
 
 **Response (200):**
 ```json
@@ -235,6 +238,10 @@ Get the authenticated user's profile.
       "headline": "Exciting news!",
       "subHeadline": "Something amazing happened",
       "media": "https://example.com/image.jpg",
+      "category": "GENERAL",
+      "severity": "STANDARD",
+      "audience": "ALL_FRIENDS",
+      "groupIds": ["uuid"],
       "timestamp": "2025-01-02T10:00:00.000Z"
     }
   ]
@@ -252,10 +259,21 @@ Get the authenticated user's profile.
 {
   "headline": "Exciting news!",
   "subHeadline": "Something amazing happened",
+  "category": "GENERAL",
+  "severity": "STANDARD",
+  "audience": "ALL_FRIENDS",
+  "groupIds": ["uuid"],
   "media": "https://example.com/image.jpg",
-  "userId": "uuid"
+  "mediaBase64": "base64-encoded-jpeg-without-data-url-prefix"
 }
 ```
+
+**Notes:**
+- **Media upload**: Provide either `media` (an existing URL) OR `mediaBase64` (server uploads to S3 and returns `media` URL).
+- **BREAKING rate limit**: `severity="BREAKING"` is limited to **1 per user per 24 hours** (returns `429` if exceeded).
+- **Audience targeting**:
+  - Use `audience="ALL_FRIENDS"` to notify all accepted friends.
+  - Use `audience="GROUPS"` with `groupIds` to notify only members of those groups.
 
 **Response (201):**
 ```json
@@ -266,30 +284,18 @@ Get the authenticated user's profile.
     "headline": "Exciting news!",
     "subHeadline": "Something amazing happened",
     "media": "https://example.com/image.jpg",
+    "category": "GENERAL",
+    "severity": "STANDARD",
+    "audience": "ALL_FRIENDS",
+    "groupIds": ["uuid"],
     "timestamp": "2025-01-02T10:00:00.000Z"
   }
 }
 ```
 
-### Get Newsflash by ID
+### Not Supported
 
-**Endpoint:** `GET /newsflashes/:id`
-
-**Headers:** `Authorization: Bearer <token>`
-
-**Response (200):**
-```json
-{
-  "newsflash": {
-    "id": "uuid",
-    "userId": "uuid",
-    "headline": "Exciting news!",
-    "subHeadline": "Something amazing happened",
-    "media": "https://example.com/image.jpg",
-    "timestamp": "2025-01-02T10:00:00.000Z"
-  }
-}
-```
+- `GET /newsflashes/:id` is **not** currently deployed. Use `GET /newsflashes` (and optionally `?userId=...`) instead.
 
 ## Friendships
 

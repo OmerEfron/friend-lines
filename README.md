@@ -6,12 +6,13 @@ A minimal social network mobile app with a news aesthetic. Share newsflashes wit
 
 - **Authentication**: Register/login with JWT tokens
 - **Main Feed**: View newsflashes from your friends, sorted by time
-- **Groups**: Create personal groups to organize friends and view group-specific feeds
+- **Groups**: Create personal groups to organize friends, view group-specific feeds, and publish to all friends or selected groups
 - **Friend Requests**: Send, accept, and reject friend requests
 - **Profile**: Edit your profile, upload avatar, view your newsflashes
 - **Bookmarks**: Save newsflashes for later (cloud-synced)
 - **Push Notifications**: Get notified about new newsflashes and friend requests
 - **Media Uploads**: Attach images to newsflashes via S3
+- **No Engagement Mechanics**: No comments, likes, shares, or reposts — just headlines
 
 ## Tech Stack
 

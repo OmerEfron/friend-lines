@@ -17,6 +17,8 @@ interface Newsflash {
   headline: string;
   subHeadline?: string;
   media?: string;
+  audience?: 'ALL_FRIENDS' | 'GROUPS';
+  recipientUserIds?: string[];
   timestamp: string;
 }
 
@@ -92,9 +94,9 @@ async function handleMainFeed(
   // Get user's friends
   const allFriendships = await scanTable(FRIENDSHIPS_TABLE);
   const friendships = allFriendships.filter(
-    (f: any) => f.userId === userId
+    (f: any) => f.userId === userId && f.status === 'accepted'
   );
-  const friendIds = friendships.map((f: any) => f.friendId);
+  const friendIds = Array.from(new Set(friendships.map((f: any) => f.friendId).filter(Boolean)));
 
   // Include user's own newsflashes
   const relevantUserIds = [userId, ...friendIds];
@@ -104,7 +106,11 @@ async function handleMainFeed(
   
   // Filter and sort newsflashes from relevant users
   const feedNewsflashes = allNewsflashes
-    .filter((n) => relevantUserIds.includes(n.userId))
+    .filter((n) => {
+      if (n.userId === userId) return true;
+      if (!relevantUserIds.includes(n.userId)) return false;
+      return isVisibleToViewer(n, userId);
+    })
     .sort(
       (a, b) =>
         new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
@@ -169,7 +175,11 @@ async function handleGroupFeed(
   
   // Filter and sort newsflashes from group members
   const feedNewsflashes = allNewsflashes
-    .filter((n) => group.userIds.includes(n.userId))
+    .filter((n) => {
+      if (!group.userIds.includes(n.userId)) return false;
+      if (n.userId === userId) return true;
+      return isVisibleToViewer(n, userId);
+    })
     .sort(
       (a, b) =>
         new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
@@ -207,5 +217,12 @@ async function handleGroupFeed(
     nextCursor,
     hasMore,
   });
+}
+
+function isVisibleToViewer(newsflash: Newsflash, viewerId: string): boolean {
+  const audience = newsflash.audience || 'ALL_FRIENDS';
+  if (audience === 'ALL_FRIENDS') return true;
+  const recipients = Array.isArray(newsflash.recipientUserIds) ? newsflash.recipientUserIds : [];
+  return recipients.includes(viewerId);
 }
 

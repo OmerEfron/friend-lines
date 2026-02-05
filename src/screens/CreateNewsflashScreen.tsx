@@ -6,8 +6,9 @@ import * as ImagePicker from 'expo-image-picker';
 import { useData } from '../context/DataContext';
 import { useNavigation } from '@react-navigation/native';
 import { uploadImage, getFileInfo } from '../services/upload';
-import { NewsCategory, NewsSeverity } from '../types';
+import { NewsCategory, NewsSeverity, NewsflashAudience } from '../types';
 import NewsOptions from '../components/NewsOptions';
+import NewsflashAudiencePicker from '../components/NewsflashAudiencePicker';
 
 const HEADLINE_MAX = 150;
 const SUBHEADLINE_MAX = 200;
@@ -25,7 +26,7 @@ export default function CreateNewsflashScreen() {
   const theme = useTheme();
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
-  const { addNewsflash, currentUser } = useData();
+  const { addNewsflash, currentUser, groups } = useData();
   
   const [headline, setHeadline] = useState('');
   const [subHeadline, setSubHeadline] = useState('');
@@ -33,6 +34,8 @@ export default function CreateNewsflashScreen() {
   const [image, setImage] = useState<string | null>(null);
   const [category, setCategory] = useState<NewsCategory>('GENERAL');
   const [severity, setSeverity] = useState<NewsSeverity>('STANDARD');
+  const [audience, setAudience] = useState<NewsflashAudience>('ALL_FRIENDS');
+  const [selectedGroupIds, setSelectedGroupIds] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [uploadProgress, setUploadProgress] = useState('');
 
@@ -66,6 +69,8 @@ export default function CreateNewsflashScreen() {
         media: mediaUrl,
         category,
         severity,
+        audience,
+        groupIds: audience === 'GROUPS' ? selectedGroupIds : undefined,
       });
       navigation.goBack();
     } catch (error) {
@@ -76,7 +81,9 @@ export default function CreateNewsflashScreen() {
     }
   };
 
-  const isValid = headline.trim().length > 0;
+  const isValid =
+    headline.trim().length > 0 &&
+    (audience === 'ALL_FRIENDS' || selectedGroupIds.length > 0);
   const headlineRemaining = HEADLINE_MAX - headline.length;
 
   return (
@@ -193,6 +200,14 @@ export default function CreateNewsflashScreen() {
               severity={severity}
               onCategoryChange={setCategory}
               onSeverityChange={setSeverity}
+            />
+
+            <NewsflashAudiencePicker
+              groups={groups}
+              audience={audience}
+              setAudience={setAudience}
+              selectedGroupIds={selectedGroupIds}
+              setSelectedGroupIds={setSelectedGroupIds}
             />
 
             {/* Progress */}
