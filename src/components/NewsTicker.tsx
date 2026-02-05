@@ -1,9 +1,8 @@
-import React, { useEffect, useRef, useState, useCallback } from 'react';
-import { View, StyleSheet, Animated, LayoutChangeEvent, Text as RNText } from 'react-native';
+import React from 'react';
+import { View, StyleSheet, Text as RNText } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
+import { Marquee } from '@animatereactnative/marquee';
 import { Newsflash } from '../types';
-
-const TICKER_SPEED = 60; // pixels per second
 
 interface NewsTickerProps {
   newsflashes: Newsflash[];
@@ -11,10 +10,6 @@ interface NewsTickerProps {
 
 export default function NewsTicker({ newsflashes }: NewsTickerProps) {
   const theme = useTheme();
-  const scrollAnim = useRef(new Animated.Value(0)).current;
-  const [textWidth, setTextWidth] = useState(0);
-  const [containerWidth, setContainerWidth] = useState(0);
-  const animationRef = useRef<Animated.CompositeAnimation | null>(null);
 
   // Get top 5 recent headlines
   const headlines = newsflashes
@@ -27,62 +22,6 @@ export default function NewsTicker({ newsflashes }: NewsTickerProps) {
     });
 
   const tickerText = headlines.length > 0 ? headlines.join('   •   ') : '';
-
-  const handleTextLayout = useCallback((e: LayoutChangeEvent) => {
-    const width = e.nativeEvent.layout.width;
-    if (width > 0 && width !== textWidth) {
-      setTextWidth(width);
-    }
-  }, [textWidth]);
-
-  const handleContainerLayout = useCallback((e: LayoutChangeEvent) => {
-    const width = e.nativeEvent.layout.width;
-    if (width > 0 && width !== containerWidth) {
-      setContainerWidth(width);
-    }
-  }, [containerWidth]);
-
-  useEffect(() => {
-    // Clean up previous animation
-    if (animationRef.current) {
-      animationRef.current.stop();
-      animationRef.current = null;
-    }
-
-    // Need both measurements and headlines
-    if (textWidth === 0 || containerWidth === 0 || headlines.length === 0) {
-      return;
-    }
-
-    // Classic marquee: start from right edge, scroll until text exits left
-    const startPosition = containerWidth;
-    const endPosition = -textWidth;
-    const totalDistance = startPosition - endPosition;
-    const duration = (totalDistance / TICKER_SPEED) * 1000;
-
-    // Always use native driver for transform - supported on both platforms
-    scrollAnim.setValue(startPosition);
-    
-    animationRef.current = Animated.loop(
-      Animated.timing(scrollAnim, {
-        toValue: endPosition,
-        duration,
-        useNativeDriver: true,
-      })
-    );
-
-    // Small delay to ensure layout is complete on Android
-    const timer = setTimeout(() => {
-      animationRef.current?.start();
-    }, 150);
-
-    return () => {
-      clearTimeout(timer);
-      if (animationRef.current) {
-        animationRef.current.stop();
-      }
-    };
-  }, [textWidth, containerWidth, headlines.length, scrollAnim]);
 
   if (headlines.length === 0) {
     return null;
@@ -97,23 +36,20 @@ export default function NewsTicker({ newsflashes }: NewsTickerProps) {
       <View style={[styles.label, { backgroundColor: theme.colors.error }]}>
         <Text style={styles.labelText}>LIVE</Text>
       </View>
-      <View style={styles.tickerWrapper} onLayout={handleContainerLayout}>
-        <Animated.View
-          style={[
-            styles.textContainer,
-            { transform: [{ translateX: scrollAnim }] },
-          ]}
+      <View style={styles.tickerWrapper}>
+        <Marquee
+          direction="horizontal"
+          speed={1}
+          spacing={40}
+          style={styles.marquee}
         >
-          {/* Use native RNText to avoid react-native-paper styling issues */}
           <RNText
             style={[styles.tickerText, { color: textColor }]}
-            onLayout={handleTextLayout}
             numberOfLines={1}
-            ellipsizeMode="clip"
           >
             {tickerText}
           </RNText>
-        </Animated.View>
+        </Marquee>
       </View>
     </View>
   );
@@ -143,16 +79,13 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     justifyContent: 'center',
   },
-  textContainer: {
-    position: 'absolute',
-    flexDirection: 'row',
-    // Ensure text doesn't get constrained
-    width: 10000,
+  marquee: {
+    height: 36,
+    alignItems: 'center',
   },
   tickerText: {
     fontSize: 14,
     fontWeight: '500',
     lineHeight: 36,
-    flexShrink: 0,
   },
 });
