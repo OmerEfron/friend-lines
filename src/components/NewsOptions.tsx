@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Pressable } from 'react-native';
+import { View, StyleSheet, Pressable, Platform } from 'react-native';
 import { Chip, Text, useTheme, SegmentedButtons } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { NewsCategory, NewsSeverity, NEWS_CATEGORIES } from '../types';
+import { selection, lightImpact } from '../utils/haptics';
+import { HIT_SLOP_48 } from '../utils/a11y';
 
 // Category display info with emojis for compact display
 const CATEGORY_INFO: Record<NewsCategory, { emoji: string; label: string }> = {
@@ -39,8 +41,20 @@ export default function NewsOptions({
     <View style={styles.container}>
       {/* Collapsed Summary */}
       <Pressable 
-        onPress={() => setExpanded(!expanded)}
-        style={[styles.summaryRow, { backgroundColor: theme.colors.surfaceVariant }]}
+        onPress={() => {
+          lightImpact();
+          setExpanded(!expanded);
+        }}
+        style={({ pressed }) => [
+          styles.summaryRow, 
+          { backgroundColor: theme.colors.surfaceVariant },
+          pressed && { opacity: 0.7 },
+        ]}
+        android_ripple={{ color: theme.colors.primary, borderless: false }}
+        accessibilityRole="button"
+        accessibilityLabel={`News options: ${currentCategory.label}, ${severityLabel}`}
+        accessibilityHint={expanded ? 'Double tap to collapse options' : 'Double tap to expand options'}
+        accessibilityState={{ expanded }}
       >
         <View style={styles.summaryContent}>
           <Text style={styles.summaryItem}>
@@ -63,7 +77,10 @@ export default function NewsOptions({
           <Text variant="labelMedium" style={styles.optionLabel}>Severity</Text>
           <SegmentedButtons
             value={severity}
-            onValueChange={(val) => onSeverityChange(val as NewsSeverity)}
+            onValueChange={(val) => {
+              selection();
+              onSeverityChange(val as NewsSeverity);
+            }}
             buttons={[
               { value: 'STANDARD', label: 'Standard' },
               { value: 'BREAKING', label: '🔴 Breaking' },
@@ -80,7 +97,10 @@ export default function NewsOptions({
               <Chip
                 key={cat}
                 selected={category === cat}
-                onPress={() => onCategoryChange(cat)}
+                onPress={() => {
+                  selection();
+                  onCategoryChange(cat);
+                }}
                 mode={category === cat ? 'flat' : 'outlined'}
                 compact
                 style={styles.categoryChip}

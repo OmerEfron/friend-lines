@@ -12,6 +12,7 @@ import {
 import { useData } from '../context/DataContext';
 import { User } from '../types';
 import { A11Y_LABELS, A11Y_HINTS, HIT_SLOP_48 } from '../utils/a11y';
+import { lightImpact, warningNotification } from '../utils/haptics';
 
 export default function FriendsListScreen() {
   const theme = useTheme();
@@ -19,6 +20,7 @@ export default function FriendsListScreen() {
   const [refreshing, setRefreshing] = useState(false);
 
   const handleRefresh = async () => {
+    lightImpact();
     setRefreshing(true);
     await refreshFriends();
     setRefreshing(false);
@@ -34,6 +36,7 @@ export default function FriendsListScreen() {
   };
 
   const handleRemoveFriend = (userId: string) => {
+    warningNotification();
     removeFriend(userId);
   };
 

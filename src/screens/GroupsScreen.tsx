@@ -6,6 +6,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTranslation } from 'react-i18next';
 import { useData } from '../context/DataContext';
 import { Group } from '../types';
+import { mediumImpact, lightImpact } from '../utils/haptics';
 
 type GroupStackParamList = {
   GroupsList: undefined;
@@ -22,12 +23,14 @@ export default function GroupsScreen() {
   const [refreshing, setRefreshing] = useState(false);
 
   const handleRefresh = async () => {
+    lightImpact();
     setRefreshing(true);
     await refreshGroups();
     setRefreshing(false);
   };
 
   const handleGroupPress = (group: Group) => {
+    lightImpact();
     navigation.navigate('GroupFeed', { group });
   };
 
@@ -67,7 +70,11 @@ export default function GroupsScreen() {
       <FAB
         icon="plus"
         style={styles.fab}
-        onPress={() => navigation.navigate('CreateGroup' as never)}
+        onPress={() => {
+          mediumImpact();
+          navigation.navigate('CreateGroup' as never);
+        }}
+        accessibilityLabel="Create new group"
       />
     </Surface>
   );
