@@ -4,6 +4,8 @@ import { Card, Text, Avatar, useTheme, IconButton } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { Newsflash, User, NewsCategory } from '../types';
 import { useBookmarks } from '../context/BookmarksContext';
+import { A11Y_LABELS, A11Y_HINTS, HIT_SLOP_48 } from '../utils/a11y';
+import { lightImpact } from '../utils/haptics';
 
 // Detect if text contains RTL characters (Hebrew, Arabic, etc.)
 const isRTLText = (text: string): boolean => {
@@ -103,8 +105,14 @@ export default function NewsflashCard({ newsflash, user }: NewsflashCardProps) {
               <IconButton
                 icon={bookmarked ? 'bookmark' : 'bookmark-outline'}
                 size={20}
-                onPress={() => toggleBookmark(newsflash.id)}
+                onPress={() => {
+                  lightImpact();
+                  toggleBookmark(newsflash.id);
+                }}
                 style={styles.bookmarkButton}
+                accessibilityLabel={bookmarked ? A11Y_LABELS.BOOKMARK_REMOVE : A11Y_LABELS.BOOKMARK_ADD}
+                accessibilityHint={bookmarked ? A11Y_HINTS.BOOKMARK_REMOVE : A11Y_HINTS.BOOKMARK_ADD}
+                accessibilityState={{ selected: bookmarked }}
               />
             </View>
           </View>

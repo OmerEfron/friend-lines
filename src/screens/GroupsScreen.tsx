@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
-import { StyleSheet, FlatList, RefreshControl } from 'react-native';
+import { StyleSheet, RefreshControl } from 'react-native';
+import { FlashList } from '@shopify/flash-list';
 import { Surface, List, useTheme, FAB } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTranslation } from 'react-i18next';
 import { useData } from '../context/DataContext';
 import { Group } from '../types';
+import { mediumImpact, lightImpact } from '../utils/haptics';
+import { SPACING, LIST, FAB as FAB_SPACING } from '../theme/spacing';
 
 type GroupStackParamList = {
   GroupsList: undefined;
@@ -22,12 +25,14 @@ export default function GroupsScreen() {
   const [refreshing, setRefreshing] = useState(false);
 
   const handleRefresh = async () => {
+    lightImpact();
     setRefreshing(true);
     await refreshGroups();
     setRefreshing(false);
   };
 
   const handleGroupPress = (group: Group) => {
+    lightImpact();
     navigation.navigate('GroupFeed', { group });
   };
 
@@ -50,7 +55,7 @@ export default function GroupsScreen() {
 
   return (
     <Surface style={styles.container}>
-      <FlatList
+      <FlashList
         data={groups}
         keyExtractor={(item) => item.id}
         renderItem={renderGroup}
@@ -67,7 +72,11 @@ export default function GroupsScreen() {
       <FAB
         icon="plus"
         style={styles.fab}
-        onPress={() => navigation.navigate('CreateGroup' as never)}
+        onPress={() => {
+          mediumImpact();
+          navigation.navigate('CreateGroup' as never);
+        }}
+        accessibilityLabel="Create new group"
       />
     </Surface>
   );
@@ -78,16 +87,16 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   listContainer: {
-    paddingVertical: 8,
-    paddingBottom: 110,
+    paddingVertical: LIST.VERTICAL_PADDING,
+    paddingBottom: LIST.BOTTOM_CLEARANCE,
   },
   listItem: {
-    paddingVertical: 4,
+    paddingVertical: SPACING.XS,
   },
   fab: {
     position: 'absolute',
-    right: 16,
-    bottom: 106,
+    right: FAB_SPACING.RIGHT,
+    bottom: FAB_SPACING.BOTTOM,
   },
 });
 

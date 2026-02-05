@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, FlatList, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { FlashList } from '@shopify/flash-list';
 import {
   Surface,
   List,
@@ -13,6 +14,8 @@ import {
 } from 'react-native-paper';
 import { apiCall } from '../config/api';
 import { useData } from '../context/DataContext';
+import ListSkeleton from '../components/ListSkeleton';
+import { SkeletonIgnore } from '../components/SkeletonWrapper';
 
 interface User {
   id: string;
@@ -209,8 +212,19 @@ export default function FriendRequestsScreen() {
 
   if (loading) {
     return (
-      <Surface style={[styles.container, styles.center]}>
-        <ActivityIndicator size="large" />
+      <Surface style={styles.container}>
+        <View style={styles.tabContainer}>
+          <SegmentedButtons
+            value={tab}
+            onValueChange={setTab}
+            buttons={[
+              { value: 'received', label: 'Received' },
+              { value: 'sent', label: 'Sent' },
+            ]}
+            style={styles.segmentedButtons}
+          />
+        </View>
+        <ListSkeleton itemCount={4} hasActions />
       </Surface>
     );
   }
@@ -237,7 +251,7 @@ export default function FriendRequestsScreen() {
         />
       </View>
 
-      <FlatList
+      <FlashList
         data={currentRequests}
         keyExtractor={(item) => `${item.userId}_${item.friendId}`}
         renderItem={tab === 'received' ? renderReceivedRequest : renderSentRequest}
@@ -246,7 +260,6 @@ export default function FriendRequestsScreen() {
           styles.listContainer,
           currentRequests.length === 0 && styles.emptyList,
         ]}
-        style={{ backgroundColor: theme.colors.background }}
       />
     </Surface>
   );

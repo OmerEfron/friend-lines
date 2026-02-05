@@ -1,11 +1,13 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { StyleSheet, FlatList, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { FlashList } from '@shopify/flash-list';
 import { Surface, Searchbar, List, Avatar, useTheme, Button, Text, ActivityIndicator } from 'react-native-paper';
 import { useData } from '../context/DataContext';
 import { User } from '../types';
 import { searchUsers } from '../services/api';
 import { apiCall } from '../config/api';
 import { useNavigation } from '@react-navigation/native';
+import ListSkeleton from '../components/ListSkeleton';
 
 interface FriendRequest {
   userId: string;
@@ -178,11 +180,7 @@ export default function AddFriendScreen() {
 
   const renderEmpty = () => {
     if (loading) {
-      return (
-        <View style={styles.emptyContainer}>
-          <ActivityIndicator size="large" />
-        </View>
-      );
+      return <ListSkeleton itemCount={4} hasActions />;
     }
 
     return (
@@ -207,7 +205,7 @@ export default function AddFriendScreen() {
           style={styles.searchbar}
         />
       </View>
-      <FlatList
+      <FlashList
         data={availableUsers}
         keyExtractor={(item) => item.id}
         renderItem={renderUser}
@@ -216,7 +214,6 @@ export default function AddFriendScreen() {
           styles.listContainer,
           availableUsers.length === 0 && styles.emptyList
         ]}
-        style={{ backgroundColor: theme.colors.background }}
       />
     </Surface>
   );

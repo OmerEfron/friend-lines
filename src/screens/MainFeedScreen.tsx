@@ -5,6 +5,8 @@ import { useNavigation } from '@react-navigation/native';
 import FeedList from '../components/FeedList';
 import NewsTicker from '../components/NewsTicker';
 import { useData } from '../context/DataContext';
+import { mediumImpact } from '../utils/haptics';
+import { FAB as FAB_SPACING, SPACING } from '../theme/spacing';
 
 export default function MainFeedScreen() {
   const navigation = useNavigation();
@@ -61,7 +63,11 @@ export default function MainFeedScreen() {
       <FAB
         icon="plus"
         style={styles.fab}
-        onPress={() => navigation.navigate('CreateNewsflash' as never)}
+        onPress={() => {
+          mediumImpact();
+          navigation.navigate('CreateNewsflash' as never);
+        }}
+        accessibilityLabel="Create new newsflash"
       />
     </Surface>
   );
@@ -72,7 +78,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   searchContainer: {
-    padding: 8,
+    padding: SPACING.SM,
     paddingBottom: 0,
   },
   searchbar: {
@@ -80,8 +86,8 @@ const styles = StyleSheet.create({
   },
   fab: {
     position: 'absolute',
-    right: 16,
-    bottom: 106,
+    right: FAB_SPACING.RIGHT,
+    bottom: FAB_SPACING.BOTTOM,
   },
 });
 
