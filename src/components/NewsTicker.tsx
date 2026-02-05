@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, StyleSheet, Text as RNText } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, StyleSheet, Text as RNText, AccessibilityInfo } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
 import { Marquee } from '@animatereactnative/marquee';
 import { Newsflash } from '../types';
@@ -10,6 +10,20 @@ interface NewsTickerProps {
 
 export default function NewsTicker({ newsflashes }: NewsTickerProps) {
   const theme = useTheme();
+  const [reduceMotionEnabled, setReduceMotionEnabled] = useState(false);
+
+  useEffect(() => {
+    // Check initial state
+    AccessibilityInfo.isReduceMotionEnabled().then(setReduceMotionEnabled);
+
+    // Subscribe to changes
+    const subscription = AccessibilityInfo.addEventListener(
+      'reduceMotionChanged',
+      setReduceMotionEnabled
+    );
+
+    return () => subscription.remove();
+  }, []);
 
   // Get top 5 recent headlines
   const headlines = newsflashes
@@ -37,19 +51,31 @@ export default function NewsTicker({ newsflashes }: NewsTickerProps) {
         <Text style={styles.labelText}>LIVE</Text>
       </View>
       <View style={styles.tickerWrapper}>
-        <Marquee
-          direction="horizontal"
-          speed={1}
-          spacing={40}
-          style={styles.marquee}
-        >
+        {reduceMotionEnabled ? (
+          // Static fallback when Reduce Motion is enabled
           <RNText
-            style={[styles.tickerText, { color: textColor }]}
+            style={[styles.tickerText, styles.staticText, { color: textColor }]}
             numberOfLines={1}
+            ellipsizeMode="tail"
           >
             {tickerText}
           </RNText>
-        </Marquee>
+        ) : (
+          // Animated marquee when Reduce Motion is disabled
+          <Marquee
+            direction="horizontal"
+            speed={1}
+            spacing={40}
+            style={styles.marquee}
+          >
+            <RNText
+              style={[styles.tickerText, { color: textColor }]}
+              numberOfLines={1}
+            >
+              {tickerText}
+            </RNText>
+          </Marquee>
+        )}
       </View>
     </View>
   );
@@ -87,5 +113,8 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '500',
     lineHeight: 36,
+  },
+  staticText: {
+    paddingHorizontal: 8,
   },
 });
