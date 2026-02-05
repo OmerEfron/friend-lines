@@ -23,13 +23,24 @@
       }
     },
     "production": {
+      "distribution": "store",
       "ios": {
         "simulator": false
+      },
+      "android": {
+        "buildType": "app-bundle"
       }
     }
   },
   "submit": {
-    "production": {}
+    "production": {
+      "android": {
+        "track": "internal",
+        "changesNotSentForReview": true
+      },
+      "ios": {
+        "ascAppId": "YOUR_APP_STORE_CONNECT_APP_ID"
+      }
+    }
   }
 }
-
