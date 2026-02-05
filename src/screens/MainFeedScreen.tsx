@@ -5,6 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 import FeedList from '../components/FeedList';
 import NewsTicker from '../components/NewsTicker';
 import { useData } from '../context/DataContext';
+import { mediumImpact } from '../utils/haptics';
 
 export default function MainFeedScreen() {
   const navigation = useNavigation();
@@ -61,7 +62,11 @@ export default function MainFeedScreen() {
       <FAB
         icon="plus"
         style={styles.fab}
-        onPress={() => navigation.navigate('CreateNewsflash' as never)}
+        onPress={() => {
+          mediumImpact();
+          navigation.navigate('CreateNewsflash' as never);
+        }}
+        accessibilityLabel="Create new newsflash"
       />
     </Surface>
   );
