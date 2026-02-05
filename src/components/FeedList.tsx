@@ -6,6 +6,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { Newsflash } from '../types';
 import NewsflashCard from './NewsflashCard';
+import { SPACING, LIST } from '../theme/spacing';
 
 // Estimated height of a NewsflashCard (header + headline + optional subheadline)
 // Tune based on actual measurements for optimal scrolling performance
@@ -106,8 +107,8 @@ export default function FeedList({
 
 const styles = StyleSheet.create({
   contentContainer: {
-    padding: 8,
-    paddingBottom: 110,
+    padding: LIST.HORIZONTAL_PADDING,
+    paddingBottom: LIST.BOTTOM_CLEARANCE,
   },
   emptyList: {
     flex: 1,
@@ -116,28 +117,28 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingTop: 100,
+    paddingTop: SPACING.GIANT,
   },
   emptyHeadline: {
     fontWeight: 'bold',
-    marginBottom: 8,
+    marginBottom: SPACING.SM,
   },
   emptyText: {
     opacity: 0.6,
-    marginBottom: 4,
+    marginBottom: SPACING.XS,
   },
   emptySubtext: {
     opacity: 0.4,
   },
   emptyActions: {
-    marginTop: 24,
-    gap: 12,
+    marginTop: SPACING.LG,
+    gap: SPACING.SM + SPACING.XS,
   },
   actionButton: {
     minWidth: 180,
   },
   footerLoader: {
-    paddingVertical: 20,
+    paddingVertical: SPACING.LG - SPACING.XS,
     alignItems: 'center',
   },
 });

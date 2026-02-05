@@ -17,6 +17,7 @@ import CreateNewsflashScreen from '../screens/CreateNewsflashScreen';
 import CreateGroupScreen from '../screens/CreateGroupScreen';
 import { Group } from '../types';
 import { A11Y_LABELS, A11Y_HINTS } from '../utils/a11y';
+import { TAB_BAR, SPACING } from '../theme/spacing';
 
 // Type definitions for navigation
 type GroupStackParamList = {
@@ -145,22 +146,22 @@ function MainTabNavigator() {
         tabBarShowLabel: false,
         tabBarStyle: {
           position: 'absolute',
-          bottom: 25,
-          left: 20,
-          right: 20,
-          elevation: 8,
+          bottom: TAB_BAR.BOTTOM,
+          left: TAB_BAR.HORIZONTAL_MARGIN,
+          right: TAB_BAR.HORIZONTAL_MARGIN,
+          elevation: SPACING.SM,
           backgroundColor: theme.colors.surface,
-          borderRadius: 20,
-          height: 65,
+          borderRadius: TAB_BAR.RADIUS,
+          height: TAB_BAR.HEIGHT,
           paddingBottom: 0,
           borderTopWidth: 0,
           shadowColor: '#000',
           shadowOffset: {
             width: 0,
-            height: 4,
+            height: SPACING.XS,
           },
           shadowOpacity: 0.3,
-          shadowRadius: 8,
+          shadowRadius: SPACING.SM,
         },
         tabBarIcon: ({ focused, color }) => {
           let iconName: string = 'newspaper';

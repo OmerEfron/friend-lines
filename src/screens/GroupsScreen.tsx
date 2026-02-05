@@ -11,6 +11,7 @@ import { useTranslation } from 'react-i18next';
 import { useData } from '../context/DataContext';
 import { Group } from '../types';
 import { mediumImpact, lightImpact } from '../utils/haptics';
+import { SPACING, LIST, FAB as FAB_SPACING } from '../theme/spacing';
 
 type GroupStackParamList = {
   GroupsList: undefined;
@@ -90,16 +91,16 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   listContainer: {
-    paddingVertical: 8,
-    paddingBottom: 110,
+    paddingVertical: LIST.VERTICAL_PADDING,
+    paddingBottom: LIST.BOTTOM_CLEARANCE,
   },
   listItem: {
-    paddingVertical: 4,
+    paddingVertical: SPACING.XS,
   },
   fab: {
     position: 'absolute',
-    right: 16,
-    bottom: 106,
+    right: FAB_SPACING.RIGHT,
+    bottom: FAB_SPACING.BOTTOM,
   },
 });
 
