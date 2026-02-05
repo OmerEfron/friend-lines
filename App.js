@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { PaperProvider, ActivityIndicator, Surface } from 'react-native-paper';
-import { View, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { I18nextProvider } from 'react-i18next';
 import i18n from './src/i18n';
 import TabNavigator from './src/navigation/TabNavigator';
@@ -61,19 +62,24 @@ function AuthenticatedApp() {
 
 export default function App() {
   return (
-    <I18nextProvider i18n={i18n}>
-      <ThemeProvider>
-        <LanguageProvider>
-          <AuthProvider>
-            <AuthenticatedApp />
-          </AuthProvider>
-        </LanguageProvider>
-      </ThemeProvider>
-    </I18nextProvider>
+    <GestureHandlerRootView style={styles.root}>
+      <I18nextProvider i18n={i18n}>
+        <ThemeProvider>
+          <LanguageProvider>
+            <AuthProvider>
+              <AuthenticatedApp />
+            </AuthProvider>
+          </LanguageProvider>
+        </ThemeProvider>
+      </I18nextProvider>
+    </GestureHandlerRootView>
   );
 }
 
 const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+  },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
