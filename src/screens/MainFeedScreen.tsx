@@ -6,6 +6,7 @@ import FeedList from '../components/FeedList';
 import NewsTicker from '../components/NewsTicker';
 import { useData } from '../context/DataContext';
 import { mediumImpact } from '../utils/haptics';
+import { FAB as FAB_SPACING, SPACING } from '../theme/spacing';
 
 export default function MainFeedScreen() {
   const navigation = useNavigation();
@@ -77,7 +78,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   searchContainer: {
-    padding: 8,
+    padding: SPACING.SM,
     paddingBottom: 0,
   },
   searchbar: {
@@ -85,8 +86,8 @@ const styles = StyleSheet.create({
   },
   fab: {
     position: 'absolute',
-    right: 16,
-    bottom: 106,
+    right: FAB_SPACING.RIGHT,
+    bottom: FAB_SPACING.BOTTOM,
   },
 });
 
