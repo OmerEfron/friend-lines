@@ -16,6 +16,7 @@ import EditProfileScreen from '../screens/EditProfileScreen';
 import CreateNewsflashScreen from '../screens/CreateNewsflashScreen';
 import CreateGroupScreen from '../screens/CreateGroupScreen';
 import { Group } from '../types';
+import { A11Y_LABELS, A11Y_HINTS } from '../utils/a11y';
 
 // Type definitions for navigation
 type GroupStackParamList = {
@@ -187,15 +188,22 @@ function MainTabNavigator() {
         options={{ 
           headerShown: true,
           title: 'Friendlines',
+          tabBarAccessibilityLabel: A11Y_LABELS.TAB_HOME,
         }}
       />
       <Tab.Screen 
         name="Groups" 
         component={GroupsStackScreen}
+        options={{
+          tabBarAccessibilityLabel: A11Y_LABELS.TAB_GROUPS,
+        }}
       />
       <Tab.Screen 
         name="Profile" 
         component={ProfileStackScreen}
+        options={{
+          tabBarAccessibilityLabel: A11Y_LABELS.TAB_PROFILE,
+        }}
       />
     </Tab.Navigator>
   );

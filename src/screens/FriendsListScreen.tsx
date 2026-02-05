@@ -11,6 +11,7 @@ import {
 } from 'react-native-paper';
 import { useData } from '../context/DataContext';
 import { User } from '../types';
+import { A11Y_LABELS, A11Y_HINTS, HIT_SLOP_48 } from '../utils/a11y';
 
 export default function FriendsListScreen() {
   const theme = useTheme();
@@ -53,6 +54,8 @@ export default function FriendsListScreen() {
           size={24}
           onPress={() => handleRemoveFriend(item.id)}
           iconColor={theme.colors.error}
+          accessibilityLabel={`Remove ${item.name} from friends`}
+          accessibilityHint={A11Y_HINTS.REMOVE_FRIEND}
         />
       )}
       style={styles.listItem}
@@ -84,6 +87,8 @@ export default function FriendsListScreen() {
             size={20}
             onPress={handleRefresh}
             style={styles.refreshButton}
+            accessibilityLabel={A11Y_LABELS.REFRESH}
+            accessibilityHint={A11Y_HINTS.REFRESH}
           />
         )}
       </View>

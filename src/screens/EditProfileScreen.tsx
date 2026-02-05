@@ -25,6 +25,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { useAuth } from '../context/AuthContext';
 import { apiCall } from '../config/api';
 import { uploadImage, getFileInfo } from '../services/upload';
+import { A11Y_LABELS } from '../utils/a11y';
 
 interface User {
   id: string;
@@ -155,6 +156,7 @@ export default function EditProfileScreen() {
                       onPress={removeAvatar}
                       style={styles.removeAvatarButton}
                       iconColor={theme.colors.error}
+                      accessibilityLabel="Remove avatar"
                     />
                   </View>
                 ) : (

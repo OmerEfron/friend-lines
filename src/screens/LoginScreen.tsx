@@ -15,6 +15,7 @@ import {
   HelperText,
 } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
+import { A11Y_LABELS, A11Y_HINTS } from '../utils/a11y';
 
 interface LoginScreenProps {
   onLogin: (email: string, password: string) => Promise<void>;
@@ -96,6 +97,8 @@ export default function LoginScreen({
                   <TextInput.Icon
                     icon={showPassword ? 'eye-off' : 'eye'}
                     onPress={() => setShowPassword(!showPassword)}
+                    accessibilityLabel={showPassword ? A11Y_LABELS.HIDE_PASSWORD : A11Y_LABELS.SHOW_PASSWORD}
+                    accessibilityHint={A11Y_HINTS.TOGGLE_PASSWORD}
                   />
                 }
               />
