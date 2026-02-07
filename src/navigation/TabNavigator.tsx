@@ -16,7 +16,8 @@ import UserFeedScreen from '../screens/UserFeedScreen';
 import EditProfileScreen from '../screens/EditProfileScreen';
 import CreateNewsflashScreen from '../screens/CreateNewsflashScreen';
 import CreateGroupScreen from '../screens/CreateGroupScreen';
-import { Group } from '../types';
+import ReporterChatScreen from '../screens/ReporterChatScreen';
+import { Group, InterviewType } from '../types';
 import { useA11y } from '../utils/a11y';
 import { TAB_BAR, SPACING } from '../theme/spacing';
 
@@ -40,6 +41,7 @@ type RootStackParamList = {
   MainTabs: undefined;
   CreateNewsflash: undefined;
   CreateGroup: undefined;
+  ReporterChat: { sessionId?: string; type?: InterviewType };
 };
 
 type TabParamList = {
@@ -248,6 +250,14 @@ export default function TabNavigator() {
         options={{
           presentation: 'modal',
           title: t('screens.newGroup'),
+        }}
+      />
+      <RootStack.Screen
+        name="ReporterChat"
+        component={ReporterChatScreen}
+        options={{
+          presentation: 'fullScreenModal',
+          title: t('screens.aiReporter'),
         }}
       />
     </RootStack.Navigator>

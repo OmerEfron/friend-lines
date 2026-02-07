@@ -65,6 +65,16 @@ export default function MainFeedScreen() {
         onRefresh={handleRefresh}
       />
       <FAB
+        icon="microphone"
+        style={styles.fabReporter}
+        onPress={() => {
+          mediumImpact();
+          navigation.navigate('ReporterChat' as never);
+        }}
+        accessibilityLabel={t('aiReporterButton')}
+        size="small"
+      />
+      <FAB
         icon="plus"
         style={styles.fab}
         onPress={() => {
@@ -92,6 +102,11 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: FAB_SPACING.RIGHT,
     bottom: FAB_SPACING.BOTTOM,
+  },
+  fabReporter: {
+    position: 'absolute',
+    right: FAB_SPACING.RIGHT,
+    bottom: FAB_SPACING.BOTTOM + 70,
   },
 });
 
