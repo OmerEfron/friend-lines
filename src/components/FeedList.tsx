@@ -5,7 +5,7 @@ import { Text, useTheme, ActivityIndicator, Button } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { Newsflash } from '../types';
-import NewsflashCard from './NewsflashCard';
+import NewsflashCard, { CardVariant } from './NewsflashCard';
 import { SPACING, LIST } from '../theme/spacing';
 
 interface FeedListProps {
@@ -73,10 +73,12 @@ export default function FeedList({
     <FlashList
       data={newsflashes}
       keyExtractor={(item) => item.id}
-      renderItem={({ item }) => {
+      renderItem={({ item, index }) => {
         // Use embedded user data from API response
         if (!item.user) return null;
-        return <NewsflashCard newsflash={item} user={item.user} />;
+        // First item is Hero (magazine-style), rest are Standard (compact list)
+        const variant: CardVariant = index === 0 ? 'hero' : 'standard';
+        return <NewsflashCard newsflash={item} user={item.user} variant={variant} />;
       }}
       ListEmptyComponent={renderEmpty}
       ListFooterComponent={renderFooter}
