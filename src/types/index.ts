@@ -49,7 +49,6 @@ export interface Friendship {
   friendId: string;
 }
 
-
 // Interview types for AI Reporter
 export type InterviewType = 'daily' | 'weekly' | 'event';
 export type InterviewStatus = 'active' | 'generating' | 'completed' | 'cancelled';
