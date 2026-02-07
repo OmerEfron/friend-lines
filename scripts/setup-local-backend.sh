@@ -146,6 +146,22 @@ AWS_ACCESS_KEY_ID=test AWS_SECRET_ACCESS_KEY=test aws dynamodb create-table \
   --no-cli-pager \
   >/dev/null 2>&1 || echo "Device tokens table already exists"
 
+AWS_ACCESS_KEY_ID=test AWS_SECRET_ACCESS_KEY=test aws dynamodb create-table \
+  --table-name friendlines-interview-sessions \
+  --attribute-definitions \
+    AttributeName=id,AttributeType=S \
+    AttributeName=userId,AttributeType=S \
+    AttributeName=createdAt,AttributeType=S \
+  --key-schema \
+    AttributeName=id,KeyType=HASH \
+  --global-secondary-indexes \
+    "IndexName=userId-createdAt-index,KeySchema=[{AttributeName=userId,KeyType=HASH},{AttributeName=createdAt,KeyType=RANGE}],Projection={ProjectionType=ALL}" \
+  --billing-mode PAY_PER_REQUEST \
+  --endpoint-url http://localhost:$DYNAMODB_PORT \
+  --region $AWS_REGION \
+  --no-cli-pager \
+  >/dev/null 2>&1 || echo "Interview sessions table already exists"
+
 echo -e "${GREEN}✓ DynamoDB tables created${NC}"
 
 echo -e "${YELLOW}Step 6: Creating S3 bucket...${NC}"
