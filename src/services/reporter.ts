@@ -4,7 +4,7 @@
  */
 
 import { apiCall, apiConfig } from '../config/api';
-import { InterviewSession, InterviewType } from '../types';
+import { InterviewSession, InterviewType, SupportedLanguage } from '../types';
 
 interface StartInterviewResponse {
   session: InterviewSession;
@@ -22,13 +22,14 @@ interface GetInterviewResponse {
  * Start a new AI reporter interview session
  */
 export async function startInterview(
-  type: InterviewType = 'daily'
+  type: InterviewType = 'daily',
+  language: SupportedLanguage = 'en'
 ): Promise<InterviewSession> {
   const response = await apiCall<StartInterviewResponse>(
     apiConfig.endpoints.interviews,
     {
       method: 'POST',
-      body: JSON.stringify({ type }),
+      body: JSON.stringify({ type, language }),
     }
   );
   return response.session;

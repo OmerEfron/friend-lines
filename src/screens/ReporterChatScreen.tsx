@@ -27,7 +27,7 @@ import {
   sendInterviewMessage,
   getInterview,
 } from '../services/reporter';
-import type { InterviewSession, InterviewMessage, InterviewType } from '../types';
+import type { InterviewSession, InterviewMessage, InterviewType, SupportedLanguage } from '../types';
 
 type ReporterChatParams = {
   ReporterChat: { sessionId?: string; type?: InterviewType };
@@ -38,7 +38,7 @@ export default function ReporterChatScreen() {
   const navigation = useNavigation();
   const route = useRoute<RouteProp<ReporterChatParams, 'ReporterChat'>>();
   const insets = useSafeAreaInsets();
-  const { t } = useTranslation('reporter');
+  const { t, i18n } = useTranslation('reporter');
   const { addNewsflash, currentUser } = useData();
   const flatListRef = useRef<FlatList>(null);
 
@@ -60,7 +60,10 @@ export default function ReporterChatScreen() {
         const existingSession = await getInterview(route.params.sessionId);
         setSession(existingSession);
       } else {
-        const newSession = await startInterview(route.params?.type || 'daily');
+        // Get current language and ensure it's a supported language
+        const currentLang = i18n.language as SupportedLanguage;
+        const language: SupportedLanguage = ['en', 'he', 'es'].includes(currentLang) ? currentLang : 'en';
+        const newSession = await startInterview(route.params?.type || 'daily', language);
         setSession(newSession);
       }
     } catch (error) {

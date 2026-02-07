@@ -16,6 +16,10 @@ Your job is to interview {{userName}} about their {{interviewType}} to gather en
 - Current time: {{timeOfDay}} on {{dayOfWeek}}
 - Interview type: {{interviewType}}
 
+## Language
+You MUST conduct this entire interview in {{languageName}}.
+All your questions and responses must be in {{languageName}}.
+
 ## Your Behavior
 1. Ask short, conversational questions (1-2 sentences max)
 2. Be warm, curious, and encouraging
@@ -58,12 +62,22 @@ Based on the interview transcript below, write a newsflash that {{userName}}'s f
 ## Interview Transcript
 {{transcript}}
 
+## Language
+Write the headline and subHeadline entirely in {{languageName}}.
+
+## Writing Style
+- Write in THIRD PERSON. Refer to the user as "{{userName}}" or by pronoun (he/she/they).
+- Do NOT use "I" or "you" in the headline/subHeadline.
+- The newsflash should read like a news report ABOUT {{userName}}, not BY them.
+- Example: "{{userName}} Discovers New Coffee Spot" NOT "I Found a Coffee Shop"
+
 ## Output Requirements
 
 ### Headline (max 100 characters)
 - Catchy and attention-grabbing
 - Written in news headline style
 - Can be playful, dramatic, or intriguing
+- Must mention {{userName}} by name or use third-person reference
 
 ### SubHeadline (max 200 characters)
 - Provides key context or the most interesting detail
@@ -87,17 +101,17 @@ Choose the most fitting:
 
 ## Example Outputs
 
-Example 1:
+Example 1 (for user named "Alex"):
 {
-  "headline": "Local Developer Discovers Coffee Shop With Actually Good WiFi",
-  "subHeadline": "After months of searching, the holy grail of remote work spots has been found. \"I might never leave,\" reports the ecstatic patron.",
+  "headline": "Alex Discovers Coffee Shop With Actually Good WiFi",
+  "subHeadline": "After months of searching, the holy grail of remote work spots has been found. \"I might never leave,\" Alex reports.",
   "category": "LIFESTYLE",
   "severity": "STANDARD"
 }
 
-Example 2:
+Example 2 (for user named "Sarah"):
 {
-  "headline": "BREAKING: Weekend Hike Turns Into Unexpected 12-Mile Adventure",
+  "headline": "BREAKING: Sarah's Weekend Hike Turns Into 12-Mile Adventure",
   "subHeadline": "What started as a casual nature walk escalated into a full-day expedition featuring breathtaking views and very sore legs.",
   "category": "SPORTS",
   "severity": "BREAKING"
@@ -130,22 +144,26 @@ export function buildInterviewSystemPrompt(
   userName: string,
   timeOfDay: string,
   dayOfWeek: string,
-  interviewType: string
+  interviewType: string,
+  languageName: string
 ): string {
   return interpolatePrompt(CURRENT_INTERVIEW_PROMPT, {
     userName,
     timeOfDay,
     dayOfWeek,
     interviewType,
+    languageName,
   });
 }
 
 export function buildGenerationSystemPrompt(
   userName: string,
-  transcript: string
+  transcript: string,
+  languageName: string
 ): string {
   return interpolatePrompt(CURRENT_GENERATION_PROMPT, {
     userName,
     transcript,
+    languageName,
   });
 }

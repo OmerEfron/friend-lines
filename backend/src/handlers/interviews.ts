@@ -9,7 +9,7 @@ import { putItem, getItem, queryItems } from '../utils/dynamo';
 import { successResponse, errorResponse } from '../utils/response';
 import { withAuth, AuthenticatedEvent } from '../utils/middleware';
 import { getAIProvider, PROMPT_VERSION } from '../ai';
-import type { ChatMessage, InterviewContext, InterviewDimension, NewsflashDraft } from '../ai';
+import type { ChatMessage, InterviewContext, InterviewDimension, NewsflashDraft, SupportedLanguage } from '../ai';
 
 const INTERVIEW_SESSIONS_TABLE =
   process.env.INTERVIEW_SESSIONS_TABLE || 'friendlines-interview-sessions';
@@ -19,6 +19,13 @@ const MAX_MESSAGES_PER_SESSION = parseInt(process.env.MAX_MESSAGES_PER_SESSION |
 
 // 24 hours in seconds for TTL
 const SESSION_TTL_SECONDS = 24 * 60 * 60;
+
+// Map language codes to locales for date formatting
+const LOCALE_MAP: Record<SupportedLanguage, string> = {
+  en: 'en-US',
+  he: 'he-IL',
+  es: 'es-ES',
+};
 
 interface InterviewSession {
   id: string;
@@ -98,12 +105,17 @@ async function handleStartInterview(
   event: AuthenticatedEvent,
   userId: string
 ): Promise<APIGatewayProxyResult> {
-  // Parse request body for interview type
+  // Parse request body for interview type and language
   let interviewType: 'daily' | 'weekly' | 'event' = 'daily';
+  let language: SupportedLanguage = 'en';
+  
   if (event.body) {
     const body = JSON.parse(event.body);
     if (['daily', 'weekly', 'event'].includes(body.type)) {
       interviewType = body.type;
+    }
+    if (['en', 'he', 'es'].includes(body.language)) {
+      language = body.language;
     }
   }
 
@@ -120,18 +132,20 @@ async function handleStartInterview(
   const user = (await getItem(USERS_TABLE, { id: userId })) as User | undefined;
   const userName = user?.name || 'friend';
 
-  // Build interview context
+  // Build interview context with localized day of week
   const now = new Date();
   const hour = now.getHours();
   const timeOfDay: 'morning' | 'midday' | 'evening' =
     hour < 12 ? 'morning' : hour < 17 ? 'midday' : 'evening';
-  const dayOfWeek = now.toLocaleDateString('en-US', { weekday: 'long' });
+  const locale = LOCALE_MAP[language];
+  const dayOfWeek = now.toLocaleDateString(locale, { weekday: 'long' });
 
   const context: InterviewContext = {
     timeOfDay,
     dayOfWeek,
     interviewType,
     userName,
+    language,
   };
 
   // Get first question from AI

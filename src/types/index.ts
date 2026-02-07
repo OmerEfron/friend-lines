@@ -59,11 +59,14 @@ export interface InterviewMessage {
   content: string;
 }
 
+export type SupportedLanguage = 'en' | 'he' | 'es';
+
 export interface InterviewContext {
   timeOfDay: 'morning' | 'midday' | 'evening';
   dayOfWeek: string;
   interviewType: InterviewType;
   userName: string;
+  language: SupportedLanguage;
 }
 
 export interface NewsflashDraft {

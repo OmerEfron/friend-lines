@@ -11,10 +11,17 @@ import {
   NewsflashDraft,
   INTERVIEW_TURN_SCHEMA,
   NEWSFLASH_DRAFT_SCHEMA,
+  SupportedLanguage,
 } from './types';
 import { buildInterviewSystemPrompt, buildGenerationSystemPrompt, PROMPT_VERSION } from './prompts';
 
 const OPENAI_API_URL = 'https://api.openai.com/v1/chat/completions';
+
+const LANGUAGE_NAMES: Record<SupportedLanguage, string> = {
+  en: 'English',
+  he: 'Hebrew',
+  es: 'Spanish',
+};
 
 export class OpenAIProvider implements AIProvider {
   private apiKey: string;
@@ -35,11 +42,13 @@ export class OpenAIProvider implements AIProvider {
     history: ChatMessage[],
     context: InterviewContext
   ): Promise<InterviewTurnResult> {
+    const languageName = LANGUAGE_NAMES[context.language] || 'English';
     const systemPrompt = buildInterviewSystemPrompt(
       context.userName,
       context.timeOfDay,
       context.dayOfWeek,
-      context.interviewType
+      context.interviewType,
+      languageName
     );
 
     const messages = [
@@ -61,13 +70,15 @@ export class OpenAIProvider implements AIProvider {
     history: ChatMessage[],
     context: InterviewContext
   ): Promise<NewsflashDraft> {
+    const languageName = LANGUAGE_NAMES[context.language] || 'English';
+    
     // Build transcript from conversation history
     const transcript = history
       .filter((m) => m.role !== 'system')
       .map((m) => `${m.role === 'assistant' ? 'Reporter' : 'User'}: ${m.content}`)
       .join('\n');
 
-    const systemPrompt = buildGenerationSystemPrompt(context.userName, transcript);
+    const systemPrompt = buildGenerationSystemPrompt(context.userName, transcript, languageName);
 
     const messages = [
       { role: 'system', content: systemPrompt },

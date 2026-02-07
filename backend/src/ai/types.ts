@@ -24,11 +24,14 @@ export interface NewsflashDraft {
   severity: 'STANDARD' | 'BREAKING' | 'DEVELOPING';
 }
 
+export type SupportedLanguage = 'en' | 'he' | 'es';
+
 export interface InterviewContext {
   timeOfDay: 'morning' | 'midday' | 'evening';
   dayOfWeek: string;
   interviewType: 'daily' | 'weekly' | 'event';
   userName: string;
+  language: SupportedLanguage;
 }
 
 export interface AIProvider {
