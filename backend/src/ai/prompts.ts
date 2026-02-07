@@ -122,6 +122,74 @@ Example 2 (for user named "Sarah"):
 Write the newsflash now based on the interview.`;
 
 // =============================================================================
+// LANGUAGE-SPECIFIC INSTRUCTIONS
+// =============================================================================
+
+export const HEBREW_LANGUAGE_RULES = `
+## הנחיות לעברית (Hebrew Language Requirements)
+
+### כללי דקדוק חשובים
+- **התאמת מין**: פעלים, שמות תואר וכינויים חייבים להתאים למין הדובר/נושא
+  - זכר: "הוא הלך", "אתה יודע", "מעניין"
+  - נקבה: "היא הלכה", "את יודעת", "מעניינת"
+- **זמן עבר**: לאירועים שקרו, השתמש בזמן עבר ("הלכתי", "ראיתי") ולא בהווה
+- **את/אֶת**: סמן מושא ישיר לפני שמות עצם מיודעים ("ראיתי את הסרט", לא "ראיתי הסרט")
+- **מילות יחס נכונות**: ב (במקום), ל (אל/עבור), על (אודות), עם (יחד עם)
+- **ה הידיעה**: השתמש נכון ("הבית", "החבר"), אבל בסמיכות המילה הראשונה ללא ה ("בית קפה")
+
+### סגנון כתיבה
+- כתוב בעברית טבעית ושוטפת, לא תרגום מילולי מאנגלית
+- לכותרות חדשותיות: השתמש בהווה עיתונאי ("עומר מגלה", "שרה חוגגת")
+- הימנע ממילים לועזיות כשיש חלופה עברית טובה
+- שמור על רמת שפה עקבית (לא לערבב פורמלי ולא-פורמלי)
+
+### ביטויים לראיון (במקום תרגום מאנגלית)
+- "ספר/י לי עוד!" (Tell me more)
+- "מעניין מאוד! ואיפה זה קרה?" (Interesting! Where did this happen?)
+- "זה נשמע מדהים!" (That sounds amazing)
+- "וואו, לא יאומן!" (Wow, unbelievable)
+- "הקוראים שלנו חייבים לשמוע על זה!" (Our readers must hear about this)
+- "זו כותרת!" (That's a headline)
+- "תן/י לי עוד פרטים" (Give me more details)
+- "ומה הרגשת?" (And how did you feel?)
+
+### טעויות נפוצות להימנע מהן
+- ❌ "היא הלך" → ✓ "היא הלכה"
+- ❌ "ראיתי הסרט" → ✓ "ראיתי את הסרט"
+- ❌ "אני חושב על זה טוב" → ✓ "אני חושב שזה טוב"
+- ❌ "הוא עשה meet עם חברים" → ✓ "הוא נפגש עם חברים"
+- ❌ "זה היה very nice" → ✓ "זה היה נהדר"
+`;
+
+export const HEBREW_EXAMPLES = `
+### דוגמאות לפלט בעברית
+
+דוגמה 1 (למשתמש בשם "עומר"):
+{
+  "headline": "עומר מגלה בית קפה עם אינטרנט שעובד",
+  "subHeadline": "אחרי חודשים של חיפושים, נמצא סוף סוף המקום המושלם לעבודה מרחוק. ״אולי אשאר פה לנצח״, מדווח עומר.",
+  "category": "LIFESTYLE",
+  "severity": "STANDARD"
+}
+
+דוגמה 2 (למשתמשת בשם "שרה"):
+{
+  "headline": "מבזק: הטיול של שרה הפך להרפתקה של 20 קילומטר",
+  "subHeadline": "מה שהתחיל כהליכה קצרה בטבע הסתיים במסע יום שלם עם נופים עוצרי נשימה ורגליים כואבות.",
+  "category": "SPORTS",
+  "severity": "BREAKING"
+}
+
+דוגמה 3 (למשתמש בשם "דני"):
+{
+  "headline": "דני מכריז: הפיצה הזו שווה את ההמתנה",
+  "subHeadline": "לאחר שעה בתור, התגלתה פיצריה חדשה שמשנה את כללי המשחק. ״הייתי חוזר שוב מחר״.",
+  "category": "FOOD",
+  "severity": "STANDARD"
+}
+`;
+
+// =============================================================================
 // CURRENT VERSIONS (aliases)
 // =============================================================================
 
@@ -142,6 +210,11 @@ export function interpolatePrompt(
   return template.replace(/\{\{(\w+)\}\}/g, (_, key) => variables[key] || `{{${key}}}`);
 }
 
+export function isHebrew(languageName: string): boolean {
+  const hebrewVariants = ['hebrew', 'עברית', 'he', 'heb'];
+  return hebrewVariants.includes(languageName.toLowerCase());
+}
+
 export function buildInterviewSystemPrompt(
   userName: string,
   timeOfDay: string,
@@ -149,13 +222,20 @@ export function buildInterviewSystemPrompt(
   interviewType: string,
   languageName: string
 ): string {
-  return interpolatePrompt(CURRENT_INTERVIEW_PROMPT, {
+  let prompt = interpolatePrompt(CURRENT_INTERVIEW_PROMPT, {
     userName,
     timeOfDay,
     dayOfWeek,
     interviewType,
     languageName,
   });
+
+  // Add Hebrew-specific language rules
+  if (isHebrew(languageName)) {
+    prompt += '\n\n' + HEBREW_LANGUAGE_RULES;
+  }
+
+  return prompt;
 }
 
 export function buildGenerationSystemPrompt(
@@ -163,9 +243,16 @@ export function buildGenerationSystemPrompt(
   transcript: string,
   languageName: string
 ): string {
-  return interpolatePrompt(CURRENT_GENERATION_PROMPT, {
+  let prompt = interpolatePrompt(CURRENT_GENERATION_PROMPT, {
     userName,
     transcript,
     languageName,
   });
+
+  // Add Hebrew-specific language rules and examples
+  if (isHebrew(languageName)) {
+    prompt += '\n\n' + HEBREW_LANGUAGE_RULES + '\n' + HEBREW_EXAMPLES;
+  }
+
+  return prompt;
 }
