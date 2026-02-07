@@ -1,0 +1,21 @@
+{
+  "title": "AI Reporter",
+  "starting": "Starting interview...",
+  "typing": "Reporter is thinking...",
+  "inputPlaceholder": "Type your answer...",
+  "draftReady": "Your newsflash is ready!",
+  "publish": "Publish",
+  "tweakIt": "Tweak it",
+  "discard": "Discard",
+  "tweakPlaceholder": "How should I improve it? (e.g., make it funnier, focus on the food)",
+  "regenerate": "Regenerate",
+  "cancel": "Cancel",
+  "error": "Error",
+  "errorGeneric": "Something went wrong. Please try again.",
+  "rateLimitError": "You've reached today's interview limit. Come back tomorrow!",
+  "interviewTypes": {
+    "daily": "Daily check-in",
+    "weekly": "Weekly recap",
+    "event": "Event report"
+  }
+}

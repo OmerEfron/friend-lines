@@ -1,0 +1,21 @@
+{
+  "title": "כתב AI",
+  "starting": "מתחיל ראיון...",
+  "typing": "הכתב חושב...",
+  "inputPlaceholder": "כתוב את התשובה שלך...",
+  "draftReady": "הידיעה שלך מוכנה!",
+  "publish": "פרסם",
+  "tweakIt": "שנה",
+  "discard": "בטל",
+  "tweakPlaceholder": "איך לשפר? (למשל: יותר מצחיק, התמקד באוכל)",
+  "regenerate": "צור מחדש",
+  "cancel": "ביטול",
+  "error": "שגיאה",
+  "errorGeneric": "משהו השתבש. נסה שוב.",
+  "rateLimitError": "הגעת למגבלת הראיונות היומית. חזור מחר!",
+  "interviewTypes": {
+    "daily": "צ'ק-אין יומי",
+    "weekly": "סיכום שבועי",
+    "event": "דיווח על אירוע"
+  }
+}

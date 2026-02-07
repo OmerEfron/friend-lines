@@ -18,6 +18,7 @@ import enNav from './locales/en/nav.json';
 import enA11y from './locales/en/a11y.json';
 import enErrors from './locales/en/errors.json';
 import enCreation from './locales/en/creation.json';
+import enReporter from './locales/en/reporter.json';
 
 // Spanish namespaces
 import esCommon from './locales/es/common.json';
@@ -32,6 +33,7 @@ import esNav from './locales/es/nav.json';
 import esA11y from './locales/es/a11y.json';
 import esErrors from './locales/es/errors.json';
 import esCreation from './locales/es/creation.json';
+import esReporter from './locales/en/reporter.json'; // fallback to English
 
 // Hebrew namespaces
 import heCommon from './locales/he/common.json';
@@ -46,6 +48,7 @@ import heNav from './locales/he/nav.json';
 import heA11y from './locales/he/a11y.json';
 import heErrors from './locales/he/errors.json';
 import heCreation from './locales/he/creation.json';
+import heReporter from './locales/he/reporter.json';
 
 export const LANGUAGE_STORAGE_KEY = '@app_language';
 
@@ -86,6 +89,7 @@ export const NAMESPACES = [
   'a11y',
   'errors',
   'creation',
+  'reporter',
 ] as const;
 
 export type Namespace = (typeof NAMESPACES)[number];
@@ -104,6 +108,7 @@ const enResources = {
   a11y: enA11y,
   errors: enErrors,
   creation: enCreation,
+  reporter: enReporter,
 };
 
 // Base resources for all environments
@@ -122,6 +127,7 @@ const baseResources = {
     a11y: esA11y,
     errors: esErrors,
     creation: esCreation,
+    reporter: esReporter,
   },
   he: {
     common: heCommon,
@@ -136,6 +142,7 @@ const baseResources = {
     a11y: heA11y,
     errors: heErrors,
     creation: heCreation,
+    reporter: heReporter,
   },
 };
 
