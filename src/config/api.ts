@@ -31,6 +31,7 @@ export const apiConfig = {
     newsflashes: '/newsflashes',
     groups: '/groups',
     friendships: '/friendships',
+    interviews: '/interviews',
     feeds: {
       main: '/feeds/main',
       group: (groupId: string) => `/feeds/group/${groupId}`,

@@ -49,3 +49,40 @@ export interface Friendship {
   friendId: string;
 }
 
+
+// Interview types for AI Reporter
+export type InterviewType = 'daily' | 'weekly' | 'event';
+export type InterviewStatus = 'active' | 'generating' | 'completed' | 'cancelled';
+export type InterviewDimension = 'who' | 'what' | 'when' | 'where' | 'why' | 'emotion';
+
+export interface InterviewMessage {
+  role: 'system' | 'assistant' | 'user';
+  content: string;
+}
+
+export interface InterviewContext {
+  timeOfDay: 'morning' | 'midday' | 'evening';
+  dayOfWeek: string;
+  interviewType: InterviewType;
+  userName: string;
+}
+
+export interface NewsflashDraft {
+  headline: string;
+  subHeadline: string;
+  category: NewsCategory;
+  severity: NewsSeverity;
+}
+
+export interface InterviewSession {
+  id: string;
+  userId: string;
+  status: InterviewStatus;
+  messages: InterviewMessage[];
+  context: InterviewContext;
+  coveredDimensions: InterviewDimension[];
+  draftNewsflash?: NewsflashDraft;
+  promptVersion: string;
+  createdAt: string;
+  updatedAt: string;
+}
