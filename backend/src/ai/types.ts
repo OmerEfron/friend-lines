@@ -32,6 +32,8 @@ export interface InterviewContext {
   interviewType: 'daily' | 'weekly' | 'event';
   userName: string;
   language: SupportedLanguage;
+  /** Optional feedback for regenerating the newsflash */
+  regenerationFeedback?: string;
 }
 
 export interface AIProvider {

@@ -80,9 +80,15 @@ export class OpenAIProvider implements AIProvider {
 
     const systemPrompt = buildGenerationSystemPrompt(context.userName, transcript, languageName);
 
+    // Build user message, include feedback if regenerating
+    let userMessage = 'Generate the newsflash now.';
+    if (context.regenerationFeedback) {
+      userMessage = `Regenerate the newsflash with this feedback: ${context.regenerationFeedback}`;
+    }
+
     const messages = [
       { role: 'system', content: systemPrompt },
-      { role: 'user', content: 'Generate the newsflash now.' },
+      { role: 'user', content: userMessage },
     ];
 
     const response = await this.callOpenAI(

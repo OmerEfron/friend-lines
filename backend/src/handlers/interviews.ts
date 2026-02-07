@@ -88,6 +88,19 @@ export async function handler(
         );
       }
 
+      // POST /interviews/{id}/regenerate - Regenerate newsflash with feedback
+      if (
+        method === 'POST' &&
+        path.match(/^\/interviews\/[^/]+\/regenerate$/) &&
+        authenticatedEvent.pathParameters?.id
+      ) {
+        return await handleRegenerate(
+          authenticatedEvent,
+          authenticatedEvent.pathParameters.id,
+          userId
+        );
+      }
+
       return errorResponse('Not found', 404);
     } catch (error) {
       console.error('[Interviews] Error:', error);
@@ -300,6 +313,69 @@ async function handleGetInterview(
   }
 
   return successResponse({ session });
+}
+
+/**
+ * Regenerate newsflash with user feedback (for completed sessions)
+ */
+async function handleRegenerate(
+  event: AuthenticatedEvent,
+  sessionId: string,
+  userId: string
+): Promise<APIGatewayProxyResult> {
+  if (!event.body) {
+    return errorResponse('Request body is required', 400);
+  }
+
+  const body = JSON.parse(event.body);
+  const { feedback } = body;
+
+  if (!feedback || typeof feedback !== 'string' || feedback.trim().length === 0) {
+    return errorResponse('feedback is required', 400);
+  }
+
+  // Get session
+  const session = (await getItem(INTERVIEW_SESSIONS_TABLE, {
+    id: sessionId,
+  })) as InterviewSession | undefined;
+
+  if (!session) {
+    return errorResponse('Interview session not found', 404);
+  }
+
+  // Verify ownership
+  if (session.userId !== userId) {
+    return errorResponse('Access denied', 403);
+  }
+
+  // Only allow regeneration on completed sessions
+  if (session.status !== 'completed') {
+    return errorResponse(
+      `Cannot regenerate: interview status is ${session.status}. Must be completed.`,
+      400
+    );
+  }
+
+  console.log(`[Interviews] Regenerating newsflash for session ${sessionId} with feedback`);
+
+  // Generate new newsflash with feedback context
+  const aiProvider = getAIProvider();
+  const feedbackContext = {
+    ...session.context,
+    regenerationFeedback: feedback.trim(),
+  };
+  
+  const draft = await aiProvider.generateNewsflash(session.messages, feedbackContext);
+
+  // Update session with new draft
+  const updatedSession: InterviewSession = {
+    ...session,
+    draftNewsflash: draft,
+    updatedAt: new Date().toISOString(),
+  };
+  await putItem(INTERVIEW_SESSIONS_TABLE, updatedSession);
+
+  return successResponse({ session: updatedSession });
 }
 
 /**
