@@ -25,14 +25,14 @@ export default function NewsTicker({ newsflashes }: NewsTickerProps) {
     return () => subscription.remove();
   }, []);
 
-  // Get top 5 recent headlines
+  // Get top 5 recent headlines (news magazine style - headline only)
   const headlines = newsflashes
     .filter((n) => n.headline && n.headline.trim().length > 0)
     .slice(0, 5)
     .map((n) => {
+      // News style: Just the headline, no user prefix
       const prefix = n.severity === 'BREAKING' ? '🔴 ' : '';
-      const userName = n.user?.name || n.user?.username || 'Someone';
-      return `${prefix}${userName}: ${n.headline}`;
+      return `${prefix}${n.headline}`;
     });
 
   const tickerText = headlines.length > 0 ? headlines.join('   •   ') : '';
@@ -41,20 +41,17 @@ export default function NewsTicker({ newsflashes }: NewsTickerProps) {
     return null;
   }
 
-  const textColor = theme.dark 
-    ? '#FFFFFF'
-    : theme.colors.onPrimaryContainer;
-
+  // Bold red background with white text (Ynet/N12 style)
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.primaryContainer }]}>
-      <View style={[styles.label, { backgroundColor: theme.colors.error }]}>
-        <Text style={styles.labelText}>LIVE</Text>
+    <View style={[styles.container, { backgroundColor: theme.colors.error }]}>
+      <View style={styles.label}>
+        <Text style={styles.labelText}>BREAKING</Text>
       </View>
       <View style={styles.tickerWrapper}>
         {reduceMotionEnabled ? (
           // Static fallback when Reduce Motion is enabled
           <RNText
-            style={[styles.tickerText, styles.staticText, { color: textColor }]}
+            style={[styles.tickerText, styles.staticText]}
             numberOfLines={1}
             ellipsizeMode="tail"
           >
@@ -68,10 +65,7 @@ export default function NewsTicker({ newsflashes }: NewsTickerProps) {
             spacing={40}
             style={styles.marquee}
           >
-            <RNText
-              style={[styles.tickerText, { color: textColor }]}
-              numberOfLines={1}
-            >
+            <RNText style={styles.tickerText} numberOfLines={1}>
               {tickerText}
             </RNText>
           </Marquee>
@@ -85,36 +79,38 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    height: 36,
+    height: 40,
     overflow: 'hidden',
   },
   label: {
-    paddingHorizontal: 10,
-    paddingVertical: 6,
+    backgroundColor: 'rgba(0, 0, 0, 0.25)',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
     zIndex: 1,
   },
   labelText: {
     color: 'white',
-    fontSize: 12,
-    fontWeight: '800',
-    letterSpacing: 1,
+    fontSize: 11,
+    fontWeight: '900',
+    letterSpacing: 1.5,
   },
   tickerWrapper: {
     flex: 1,
-    height: 36,
+    height: 40,
     overflow: 'hidden',
     justifyContent: 'center',
   },
   marquee: {
-    height: 36,
+    height: 40,
     alignItems: 'center',
   },
   tickerText: {
+    color: 'white',
     fontSize: 14,
-    fontWeight: '500',
-    lineHeight: 36,
+    fontWeight: '600',
+    lineHeight: 40,
   },
   staticText: {
-    paddingHorizontal: 8,
+    paddingHorizontal: 10,
   },
 });
