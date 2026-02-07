@@ -8,7 +8,7 @@ const redColors = {
   secondaryContainer: '#FFCDD2',
   tertiary: '#C62828',
   tertiaryContainer: '#EF9A9A',
-  error: '#BA1A1A',
+  error: '#D32F2F',
   errorContainer: '#FFDAD6',
   background: '#FAFAFA',
   surface: '#FFFFFF',
