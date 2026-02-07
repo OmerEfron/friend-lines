@@ -46055,7 +46055,8 @@ async function checkBreakingRateLimit(userId) {
   const recentBreaking = userNewsflashes.find(
     (n4) => n4.severity === "BREAKING" && new Date(n4.timestamp).getTime() > cutoff
   );
-  return { allowed: !recentBreaking };
+  // return { allowed: !recentBreaking };
+  return { allowed: true };
 }
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
