@@ -18,6 +18,10 @@ interface GetInterviewResponse {
   session: InterviewSession;
 }
 
+interface RegenerateResponse {
+  session: InterviewSession;
+}
+
 /**
  * Start a new AI reporter interview session
  */
@@ -60,6 +64,23 @@ export async function getInterview(
 ): Promise<InterviewSession> {
   const response = await apiCall<GetInterviewResponse>(
     `${apiConfig.endpoints.interviews}/${sessionId}`
+  );
+  return response.session;
+}
+
+/**
+ * Regenerate newsflash with feedback (for completed sessions)
+ */
+export async function regenerateNewsflash(
+  sessionId: string,
+  feedback: string
+): Promise<InterviewSession> {
+  const response = await apiCall<RegenerateResponse>(
+    `${apiConfig.endpoints.interviews}/${sessionId}/regenerate`,
+    {
+      method: 'POST',
+      body: JSON.stringify({ feedback }),
+    }
   );
   return response.session;
 }
