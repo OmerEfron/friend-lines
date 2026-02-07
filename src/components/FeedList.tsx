@@ -164,7 +164,6 @@ export default function FeedList({
       }}
       renderItem={renderItem}
       getItemType={getItemType}
-      estimatedItemSize={150}
       ListEmptyComponent={renderEmpty}
       ListFooterComponent={renderFooter}
       onEndReached={onEndReached}

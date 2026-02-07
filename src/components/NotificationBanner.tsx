@@ -37,7 +37,7 @@ export default function NotificationBanner({
     }
   }, [visible, slideAnim]);
 
-  if (!visible && slideAnim._value === -100) {
+  if (!visible) {
     return null;
   }
 
