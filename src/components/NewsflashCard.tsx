@@ -20,7 +20,7 @@ const CATEGORY_ICONS: Record<NewsCategory, string> = {
   SPORTS: '🏃', FOOD: '🍽️', TRAVEL: '✈️', OPINION: '💬',
 };
 
-export type CardVariant = 'hero' | 'standard';
+export type CardVariant = 'hero' | 'standard' | 'compact';
 
 interface NewsflashCardProps {
   newsflash: Newsflash;
@@ -40,6 +40,7 @@ export default function NewsflashCard({
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
   const isHero = variant === 'hero';
+  const isCompact = variant === 'compact';
   const isBreaking = newsflash.severity === 'BREAKING';
   const isDeveloping = newsflash.severity === 'DEVELOPING';
   
@@ -150,6 +151,47 @@ export default function NewsflashCard({
     );
   }
 
+  // COMPACT VARIANT: Vertical stack for 2-column grid
+  if (isCompact) {
+    return (
+      <Animated.View style={[styles.compactContainer, { opacity: fadeAnim }]}>
+        <Card style={styles.compactCard} mode="elevated">
+          {newsflash.media && (
+            <Image 
+              source={{ uri: newsflash.media }} 
+              style={styles.compactImage} 
+            />
+          )}
+          <View style={styles.compactContent}>
+            {(isBreaking || isDeveloping) && (
+              <Text style={[
+                styles.liveBadgeText, 
+                { color: isBreaking ? theme.colors.error : '#FFA000' }
+              ]}>
+                {isBreaking ? '🔴' : '📡'}
+              </Text>
+            )}
+            <Text 
+              variant="titleSmall" 
+              numberOfLines={3} 
+              style={[
+                styles.compactHeadline,
+                isRTLText(newsflash.headline) && styles.rtlText
+              ]}
+            >
+              {newsflash.headline}
+            </Text>
+            <View style={styles.compactFooter}>
+              <Text style={[styles.compactMeta, { color: theme.colors.primary }]}>
+                {timeText}
+              </Text>
+            </View>
+          </View>
+        </Card>
+      </Animated.View>
+    );
+  }
+
   // STANDARD VARIANT: Side-by-side layout (Text Left, Image Right)
   return (
     <Animated.View style={[styles.standardContainer, { opacity: fadeAnim }]}>
@@ -252,6 +294,38 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 10,
     marginBottom: SPACING.XS,
+  },
+
+  // Compact Variant Styles (for 2-column grid)
+  compactContainer: {
+    flex: 1,
+    marginBottom: SPACING.XS,
+  },
+  compactCard: {
+    borderRadius: 8,
+    overflow: 'hidden',
+    flex: 1,
+  },
+  compactImage: {
+    width: '100%',
+    height: 90,
+    backgroundColor: '#eee',
+  },
+  compactContent: {
+    padding: SPACING.SM,
+  },
+  compactHeadline: {
+    fontWeight: '600',
+    lineHeight: 18,
+    marginBottom: SPACING.XS,
+  },
+  compactFooter: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  compactMeta: {
+    fontSize: 10,
+    fontWeight: '500',
   },
 
   // Shared Styles
