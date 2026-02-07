@@ -1,11 +1,12 @@
 import React, { useEffect, useRef } from 'react';
-import { View, StyleSheet, Animated, I18nManager } from 'react-native';
-import { Card, Text, Avatar, useTheme, IconButton } from 'react-native-paper';
+import { View, StyleSheet, Animated, Image } from 'react-native';
+import { Card, Text, useTheme, IconButton } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { Newsflash, User, NewsCategory } from '../types';
 import { useBookmarks } from '../context/BookmarksContext';
-import { useA11y, HIT_SLOP_48 } from '../utils/a11y';
+import { useA11y } from '../utils/a11y';
 import { lightImpact } from '../utils/haptics';
+import { SPACING } from '../theme/spacing';
 
 // Detect if text contains RTL characters (Hebrew, Arabic, etc.)
 const isRTLText = (text: string): boolean => {
@@ -19,18 +20,26 @@ const CATEGORY_ICONS: Record<NewsCategory, string> = {
   SPORTS: '🏃', FOOD: '🍽️', TRAVEL: '✈️', OPINION: '💬',
 };
 
+export type CardVariant = 'hero' | 'standard';
+
 interface NewsflashCardProps {
   newsflash: Newsflash;
   user: User;
+  variant?: CardVariant;
 }
 
-export default function NewsflashCard({ newsflash, user }: NewsflashCardProps) {
+export default function NewsflashCard({ 
+  newsflash, 
+  user, 
+  variant = 'standard' 
+}: NewsflashCardProps) {
   const theme = useTheme();
   const { t } = useTranslation('newsflash');
   const { isBookmarked, toggleBookmark } = useBookmarks();
   const { labels: a11yLabels, hints: a11yHints } = useA11y();
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
+  const isHero = variant === 'hero';
   const isBreaking = newsflash.severity === 'BREAKING';
   const isDeveloping = newsflash.severity === 'DEVELOPING';
   
@@ -42,123 +51,216 @@ export default function NewsflashCard({ newsflash, user }: NewsflashCardProps) {
     }).start();
   }, [fadeAnim]);
   
+  // News-style time format (e.g., "14:30" or date for older)
   const getTimeText = (date: Date) => {
-    const diff = Date.now() - date.getTime();
-    const minutes = Math.floor(diff / (1000 * 60));
-    const hours = Math.floor(diff / (1000 * 60 * 60));
-    const days = Math.floor(hours / 24);
-
-    if (days > 0) return t('daysAgo', { count: days });
-    if (hours > 0) return t('hoursAgo', { count: hours });
-    if (minutes > 0) return t('minutesAgo', { count: minutes });
-    return t('justNow');
-  };
-
-  const getInitials = (name: string) => {
-    return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+    const now = new Date();
+    const isToday = date.toDateString() === now.toDateString();
+    
+    if (isToday) {
+      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+    return date.toLocaleDateString([], { day: 'numeric', month: 'short' });
   };
 
   const bookmarked = isBookmarked(newsflash.id);
   const timeText = getTimeText(newsflash.timestamp);
   const categoryIcon = newsflash.category ? CATEGORY_ICONS[newsflash.category] : null;
 
-  const cardStyle = [
-    styles.card,
-    isBreaking && { borderLeftWidth: 4, borderLeftColor: theme.colors.error },
-    isDeveloping && { borderLeftWidth: 4, borderLeftColor: '#FFA000' },
-  ];
+  // Subtle footer with time and reporter name (news magazine style)
+  const renderFooter = () => (
+    <View style={styles.footer}>
+      <View style={styles.metaLeft}>
+        {categoryIcon && <Text style={styles.categoryIcon}>{categoryIcon}</Text>}
+        <Text style={[styles.metaText, { color: theme.colors.primary }]}>
+          {timeText}
+        </Text>
+        <Text style={styles.metaDot}>•</Text>
+        <Text style={styles.metaText} numberOfLines={1}>
+          {user.name}
+        </Text>
+      </View>
+      <IconButton
+        icon={bookmarked ? 'bookmark' : 'bookmark-outline'}
+        size={18}
+        onPress={() => {
+          lightImpact();
+          toggleBookmark(newsflash.id);
+        }}
+        style={styles.bookmarkButton}
+        accessibilityLabel={bookmarked ? a11yLabels.BOOKMARK_REMOVE : a11yLabels.BOOKMARK_ADD}
+        accessibilityHint={bookmarked ? a11yHints.BOOKMARK_REMOVE : a11yHints.BOOKMARK_ADD}
+        accessibilityState={{ selected: bookmarked }}
+      />
+    </View>
+  );
 
-  return (
-    <Animated.View style={{ opacity: fadeAnim }}>
-      <Card style={cardStyle} mode="contained">
-        <Card.Content>
-          {/* Severity Badge */}
-          {isBreaking && (
-            <View style={[styles.severityBadge, { backgroundColor: theme.colors.error }]}>
-              <Text style={styles.severityText}>🔴 BREAKING</Text>
-            </View>
-          )}
-          {isDeveloping && (
-            <View style={[styles.severityBadge, { backgroundColor: '#FFA000' }]}>
-              <Text style={styles.severityText}>📡 DEVELOPING</Text>
-            </View>
-          )}
+  // Severity badge for breaking/developing news
+  const renderSeverityBadge = () => {
+    if (!isBreaking && !isDeveloping) return null;
+    
+    const badgeColor = isBreaking ? theme.colors.error : '#FFA000';
+    const badgeText = isBreaking ? '🔴 BREAKING' : '📡 DEVELOPING';
+    
+    return (
+      <View style={[styles.severityBadge, { backgroundColor: badgeColor }]}>
+        <Text style={styles.severityText}>{badgeText}</Text>
+      </View>
+    );
+  };
 
-          <View style={styles.header}>
-            <View style={styles.userInfo}>
-              <Avatar.Text 
-                size={32} 
-                label={getInitials(user.name)}
-                style={{ backgroundColor: theme.colors.primaryContainer }}
-              />
-              <View style={styles.userMeta}>
-                <Text variant="labelMedium" style={styles.username}>
-                  @{user.username}
-                </Text>
-                <Text variant="labelSmall" style={styles.correspondent}>
-                  {t('correspondent', { ns: 'profile' })}
-                </Text>
-              </View>
-            </View>
-            <View style={styles.headerRight}>
-              {categoryIcon && <Text style={styles.categoryIcon}>{categoryIcon}</Text>}
-              <Text variant="labelSmall" style={styles.time}>{timeText}</Text>
-              <IconButton
-                icon={bookmarked ? 'bookmark' : 'bookmark-outline'}
-                size={20}
-                onPress={() => {
-                  lightImpact();
-                  toggleBookmark(newsflash.id);
-                }}
-                style={styles.bookmarkButton}
-                accessibilityLabel={bookmarked ? a11yLabels.BOOKMARK_REMOVE : a11yLabels.BOOKMARK_ADD}
-                accessibilityHint={bookmarked ? a11yHints.BOOKMARK_REMOVE : a11yHints.BOOKMARK_ADD}
-                accessibilityState={{ selected: bookmarked }}
-              />
-            </View>
-          </View>
-          
-          <Text 
-            variant="headlineSmall" 
-            style={[
-              styles.headline,
-              isRTLText(newsflash.headline) && styles.rtlText
-            ]}
-          >
-            {newsflash.headline}
-          </Text>
-          
-          {newsflash.subHeadline && (
+  // HERO VARIANT: Full-width image on top, large headline below
+  if (isHero) {
+    return (
+      <Animated.View style={[styles.heroContainer, { opacity: fadeAnim }]}>
+        <Card style={styles.heroCard} mode="elevated">
+          {newsflash.media && (
+            <Card.Cover 
+              source={{ uri: newsflash.media }} 
+              style={styles.heroImage} 
+              resizeMode="cover"
+            />
+          )}
+          <Card.Content style={styles.heroContent}>
+            {renderSeverityBadge()}
             <Text 
-              variant="bodyMedium" 
+              variant="headlineMedium" 
               style={[
-                styles.subHeadline,
-                isRTLText(newsflash.subHeadline) && styles.rtlText
+                styles.heroHeadline,
+                isRTLText(newsflash.headline) && styles.rtlText
               ]}
             >
-              {newsflash.subHeadline}
+              {newsflash.headline}
             </Text>
+            {newsflash.subHeadline && (
+              <Text 
+                variant="bodyMedium" 
+                style={[
+                  styles.heroSubHeadline,
+                  isRTLText(newsflash.subHeadline) && styles.rtlText
+                ]}
+                numberOfLines={2}
+              >
+                {newsflash.subHeadline}
+              </Text>
+            )}
+            {renderFooter()}
+          </Card.Content>
+        </Card>
+      </Animated.View>
+    );
+  }
+
+  // STANDARD VARIANT: Side-by-side layout (Text Left, Image Right)
+  return (
+    <Animated.View style={[styles.standardContainer, { opacity: fadeAnim }]}>
+      <Card style={styles.standardCard} mode="elevated">
+        <View style={styles.rowContainer}>
+          <View style={styles.textContainer}>
+            {(isBreaking || isDeveloping) && (
+              <Text style={[
+                styles.liveBadgeText, 
+                { color: isBreaking ? theme.colors.error : '#FFA000' }
+              ]}>
+                {isBreaking ? 'LIVE 🔴' : 'DEVELOPING 📡'}
+              </Text>
+            )}
+            <Text 
+              variant="titleMedium" 
+              numberOfLines={3} 
+              style={[
+                styles.standardHeadline,
+                isRTLText(newsflash.headline) && styles.rtlText
+              ]}
+            >
+              {newsflash.headline}
+            </Text>
+            {renderFooter()}
+          </View>
+          {newsflash.media && (
+            <Image 
+              source={{ uri: newsflash.media }} 
+              style={styles.standardImage} 
+            />
           )}
-        </Card.Content>
-        
-        {newsflash.media && (
-          <Card.Cover source={{ uri: newsflash.media }} style={styles.media} resizeMode="cover" />
-        )}
+        </View>
       </Card>
     </Animated.View>
   );
 }
 
 const styles = StyleSheet.create({
-  card: {
-    marginBottom: 8,
+  // Hero Variant Styles
+  heroContainer: {
+    marginBottom: SPACING.MD,
+    marginHorizontal: SPACING.XS,
   },
+  heroCard: {
+    borderRadius: 12,
+    overflow: 'hidden',
+  },
+  heroImage: {
+    height: 220,
+    borderRadius: 0,
+  },
+  heroContent: {
+    paddingTop: SPACING.MD,
+    paddingBottom: SPACING.SM,
+  },
+  heroHeadline: {
+    fontWeight: '800',
+    marginTop: SPACING.XS,
+    marginBottom: SPACING.XS,
+    lineHeight: 32,
+  },
+  heroSubHeadline: {
+    opacity: 0.7,
+    marginBottom: SPACING.SM,
+    lineHeight: 22,
+  },
+
+  // Standard Variant Styles
+  standardContainer: {
+    marginBottom: SPACING.XS,
+    marginHorizontal: SPACING.XS,
+  },
+  standardCard: {
+    borderRadius: 8,
+    overflow: 'hidden',
+  },
+  rowContainer: {
+    flexDirection: 'row',
+    padding: SPACING.SM,
+    minHeight: 100,
+  },
+  textContainer: {
+    flex: 1,
+    paddingRight: SPACING.SM,
+    justifyContent: 'space-between',
+  },
+  standardImage: {
+    width: 100,
+    height: 80,
+    borderRadius: 6,
+    backgroundColor: '#eee',
+  },
+  standardHeadline: {
+    fontWeight: '700',
+    lineHeight: 22,
+    marginBottom: SPACING.XS,
+  },
+  liveBadgeText: {
+    fontWeight: 'bold',
+    fontSize: 10,
+    marginBottom: SPACING.XS,
+  },
+
+  // Shared Styles
   severityBadge: {
     alignSelf: 'flex-start',
-    paddingHorizontal: 8,
+    paddingHorizontal: SPACING.SM,
     paddingVertical: 3,
     borderRadius: 4,
-    marginBottom: 10,
+    marginBottom: SPACING.XS,
   },
   severityText: {
     color: 'white',
@@ -166,60 +268,36 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     letterSpacing: 0.5,
   },
-  header: {
+  footer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 12,
+    marginTop: SPACING.XS,
   },
-  userInfo: {
+  metaLeft: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
     flex: 1,
   },
-  userMeta: {
-    flexDirection: 'column',
+  metaText: {
+    fontSize: 11,
+    color: '#666',
   },
-  headerRight: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  username: {
-    fontWeight: '600',
-  },
-  correspondent: {
-    opacity: 0.5,
-    fontSize: 10,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
+  metaDot: {
+    fontSize: 11,
+    color: '#ccc',
+    marginHorizontal: 4,
   },
   categoryIcon: {
-    fontSize: 14,
-  },
-  time: {
-    opacity: 0.6,
+    fontSize: 12,
+    marginRight: 4,
   },
   bookmarkButton: {
     margin: 0,
-  },
-  headline: {
-    fontWeight: 'bold',
-    lineHeight: 28,
-    marginBottom: 4,
-  },
-  subHeadline: {
-    marginTop: 4,
-    opacity: 0.8,
+    width: 28,
+    height: 28,
   },
   rtlText: {
     textAlign: 'right',
     writingDirection: 'rtl',
   },
-  media: {
-    marginTop: 12,
-    height: 200,
-  },
 });
-
