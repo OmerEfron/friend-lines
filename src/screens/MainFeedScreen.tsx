@@ -1,22 +1,30 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useCallback } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { Surface, Searchbar, FAB } from 'react-native-paper';
+import { Surface, FAB } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import FeedList from '../components/FeedList';
 import NewsTicker from '../components/NewsTicker';
+import NewsHeader from '../components/NewsHeader';
+import CategoryFilter from '../components/CategoryFilter';
+import NotificationBanner from '../components/NotificationBanner';
 import { useData } from '../context/DataContext';
 import { useA11y } from '../utils/a11y';
 import { mediumImpact } from '../utils/haptics';
-import { FAB as FAB_SPACING, SPACING } from '../theme/spacing';
+import { FAB as FAB_SPACING } from '../theme/spacing';
+import { NewsCategory } from '../types';
 
 export default function MainFeedScreen() {
   const navigation = useNavigation();
   const { t } = useTranslation('feed');
   const { labels: a11yLabels } = useA11y();
   const { newsflashes, loadMoreNewsflashes, loadingMore, hasMore, refreshNewsflashes } = useData();
+  
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<NewsCategory | 'ALL'>('ALL');
   const [refreshing, setRefreshing] = useState(false);
+  const [notificationVisible, setNotificationVisible] = useState(false);
+  const [notificationMessage, setNotificationMessage] = useState('');
 
   const handleRefresh = async () => {
     setRefreshing(true);
@@ -24,39 +32,77 @@ export default function MainFeedScreen() {
     setRefreshing(false);
   };
 
-  // Backend already returns filtered feed (friends + self), just apply search
+  // Check for breaking news and show notification banner
+  const latestBreaking = useMemo(() => {
+    return newsflashes.find(n => n.severity === 'BREAKING');
+  }, [newsflashes]);
+
+  // Show notification for breaking news (only once per session)
+  const handleBreakingNotification = useCallback(() => {
+    if (latestBreaking && !notificationVisible) {
+      setNotificationMessage(latestBreaking.headline);
+      setNotificationVisible(true);
+    }
+  }, [latestBreaking, notificationVisible]);
+
+  // Filter newsflashes by search query and category
   const filteredNewsflashes = useMemo(() => {
-    const sorted = [...newsflashes].sort(
+    let filtered = [...newsflashes].sort(
       (a, b) => b.timestamp.getTime() - a.timestamp.getTime()
     );
     
-    if (!searchQuery.trim()) {
-      return sorted;
+    // Apply category filter
+    if (selectedCategory !== 'ALL') {
+      filtered = filtered.filter(n => n.category === selectedCategory);
     }
     
-    const query = searchQuery.toLowerCase();
-    return sorted.filter(n => 
-      n.headline.toLowerCase().includes(query) ||
-      (n.subHeadline && n.subHeadline.toLowerCase().includes(query))
-    );
-  }, [newsflashes, searchQuery]);
+    // Apply search filter
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(n => 
+        n.headline.toLowerCase().includes(query) ||
+        (n.subHeadline && n.subHeadline.toLowerCase().includes(query))
+      );
+    }
+    
+    return filtered;
+  }, [newsflashes, searchQuery, selectedCategory]);
 
-  // Only enable infinite scroll when not searching
-  const handleEndReached = !searchQuery.trim() && hasMore
+  // Only enable infinite scroll when not searching/filtering
+  const handleEndReached = !searchQuery.trim() && selectedCategory === 'ALL' && hasMore
     ? loadMoreNewsflashes
     : undefined;
 
   return (
     <Surface style={styles.container}>
+      {/* Breaking News Notification Banner */}
+      <NotificationBanner
+        message={notificationMessage}
+        visible={notificationVisible}
+        onDismiss={() => setNotificationVisible(false)}
+        onPress={() => {
+          setNotificationVisible(false);
+          // Could navigate to the breaking story
+        }}
+      />
+      
+      {/* Branded Header with Search */}
+      <NewsHeader
+        searchQuery={searchQuery}
+        onSearch={setSearchQuery}
+        onNotificationsPress={handleBreakingNotification}
+      />
+      
+      {/* Breaking News Ticker */}
       <NewsTicker newsflashes={filteredNewsflashes} />
-      <View style={styles.searchContainer}>
-        <Searchbar
-          placeholder={t('searchPlaceholder')}
-          onChangeText={setSearchQuery}
-          value={searchQuery}
-          style={styles.searchbar}
-        />
-      </View>
+      
+      {/* Category Filter Bar */}
+      <CategoryFilter
+        selected={selectedCategory}
+        onSelect={setSelectedCategory}
+      />
+      
+      {/* News Feed */}
       <FeedList
         newsflashes={filteredNewsflashes}
         onEndReached={handleEndReached}
@@ -64,6 +110,8 @@ export default function MainFeedScreen() {
         refreshing={refreshing}
         onRefresh={handleRefresh}
       />
+      
+      {/* FABs */}
       <FAB
         icon="microphone"
         style={styles.fabReporter}
@@ -91,13 +139,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  searchContainer: {
-    padding: SPACING.SM,
-    paddingBottom: 0,
-  },
-  searchbar: {
-    elevation: 2,
-  },
   fab: {
     position: 'absolute',
     right: FAB_SPACING.RIGHT,
@@ -109,4 +150,3 @@ const styles = StyleSheet.create({
     bottom: FAB_SPACING.BOTTOM + 70,
   },
 });
-

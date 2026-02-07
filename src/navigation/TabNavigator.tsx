@@ -194,7 +194,7 @@ function MainTabNavigator() {
         name="Feed" 
         component={MainFeedScreen}
         options={{ 
-          headerShown: true,
+          headerShown: false, // Using custom NewsHeader component
           title: t('screens.friendlines'),
           tabBarAccessibilityLabel: a11yLabels.TAB_HOME,
         }}

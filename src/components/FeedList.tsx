@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { StyleSheet, View, RefreshControl } from 'react-native';
 import { FlashList } from '@shopify/flash-list';
 import { Text, useTheme, ActivityIndicator, Button } from 'react-native-paper';
@@ -8,6 +8,17 @@ import { Newsflash } from '../types';
 import NewsflashCard, { CardVariant } from './NewsflashCard';
 import { SPACING, LIST } from '../theme/spacing';
 
+// Layout thresholds
+const HERO_COUNT = 1;        // First item is hero
+const STANDARD_COUNT = 4;    // Next 4 items are standard
+const GRID_START = HERO_COUNT + STANDARD_COUNT; // Index 5+ are compact grid
+
+// Feed item types for FlashList
+type FeedItem = 
+  | { type: 'hero'; newsflash: Newsflash }
+  | { type: 'standard'; newsflash: Newsflash }
+  | { type: 'grid-row'; newsflashes: Newsflash[] };
+
 interface FeedListProps {
   newsflashes: Newsflash[];
   onEndReached?: () => void;
@@ -15,6 +26,21 @@ interface FeedListProps {
   showActions?: boolean;
   refreshing?: boolean;
   onRefresh?: () => void;
+}
+
+// Component for rendering 2 compact cards in a row
+function GridRow({ newsflashes }: { newsflashes: Newsflash[] }) {
+  return (
+    <View style={styles.gridRow}>
+      {newsflashes.map((item) => (
+        item.user && (
+          <View key={item.id} style={styles.gridItem}>
+            <NewsflashCard newsflash={item} user={item.user} variant="compact" />
+          </View>
+        )
+      ))}
+    </View>
+  );
 }
 
 export default function FeedList({
@@ -28,6 +54,35 @@ export default function FeedList({
   const theme = useTheme();
   const navigation = useNavigation();
   const { t } = useTranslation('feed');
+
+  // Transform newsflashes into feed items with different layouts
+  const feedItems: FeedItem[] = useMemo(() => {
+    const items: FeedItem[] = [];
+    
+    newsflashes.forEach((item, index) => {
+      if (index === 0) {
+        // Hero (first item)
+        items.push({ type: 'hero', newsflash: item });
+      } else if (index < GRID_START) {
+        // Standard (items 1-4)
+        items.push({ type: 'standard', newsflash: item });
+      } else {
+        // Grid items (5+) - pair them up
+        const gridIndex = index - GRID_START;
+        if (gridIndex % 2 === 0) {
+          // Start new row with this item
+          const pair = [item];
+          if (newsflashes[index + 1]) {
+            pair.push(newsflashes[index + 1]);
+          }
+          items.push({ type: 'grid-row', newsflashes: pair });
+        }
+        // Skip odd indices as they're already paired
+      }
+    });
+    
+    return items;
+  }, [newsflashes]);
 
   const renderEmpty = () => (
     <View style={styles.emptyContainer}>
@@ -69,17 +124,47 @@ export default function FeedList({
     );
   };
 
+  const renderItem = ({ item }: { item: FeedItem }) => {
+    switch (item.type) {
+      case 'hero':
+        if (!item.newsflash.user) return null;
+        return (
+          <NewsflashCard 
+            newsflash={item.newsflash} 
+            user={item.newsflash.user} 
+            variant="hero" 
+          />
+        );
+      case 'standard':
+        if (!item.newsflash.user) return null;
+        return (
+          <NewsflashCard 
+            newsflash={item.newsflash} 
+            user={item.newsflash.user} 
+            variant="standard" 
+          />
+        );
+      case 'grid-row':
+        return <GridRow newsflashes={item.newsflashes} />;
+      default:
+        return null;
+    }
+  };
+
+  const getItemType = (item: FeedItem) => item.type;
+
   return (
     <FlashList
-      data={newsflashes}
-      keyExtractor={(item) => item.id}
-      renderItem={({ item, index }) => {
-        // Use embedded user data from API response
-        if (!item.user) return null;
-        // First item is Hero (magazine-style), rest are Standard (compact list)
-        const variant: CardVariant = index === 0 ? 'hero' : 'standard';
-        return <NewsflashCard newsflash={item} user={item.user} variant={variant} />;
+      data={feedItems}
+      keyExtractor={(item, index) => {
+        if (item.type === 'grid-row') {
+          return `grid-${item.newsflashes.map(n => n.id).join('-')}`;
+        }
+        return item.newsflash.id;
       }}
+      renderItem={renderItem}
+      getItemType={getItemType}
+      estimatedItemSize={150}
       ListEmptyComponent={renderEmpty}
       ListFooterComponent={renderFooter}
       onEndReached={onEndReached}
@@ -138,5 +223,13 @@ const styles = StyleSheet.create({
     paddingVertical: SPACING.LG - SPACING.XS,
     alignItems: 'center',
   },
+  // Grid layout styles
+  gridRow: {
+    flexDirection: 'row',
+    marginHorizontal: SPACING.XS,
+    gap: SPACING.XS,
+  },
+  gridItem: {
+    flex: 1,
+  },
 });
-
