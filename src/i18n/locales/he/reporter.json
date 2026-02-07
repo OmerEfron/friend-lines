@@ -1,7 +1,7 @@
 {
   "title": "כתב AI",
   "starting": "מתחיל ראיון...",
-  "typing": "הכתב חושב...",
+  "typing": "סקופ כותב...",
   "inputPlaceholder": "כתוב את התשובה שלך...",
   "draftReady": "הידיעה שלך מוכנה!",
   "publish": "פרסם",
@@ -10,6 +10,9 @@
   "tweakPlaceholder": "איך לשפר? (למשל: יותר מצחיק, התמקד באוכל)",
   "regenerate": "צור מחדש",
   "cancel": "ביטול",
+  "thatsAll": "זה הכל",
+  "senderScoop": "סקופ",
+  "senderYou": "אתה",
   "error": "שגיאה",
   "errorGeneric": "משהו השתבש. נסה שוב.",
   "rateLimitError": "הגעת למגבלת הראיונות היומית. חזור מחר!",

@@ -1,7 +1,7 @@
 {
   "title": "AI Reporter",
   "starting": "Starting interview...",
-  "typing": "Reporter is thinking...",
+  "typing": "Scoop is writing...",
   "inputPlaceholder": "Type your answer...",
   "draftReady": "Your newsflash is ready!",
   "publish": "Publish",
@@ -10,6 +10,9 @@
   "tweakPlaceholder": "How should I improve it? (e.g., make it funnier, focus on the food)",
   "regenerate": "Regenerate",
   "cancel": "Cancel",
+  "thatsAll": "That's the whole story",
+  "senderScoop": "SCOOP",
+  "senderYou": "YOU",
   "error": "Error",
   "errorGeneric": "Something went wrong. Please try again.",
   "rateLimitError": "You've reached today's interview limit. Come back tomorrow!",
