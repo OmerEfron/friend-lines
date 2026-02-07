@@ -27,6 +27,7 @@ import {
   sendInterviewMessage,
   getInterview,
 } from '../services/reporter';
+import { LiveHeader } from '../components/reporter';
 import type { InterviewSession, InterviewMessage, InterviewType, SupportedLanguage } from '../types';
 
 type ReporterChatParams = {
@@ -237,10 +238,14 @@ export default function ReporterChatScreen() {
 
   return (
     <Surface style={styles.container}>
+      <LiveHeader
+        onBack={() => navigation.goBack()}
+        coveredDimensions={session?.coveredDimensions || []}
+      />
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardView}
-        keyboardVerticalOffset={100}
+        keyboardVerticalOffset={0}
       >
         <FlatList
           ref={flatListRef}
@@ -252,7 +257,7 @@ export default function ReporterChatScreen() {
           ListFooterComponent={
             isSending ? (
               <View style={styles.typingContainer}>
-                <ActivityIndicator size="small" />
+                <ActivityIndicator size="small" color={theme.colors.error} />
                 <Text style={styles.typingText}>{t('typing')}</Text>
               </View>
             ) : null
