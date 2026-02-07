@@ -34087,12 +34087,16 @@ async function handler(event) {
 async function handleMainFeed(userId, limit, cursor2) {
   const allFriendships = await scanTable(FRIENDSHIPS_TABLE);
   const friendships = allFriendships.filter(
-    (f4) => f4.userId === userId
+    (f4) => f4.userId === userId && f4.status === "accepted"
   );
-  const friendIds = friendships.map((f4) => f4.friendId);
+  const friendIds = Array.from(new Set(friendships.map((f4) => f4.friendId).filter(Boolean)));
   const relevantUserIds = [userId, ...friendIds];
   const allNewsflashes = await scanTable(NEWSFLASHES_TABLE);
-  const feedNewsflashes = allNewsflashes.filter((n4) => relevantUserIds.includes(n4.userId)).sort(
+  const feedNewsflashes = allNewsflashes.filter((n4) => {
+    if (n4.userId === userId) return true;
+    if (!relevantUserIds.includes(n4.userId)) return false;
+    return isVisibleToViewer(n4, userId);
+  }).sort(
     (a4, b4) => new Date(b4.timestamp).getTime() - new Date(a4.timestamp).getTime()
   );
   let startIndex = 0;
@@ -34128,7 +34132,11 @@ async function handleGroupFeed(groupId, userId, limit, cursor2) {
     return errorResponse("Access denied", 403);
   }
   const allNewsflashes = await scanTable(NEWSFLASHES_TABLE);
-  const feedNewsflashes = allNewsflashes.filter((n4) => group.userIds.includes(n4.userId)).sort(
+  const feedNewsflashes = allNewsflashes.filter((n4) => {
+    if (!group.userIds.includes(n4.userId)) return false;
+    if (n4.userId === userId) return true;
+    return isVisibleToViewer(n4, userId);
+  }).sort(
     (a4, b4) => new Date(b4.timestamp).getTime() - new Date(a4.timestamp).getTime()
   );
   let startIndex = 0;
@@ -34155,6 +34163,12 @@ async function handleGroupFeed(groupId, userId, limit, cursor2) {
     nextCursor,
     hasMore
   });
+}
+function isVisibleToViewer(newsflash, viewerId) {
+  const audience = newsflash.audience || "ALL_FRIENDS";
+  if (audience === "ALL_FRIENDS") return true;
+  const recipients = Array.isArray(newsflash.recipientUserIds) ? newsflash.recipientUserIds : [];
+  return recipients.includes(viewerId);
 }
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {

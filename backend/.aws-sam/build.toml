@@ -5,7 +5,7 @@ codeuri = "/Users/omer/Desktop/personal/friendlines/backend"
 runtime = "nodejs20.x"
 architecture = "x86_64"
 handler = "src/handlers/users.handler"
-manifest_hash = "52d124a4c47a43af2dab5207ae513c75"
+manifest_hash = "4d185e0836fe7d1dd6b668df61bd102d"
 packagetype = "Zip"
 functions = ["UsersFunction"]
 
@@ -51,12 +51,15 @@ EntryPoints = ["src/handlers/users.ts"]
 
 
 
+
+
+
 [function_build_definitions.35e7c678-724d-4185-b682-2bf5c5573a8e]
 codeuri = "/Users/omer/Desktop/personal/friendlines/backend"
 runtime = "nodejs20.x"
 architecture = "x86_64"
 handler = "src/handlers/newsflashes.handler"
-manifest_hash = "52d124a4c47a43af2dab5207ae513c75"
+manifest_hash = "4d185e0836fe7d1dd6b668df61bd102d"
 packagetype = "Zip"
 functions = ["NewsflashesFunction"]
 
@@ -102,12 +105,15 @@ EntryPoints = ["src/handlers/newsflashes.ts"]
 
 
 
+
+
+
 [function_build_definitions.12b14c23-80fb-4877-a1e6-4ee070fbb3f5]
 codeuri = "/Users/omer/Desktop/personal/friendlines/backend"
 runtime = "nodejs20.x"
 architecture = "x86_64"
 handler = "src/handlers/auth.handler"
-manifest_hash = "52d124a4c47a43af2dab5207ae513c75"
+manifest_hash = "4d185e0836fe7d1dd6b668df61bd102d"
 packagetype = "Zip"
 functions = ["AuthFunction"]
 
@@ -152,12 +158,15 @@ EntryPoints = ["src/handlers/auth.ts"]
 
 
 
+
+
+
 [function_build_definitions.afa5032d-1d7c-4811-8033-c3963cca58e0]
 codeuri = "/Users/omer/Desktop/personal/friendlines/backend"
 runtime = "nodejs20.x"
 architecture = "x86_64"
 handler = "src/handlers/friendships.handler"
-manifest_hash = "52d124a4c47a43af2dab5207ae513c75"
+manifest_hash = "4d185e0836fe7d1dd6b668df61bd102d"
 packagetype = "Zip"
 functions = ["FriendshipsFunction"]
 
@@ -201,12 +210,15 @@ EntryPoints = ["src/handlers/friendships.ts"]
 
 
 
+
+
+
 [function_build_definitions.ac7e505a-e4bb-41e1-8374-177618fb9cb4]
 codeuri = "/Users/omer/Desktop/personal/friendlines/backend"
 runtime = "nodejs20.x"
 architecture = "x86_64"
 handler = "src/handlers/groups.handler"
-manifest_hash = "52d124a4c47a43af2dab5207ae513c75"
+manifest_hash = "4d185e0836fe7d1dd6b668df61bd102d"
 packagetype = "Zip"
 functions = ["GroupsFunction"]
 
@@ -249,12 +261,15 @@ EntryPoints = ["src/handlers/groups.ts"]
 
 
 
+
+
+
 [function_build_definitions.ae1f27df-c8a0-4bab-89e7-14d5244d4f37]
 codeuri = "/Users/omer/Desktop/personal/friendlines/backend"
 runtime = "nodejs20.x"
 architecture = "x86_64"
 handler = "src/handlers/feeds.handler"
-manifest_hash = "52d124a4c47a43af2dab5207ae513c75"
+manifest_hash = "4d185e0836fe7d1dd6b668df61bd102d"
 packagetype = "Zip"
 functions = ["FeedsFunction"]
 
@@ -296,12 +311,15 @@ EntryPoints = ["src/handlers/feeds.ts"]
 
 
 
+
+
+
 [function_build_definitions.984636ce-9206-4266-93ea-7cc6d52c78ca]
 codeuri = "/Users/omer/Desktop/personal/friendlines/backend"
 runtime = "nodejs20.x"
 architecture = "x86_64"
 handler = "src/handlers/uploads.handler"
-manifest_hash = "52d124a4c47a43af2dab5207ae513c75"
+manifest_hash = "4d185e0836fe7d1dd6b668df61bd102d"
 packagetype = "Zip"
 functions = ["UploadsFunction"]
 
@@ -342,12 +360,15 @@ EntryPoints = ["src/handlers/uploads.ts"]
 
 
 
+
+
+
 [function_build_definitions.7af0da71-58e5-4798-8d91-b9bec6923205]
 codeuri = "/Users/omer/Desktop/personal/friendlines/backend"
 runtime = "nodejs20.x"
 architecture = "x86_64"
 handler = "src/handlers/bookmarks.handler"
-manifest_hash = "52d124a4c47a43af2dab5207ae513c75"
+manifest_hash = "4d185e0836fe7d1dd6b668df61bd102d"
 packagetype = "Zip"
 functions = ["BookmarksFunction"]
 
@@ -388,12 +409,15 @@ EntryPoints = ["src/handlers/bookmarks.ts"]
 
 
 
+
+
+
 [function_build_definitions.d829ce19-218e-414c-92a1-f90d49ce6a1c]
 codeuri = "/Users/omer/Desktop/personal/friendlines/backend"
 runtime = "nodejs20.x"
 architecture = "x86_64"
 handler = "src/handlers/devices.handler"
-manifest_hash = "52d124a4c47a43af2dab5207ae513c75"
+manifest_hash = "4d185e0836fe7d1dd6b668df61bd102d"
 packagetype = "Zip"
 functions = ["DevicesFunction"]
 
@@ -422,12 +446,15 @@ EntryPoints = ["src/handlers/devices.ts"]
 
 
 
+
+
+
 [function_build_definitions.795c2872-c812-4729-8a6b-4e58d7a67fef]
 codeuri = "/Users/omer/Desktop/personal/friendlines/backend"
 runtime = "nodejs20.x"
 architecture = "x86_64"
 handler = "src/handlers/briefing.handler"
-manifest_hash = "52d124a4c47a43af2dab5207ae513c75"
+manifest_hash = "4d185e0836fe7d1dd6b668df61bd102d"
 packagetype = "Zip"
 functions = ["MorningBriefingFunction"]
 
@@ -443,6 +470,28 @@ EntryPoints = ["src/handlers/briefing.ts"]
 
 
 
+
+
+
+
+
+
+[function_build_definitions.e0bb1aa3-e7fe-4533-9338-56ce7ef2d24d]
+codeuri = "/Users/omer/Desktop/personal/friendlines/backend"
+runtime = "nodejs20.x"
+architecture = "x86_64"
+handler = "src/handlers/interviews.handler"
+manifest_hash = "4d185e0836fe7d1dd6b668df61bd102d"
+packagetype = "Zip"
+functions = ["InterviewFunction"]
+
+[function_build_definitions.e0bb1aa3-e7fe-4533-9338-56ce7ef2d24d.metadata]
+BuildMethod = "esbuild"
+
+[function_build_definitions.e0bb1aa3-e7fe-4533-9338-56ce7ef2d24d.metadata.BuildProperties]
+Minify = false
+Target = "es2022"
+EntryPoints = ["src/handlers/interviews.ts"]
 
 
 

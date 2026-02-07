@@ -45821,16 +45821,10 @@ async function sendPushToTokens(tokens, title, body, data2) {
 var FRIENDSHIPS_TABLE = process.env.FRIENDSHIPS_TABLE || "friendlines-friendships";
 var USERS_TABLE = process.env.USERS_TABLE || "friendlines-users";
 var DEVICE_TOKENS_TABLE = process.env.DEVICE_TOKENS_TABLE || "friendlines-device-tokens";
-async function notifyFriendsOfNewsflash(userId, headline, severity) {
+async function notifyFriendsOfNewsflash(userId, headline, severity, recipientUserIds) {
   try {
     console.log(`[Push] Starting notification for user ${userId}`);
-    const friendships = await queryItems(
-      FRIENDSHIPS_TABLE,
-      void 0,
-      "userId = :userId",
-      { ":userId": userId }
-    );
-    const friendIds = friendships.filter((f4) => f4.status === "accepted").map((f4) => f4.friendId);
+    const friendIds = recipientUserIds && recipientUserIds.length > 0 ? Array.from(new Set(recipientUserIds.filter((id) => id && id !== userId))) : await getAcceptedFriendIds(userId);
     if (friendIds.length === 0) return;
     const user = await getItem(USERS_TABLE, { id: userId });
     const userName = user?.name || "Someone";
@@ -45848,13 +45842,24 @@ async function notifyFriendsOfNewsflash(userId, headline, severity) {
     throw error2;
   }
 }
+async function getAcceptedFriendIds(userId) {
+  const friendships = await queryItems(
+    FRIENDSHIPS_TABLE,
+    void 0,
+    "userId = :userId",
+    { ":userId": userId }
+  );
+  return Array.from(
+    new Set(
+      friendships.filter((f4) => f4.status === "accepted").map((f4) => f4.friendId).filter(Boolean)
+    )
+  );
+}
 
 // src/handlers/newsflashes.ts
 var NEWSFLASHES_TABLE = process.env.NEWSFLASHES_TABLE || "friendlines-newsflashes";
 var BOOKMARKS_TABLE = process.env.BOOKMARKS_TABLE || "friendlines-bookmarks";
-var FRIENDSHIPS_TABLE2 = process.env.FRIENDSHIPS_TABLE || "friendlines-friendships";
-var USERS_TABLE2 = process.env.USERS_TABLE || "friendlines-users";
-var DEVICE_TOKENS_TABLE2 = process.env.DEVICE_TOKENS_TABLE || "friendlines-device-tokens";
+var GROUPS_TABLE = process.env.GROUPS_TABLE || "friendlines-groups";
 var MEDIA_BUCKET = process.env.MEDIA_BUCKET || "friendlines-media-local";
 var VALID_CATEGORIES = [
   "GENERAL",
@@ -45868,81 +45873,14 @@ var VALID_CATEGORIES = [
 var VALID_SEVERITIES = ["STANDARD", "BREAKING", "DEVELOPING"];
 var BREAKING_COOLDOWN_MS = 24 * 60 * 60 * 1e3;
 async function handler(event) {
-  console.log("Event:", JSON.stringify(event, null, 2));
   try {
     const method = event.httpMethod;
     const path = event.path;
     if (method === "GET" && path === "/newsflashes") {
-      const userId = event.queryStringParameters?.userId;
-      let newsflashes;
-      if (userId) {
-        newsflashes = await queryItems(
-          NEWSFLASHES_TABLE,
-          "userId-timestamp-index",
-          "userId = :userId",
-          { ":userId": userId }
-        );
-      } else {
-        newsflashes = await scanTable(NEWSFLASHES_TABLE);
-      }
-      newsflashes.sort(
-        (a4, b4) => new Date(b4.timestamp).getTime() - new Date(a4.timestamp).getTime()
-      );
-      return successResponse({ newsflashes });
+      return await withAuth(handleListMyNewsflashes)(event);
     }
     if (method === "POST" && path === "/newsflashes") {
-      if (!event.body) {
-        return errorResponse("Request body is required", 400);
-      }
-      const body = JSON.parse(event.body);
-      const { userId, headline, subHeadline, mediaBase64, media, category, severity } = body;
-      if (!userId || !headline) {
-        return errorResponse("userId and headline are required", 400);
-      }
-      const validCategory = category && VALID_CATEGORIES.includes(category) ? category : "GENERAL";
-      const validSeverity = severity && VALID_SEVERITIES.includes(severity) ? severity : "STANDARD";
-      if (validSeverity === "BREAKING") {
-        const rateLimitResult = await checkBreakingRateLimit(userId);
-        if (!rateLimitResult.allowed) {
-          return errorResponse(
-            `Hold the presses! You've already filed BREAKING news today. Save the drama for tomorrow.`,
-            429
-          );
-        }
-      }
-      let mediaUrl;
-      if (media) {
-        mediaUrl = media;
-      } else if (mediaBase64) {
-        const mediaId = v4_default();
-        const buffer = Buffer.from(mediaBase64, "base64");
-        mediaUrl = await uploadFile(
-          MEDIA_BUCKET,
-          `media/${mediaId}.jpg`,
-          buffer,
-          "image/jpeg"
-        );
-      }
-      const newsflash = {
-        id: v4_default(),
-        userId,
-        headline,
-        subHeadline: subHeadline || void 0,
-        media: mediaUrl,
-        category: validCategory,
-        severity: validSeverity,
-        timestamp: (/* @__PURE__ */ new Date()).toISOString()
-      };
-      await putItem(NEWSFLASHES_TABLE, newsflash);
-      console.log(`[Newsflash] Created newsflash ${newsflash.id}, triggering push notifications`);
-      try {
-        await notifyFriendsOfNewsflash(userId, headline, validSeverity);
-        console.log(`[Newsflash] Push notification completed for newsflash ${newsflash.id}`);
-      } catch (err2) {
-        console.error("[Newsflash] Failed to notify friends:", err2);
-        console.error("[Newsflash] Error stack:", err2 instanceof Error ? err2.stack : "No stack trace");
-      }
-      return successResponse({ newsflash }, 201);
+      return await withAuth(handleCreateNewsflash)(event);
     }
     if (method === "DELETE" && path.startsWith("/newsflashes/") && event.pathParameters?.id) {
       return await withAuth(handleDeleteNewsflash)(event);
@@ -45954,6 +45892,135 @@ async function handler(event) {
       error2 instanceof Error ? error2.message : "Internal server error"
     );
   }
+}
+async function handleListMyNewsflashes(event) {
+  const viewerId = event.userId;
+  const requestedUserId = event.queryStringParameters?.userId;
+  if (requestedUserId && requestedUserId !== viewerId) {
+    return errorResponse("Access denied", 403);
+  }
+  const newsflashes = await queryItems(
+    NEWSFLASHES_TABLE,
+    "userId-timestamp-index",
+    "userId = :userId",
+    { ":userId": viewerId }
+  );
+  newsflashes.sort(
+    (a4, b4) => new Date(b4.timestamp).getTime() - new Date(a4.timestamp).getTime()
+  );
+  return successResponse({ newsflashes });
+}
+async function handleCreateNewsflash(event) {
+  if (!event.body) {
+    return errorResponse("Request body is required", 400);
+  }
+  const body = JSON.parse(event.body);
+  const userId = event.userId;
+  const {
+    headline,
+    subHeadline,
+    mediaBase64,
+    media,
+    category,
+    severity,
+    audience,
+    groupIds
+  } = body;
+  if (!headline) {
+    return errorResponse("headline is required", 400);
+  }
+  const validCategory = category && VALID_CATEGORIES.includes(category) ? category : "GENERAL";
+  const validSeverity = severity && VALID_SEVERITIES.includes(severity) ? severity : "STANDARD";
+  const validAudience = audience === "GROUPS" ? "GROUPS" : "ALL_FRIENDS";
+  if (validSeverity === "BREAKING") {
+    const rateLimitResult = await checkBreakingRateLimit(userId);
+    if (!rateLimitResult.allowed) {
+      return errorResponse(
+        `Hold the presses! You've already filed BREAKING news today. Save the drama for tomorrow.`,
+        429
+      );
+    }
+  }
+  let resolvedGroupIds;
+  let recipientUserIds;
+  if (validAudience === "GROUPS") {
+    if (!Array.isArray(groupIds) || groupIds.length === 0) {
+      return errorResponse("groupIds must be a non-empty array when audience=GROUPS", 400);
+    }
+    resolvedGroupIds = Array.from(new Set(groupIds.filter(Boolean)));
+    try {
+      recipientUserIds = await resolveRecipientsForGroups(userId, resolvedGroupIds);
+    } catch (err2) {
+      const msg = err2 instanceof Error ? err2.message : "Invalid groups";
+      if (msg.includes("Access denied")) return errorResponse(msg, 403);
+      if (msg.includes("not found")) return errorResponse(msg, 404);
+      return errorResponse(msg, 400);
+    }
+  }
+  let mediaUrl;
+  if (media) {
+    mediaUrl = media;
+  } else if (mediaBase64) {
+    const mediaId = v4_default();
+    const buffer = Buffer.from(mediaBase64, "base64");
+    mediaUrl = await uploadFile(
+      MEDIA_BUCKET,
+      `media/${mediaId}.jpg`,
+      buffer,
+      "image/jpeg"
+    );
+  }
+  const newsflash = {
+    id: v4_default(),
+    userId,
+    headline: String(headline).trim(),
+    subHeadline: subHeadline ? String(subHeadline).trim() : void 0,
+    media: mediaUrl,
+    category: validCategory,
+    severity: validSeverity,
+    audience: validAudience,
+    groupIds: resolvedGroupIds,
+    recipientUserIds,
+    timestamp: (/* @__PURE__ */ new Date()).toISOString()
+  };
+  await putItem(NEWSFLASHES_TABLE, newsflash);
+  console.log(`[Newsflash] Created newsflash ${newsflash.id} (audience=${validAudience}), triggering push notifications`);
+  try {
+    await notifyFriendsOfNewsflash(
+      userId,
+      newsflash.headline,
+      validSeverity,
+      recipientUserIds
+    );
+    console.log(`[Newsflash] Push notification completed for newsflash ${newsflash.id}`);
+  } catch (err2) {
+    console.error("[Newsflash] Failed to notify friends:", err2);
+    console.error(
+      "[Newsflash] Error stack:",
+      err2 instanceof Error ? err2.stack : "No stack trace"
+    );
+  }
+  return successResponse({ newsflash }, 201);
+}
+async function resolveRecipientsForGroups(creatorId, groupIds) {
+  const groups = await Promise.all(
+    groupIds.map((id) => getItem(GROUPS_TABLE, { id }))
+  );
+  const recipients = /* @__PURE__ */ new Set();
+  for (let i4 = 0; i4 < groupIds.length; i4++) {
+    const groupId = groupIds[i4];
+    const group = groups[i4];
+    if (!group) {
+      throw new Error(`Group ${groupId} not found`);
+    }
+    if (group.createdBy !== creatorId) {
+      throw new Error(`Access denied to group ${groupId}`);
+    }
+    for (const uid of group.userIds || []) {
+      if (uid && uid !== creatorId) recipients.add(uid);
+    }
+  }
+  return Array.from(recipients);
 }
 async function handleDeleteNewsflash(event) {
   const { id } = event.pathParameters;
