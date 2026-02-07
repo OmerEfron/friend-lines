@@ -28,10 +28,16 @@ Parameters:
       - 'true'
       - 'false'
     Description: Enable morning briefing scheduled Lambda (requires EventBridge permissions)
+  
+  OpenAIApiKeyArn:
+    Type: String
+    Default: ''
+    Description: ARN of the OpenAI API key in AWS Secrets Manager (required for AI Reporter)
 
 Conditions:
   IsProduction: !Equals [!Ref Environment, 'prod']
   HasJwtSecretArn: !Not [!Equals [!Ref JwtSecretArn, '']]
+  HasOpenAIApiKeyArn: !Not [!Equals [!Ref OpenAIApiKeyArn, '']]
   EnableBriefing: !Equals [!Ref EnableMorningBriefing, 'true']
 
 Globals:
@@ -48,6 +54,7 @@ Globals:
         FRIENDSHIPS_TABLE: !Ref FriendshipsTable
         BOOKMARKS_TABLE: !Ref BookmarksTable
         DEVICE_TOKENS_TABLE: !Ref DeviceTokensTable
+        INTERVIEW_SESSIONS_TABLE: !Ref InterviewSessionsTable
         MEDIA_BUCKET: !Ref MediaBucket
         ENVIRONMENT: !Ref Environment
         IS_LOCAL: !If [IsProduction, 'false', 'true']
@@ -160,6 +167,34 @@ Resources:
           KeyType: HASH
         - AttributeName: deviceId
           KeyType: RANGE
+      BillingMode: PAY_PER_REQUEST
+
+  InterviewSessionsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: friendlines-interview-sessions
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+        - AttributeName: userId
+          AttributeType: S
+        - AttributeName: createdAt
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: userId-createdAt-index
+          KeySchema:
+            - AttributeName: userId
+              KeyType: HASH
+            - AttributeName: createdAt
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+      TimeToLiveSpecification:
+        AttributeName: ttl
+        Enabled: true
       BillingMode: PAY_PER_REQUEST
 
   # S3 Bucket
@@ -596,6 +631,52 @@ Resources:
             Schedule: cron(0 8 * * ? *)
             Description: Morning briefing at 8 AM UTC daily
             Enabled: true
+
+  InterviewFunction:
+    Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: false
+        Target: "es2022"
+        EntryPoints:
+          - src/handlers/interviews.ts
+    Properties:
+      CodeUri: ./
+      Handler: src/handlers/interviews.handler
+      Timeout: 60
+      Environment:
+        Variables:
+          OPENAI_API_KEY: !If [HasOpenAIApiKeyArn, !Sub '{{resolve:secretsmanager:${OpenAIApiKeyArn}:SecretString}}', '']
+          AI_PROVIDER: 'openai'
+          AI_INTERVIEW_MODEL: 'gpt-4o-mini'
+          AI_GENERATION_MODEL: 'gpt-4o'
+          MAX_DAILY_INTERVIEWS: '3'
+          MAX_MESSAGES_PER_SESSION: '8'
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref InterviewSessionsTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UsersTable
+      Events:
+        StartInterview:
+          Type: Api
+          Properties:
+            RestApiId: !Ref FriendlinesApi
+            Path: /interviews
+            Method: POST
+        SendMessage:
+          Type: Api
+          Properties:
+            RestApiId: !Ref FriendlinesApi
+            Path: /interviews/{id}/messages
+            Method: POST
+        GetInterview:
+          Type: Api
+          Properties:
+            RestApiId: !Ref FriendlinesApi
+            Path: /interviews/{id}
+            Method: GET
 
 Outputs:
   ApiEndpoint:
