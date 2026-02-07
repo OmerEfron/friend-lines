@@ -6,12 +6,14 @@ A minimal social network mobile app with a news aesthetic. Share newsflashes wit
 
 - **Authentication**: Register/login with JWT tokens
 - **Main Feed**: View newsflashes from your friends, sorted by time
+- **AI Reporter**: Chat with an AI to generate newsflashes about your day, week, or events
 - **Groups**: Create personal groups to organize friends, view group-specific feeds, and publish to all friends or selected groups
 - **Friend Requests**: Send, accept, and reject friend requests
 - **Profile**: Edit your profile, upload avatar, view your newsflashes
 - **Bookmarks**: Save newsflashes for later (cloud-synced)
 - **Push Notifications**: Get notified about new newsflashes and friend requests
 - **Media Uploads**: Attach images to newsflashes via S3
+- **Localization**: Supports English, Hebrew, and Spanish
 - **No Engagement Mechanics**: No comments, likes, shares, or reposts — just headlines
 
 ## Tech Stack
@@ -28,6 +30,7 @@ A minimal social network mobile app with a news aesthetic. Share newsflashes wit
 - **AWS DynamoDB**: NoSQL database
 - **AWS S3**: Media storage
 - **AWS SAM**: Infrastructure as Code
+- **OpenAI API**: AI-powered interview and content generation
 
 ## Quick Start
 
@@ -46,6 +49,8 @@ cd backend && npm install && cd ..
 # Start local infrastructure (DynamoDB, S3, SAM)
 ./scripts/setup-local-backend.sh
 ```
+
+**AI Reporter Setup**: To use the AI Reporter feature locally, add your OpenAI API key to `backend/env.json` under `InterviewFunction.OPENAI_API_KEY`.
 
 ### Frontend Setup
 
